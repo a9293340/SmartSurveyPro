@@ -21,5 +21,15 @@ export {
   RedisKeyUtils
 } from './db/redis-keys'
 
+// 健康檢查系統
+export {
+  performHealthCheck,
+  quickHealthCheck,
+  detailedHealthCheck,
+  type HealthCheckResult,
+  type ServiceHealth,
+  type HealthCheckConfig
+} from './health/database-health'
+
 // 暫時的基礎匯出，後續任務會擴展
 export const SHARED_READY = true
