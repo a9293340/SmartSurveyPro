@@ -1,0 +1,33 @@
+{
+  "name": "@smartsurvey/shared",
+  "version": "0.0.1",
+  "description": "SmartSurvey Pro 共享型別、工具和常數",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist *.tsbuildinfo"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "zod": "^3.22.0"
+  },
+  "dependencies": {
+    "zod": "^3.22.0"
+  }
+}
