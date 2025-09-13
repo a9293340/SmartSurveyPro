@@ -164,6 +164,70 @@ server/api/survey-response.post.ts
 - **schemas/**: Zod 驗證模式
 - **constants/**: 共用常數
 - **utils/**: 跨專案工具函數
+- **db/**: 資料庫連接和操作
+
+#### `/packages/config` - 配置管理 🆕
+- **tsconfig/**: TypeScript 配置模板
+- **tsup/**: 建構配置模板
+- **eslint/**: ESLint 配置模板（未來）
+
+---
+
+## 🔧 配置管理規範
+
+### 配置共享原則
+
+**所有專案的配置檔案應優先使用共享配置：**
+
+1. **查看 packages/config**: 先檢查是否有適合的配置模板
+2. **繼承基礎配置**: 使用 `extends` 繼承標準配置
+3. **最小化覆蓋**: 只覆蓋必要的專案特定設定
+4. **統一維護**: 通用配置修改應在 config 套件中進行
+
+### TypeScript 配置使用
+
+```json
+// 套件專用 (packages/*)
+{
+  "extends": "../config/tsconfig/package.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist"
+  },
+  "include": ["src/**/*.ts"]
+}
+
+// Web 應用專用 (apps/web)
+{
+  "extends": "../../packages/config/tsconfig/web.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { /* 專案特定路徑 */ }
+  }
+}
+```
+
+### 建構配置使用
+
+```ts
+// 套件建構 (packages/*)
+import { packageConfig } from '../config/tsup/package.js'
+export default packageConfig
+
+// 自訂建構
+import { createBaseConfig } from '../config/tsup/base.js'
+export default createBaseConfig({
+  entry: ['src/index.ts', 'src/cli.ts'],
+  dts: true
+})
+```
+
+### 新增共享配置
+
+1. **評估通用性**: 確認配置會被多個專案使用
+2. **建立模板**: 在 `packages/config` 中新增配置
+3. **更新文件**: 更新 config/README.md 使用說明
+4. **遷移現有**: 將現有專案遷移到新配置
 
 ---
 
