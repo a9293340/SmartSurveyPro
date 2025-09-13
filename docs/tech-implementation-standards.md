@@ -985,7 +985,36 @@ Closes #123 Related to #456
 
 ## 🔍 品質把控機制
 
-### 1. 自動化檢查清單
+### 1. 必要驗證規範 ⚠️
+
+**📋 提交代碼前必須通過以下檢查：**
+
+1. **ESLint 檢查** - 確保代碼符合品質標準
+
+   ```bash
+   pnpm lint:check  # 檢查所有問題
+   pnpm lint        # 自動修復可修復的問題
+   ```
+
+2. **TypeScript 類型檢查** - 確保類型安全
+
+   ```bash
+   pnpm type-check  # 檢查類型錯誤
+   ```
+
+3. **Prettier 格式化** - 確保代碼格式統一
+   ```bash
+   pnpm format:check  # 檢查格式問題
+   pnpm format        # 自動格式化所有文件
+   ```
+
+**🔴 重要提醒：**
+
+- 所有三項檢查都必須通過，才能提交代碼
+- 使用 `pnpm quality` 一次性運行所有檢查
+- 建議設置 IDE 自動格式化，提升開發效率
+
+### 2. 自動化檢查清單
 
 ```json
 // package.json - scripts 設定

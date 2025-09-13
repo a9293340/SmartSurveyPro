@@ -19,6 +19,9 @@
     "clean": "turbo run clean && rm -rf node_modules",
     "format": "prettier --write \"**/*.{ts,tsx,vue,js,jsx,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,vue,js,jsx,json,md}\"",
+    "lint:check": "turbo run lint:check",
+    "quality": "pnpm lint:check && pnpm type-check && pnpm format:check",
+    "quality:fix": "pnpm lint && pnpm type-check && pnpm format",
     "prepare": "husky install"
   },
   "keywords": [

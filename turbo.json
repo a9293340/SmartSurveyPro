@@ -20,6 +20,11 @@
       "outputs": [],
       "cache": true
     },
+    "lint:check": {
+      "dependsOn": ["^build"],
+      "outputs": [],
+      "cache": true
+    },
     "lint:fix": {
       "dependsOn": ["^build"],
       "outputs": [],
