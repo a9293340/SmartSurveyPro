@@ -38,12 +38,6 @@ class DatabaseConnection {
     this.isConnecting = true;
 
     try {
-      // TODO(human): 實作以下邏輯
-      // 1. 如何環境變數取得 MongoDB URI
-      // 2. 如何處理連接錯誤？
-      // 3. 連接成功後如何設定資料庫名稱？
-      // 4. 如何記錄連接狀態？
-
       const connectionUri = uri || process.env.MONGODB_URI;
       const dbName = process.env.MONGODB_DB_NAME || 'smartsurvey_dev';
 
@@ -51,7 +45,6 @@ class DatabaseConnection {
         throw new Error('MongoDB URI 未設定');
       }
 
-      // 你的實作：建立連接和取得資料庫實例
       this.client = new MongoClient(connectionUri, this.getConnectionOptions());
       await this.client.connect();
       this.db = this.client.db(dbName);

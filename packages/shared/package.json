@@ -31,6 +31,7 @@
   },
   "dependencies": {
     "zod": "^3.22.0",
-    "mongodb": "^6.0.0"
+    "mongodb": "^6.0.0",
+    "redis": "^4.6.0"
   }
 }
