@@ -1,11 +1,3 @@
-import { defineConfig } from 'tsup'
+import { packageConfig } from '../config/tsup/package.js'
 
-export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm'],
-  dts: true,
-  clean: true,
-  sourcemap: true,
-  external: [],
-  target: 'es2022',
-})
+export default packageConfig

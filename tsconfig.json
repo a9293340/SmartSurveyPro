@@ -1,37 +1,27 @@
 {
+  "extends": "./packages/config/tsconfig/base.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowImportingTsExtensions": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "composite": false,
-    "strict": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
     "paths": {
       "@smartsurvey/*": ["packages/*/src"],
       "@smartsurvey/shared": ["packages/shared/src"],
       "@smartsurvey/ui": ["packages/ui/src"],
-      "@smartsurvey/utils": ["packages/utils/src"]
-    }
+      "@smartsurvey/utils": ["packages/utils/src"],
+      "@smartsurvey/config": ["packages/config/src"]
+    },
+    "composite": false,
+    "noEmit": true
   },
   "include": [],
-  "exclude": ["node_modules", "**/node_modules", "dist", ".nuxt", ".output"],
   "references": [
     {
       "path": "./apps/web"
     },
     {
       "path": "./packages/shared"
+    },
+    {
+      "path": "./packages/config"
     }
   ]
 }
