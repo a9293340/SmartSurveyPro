@@ -8,10 +8,5 @@
     "noEmit": true,
     "jsx": "preserve"
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.vue",
-    ".nuxt/**/*.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", "**/*.vue", ".nuxt/**/*.ts"]
 }

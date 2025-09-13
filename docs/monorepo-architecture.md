@@ -363,6 +363,7 @@ apps/
 ### 根目錄配置
 
 #### `package.json` (root)
+
 ```json
 {
   "name": "survey-builder",
@@ -406,18 +407,14 @@ apps/
     "vitest": "^1.2.0"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,vue}": [
-      "eslint --fix",
-      "prettier --write"
-    ],
-    "*.{json,md,yml,yaml}": [
-      "prettier --write"
-    ]
+    "*.{js,jsx,ts,tsx,vue}": ["eslint --fix", "prettier --write"],
+    "*.{json,md,yml,yaml}": ["prettier --write"]
   }
 }
 ```
 
 #### `pnpm-workspace.yaml`
+
 ```yaml
 packages:
   - 'apps/*'
@@ -426,38 +423,22 @@ packages:
 ```
 
 #### `turbo.json`
+
 ```json
 {
   "$schema": "https://turbo.build/schema.json",
   "globalDependencies": ["**/.env.*local"],
-  "globalEnv": [
-    "NODE_ENV",
-    "NUXT_PUBLIC_API_BASE",
-    "VITE_API_BASE_URL"
-  ],
+  "globalEnv": ["NODE_ENV", "NUXT_PUBLIC_API_BASE", "VITE_API_BASE_URL"],
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [
-        ".nuxt/**",
-        ".output/**",
-        "dist/**",
-        ".next/**"
-      ],
-      "env": [
-        "NODE_ENV",
-        "NUXT_PUBLIC_*",
-        "VITE_*"
-      ]
+      "outputs": [".nuxt/**", ".output/**", "dist/**", ".next/**"],
+      "env": ["NODE_ENV", "NUXT_PUBLIC_*", "VITE_*"]
     },
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": [
-        "NODE_ENV",
-        "NUXT_PUBLIC_*",
-        "VITE_*"
-      ]
+      "env": ["NODE_ENV", "NUXT_PUBLIC_*", "VITE_*"]
     },
     "preview": {
       "dependsOn": ["build"],
@@ -493,6 +474,7 @@ packages:
 ```
 
 #### `tsconfig.json` (root)
+
 ```json
 {
   "compilerOptions": {
@@ -528,17 +510,18 @@ packages:
 ### 應用配置
 
 #### `apps/web/nuxt.config.ts`
+
 ```typescript
 export default defineNuxtConfig({
   devtools: { enabled: true },
-  
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
     '@vueuse/nuxt',
     'nuxt-icon',
     '@nuxt/image',
-    '@nuxtjs/google-fonts'
+    '@nuxtjs/google-fonts',
   ],
 
   css: ['~/assets/css/main.css'],
@@ -546,8 +529,8 @@ export default defineNuxtConfig({
   googleFonts: {
     families: {
       Inter: [400, 500, 600, 700],
-      'Noto Sans TC': [400, 500, 700]
-    }
+      'Noto Sans TC': [400, 500, 700],
+    },
   },
 
   runtimeConfig: {
@@ -556,45 +539,46 @@ export default defineNuxtConfig({
     redisUrl: '',
     jwtSecret: '',
     openaiApiKey: '',
-    
+
     // 公開配置
     public: {
       apiBase: '/api',
       appName: 'SmartSurvey Pro',
-      appUrl: 'http://localhost:3000'
-    }
+      appUrl: 'http://localhost:3000',
+    },
   },
 
   alias: {
-    '@survey/shared': '../../packages/shared/src'
+    '@survey/shared': '../../packages/shared/src',
   },
 
   build: {
-    transpile: ['@survey/shared']
+    transpile: ['@survey/shared'],
   },
 
   nitro: {
     preset: 'node-server',
     storage: {
       redis: {
-        driver: 'redis'
-      }
-    }
+        driver: 'redis',
+      },
+    },
   },
 
   typescript: {
     strict: true,
-    shim: false
+    shim: false,
   },
 
   experimental: {
     payloadExtraction: false,
-    renderJsonPayloads: true
-  }
-})
+    renderJsonPayloads: true,
+  },
+});
 ```
 
 #### `apps/web/package.json`
+
 ```json
 {
   "name": "@survey/web",
@@ -632,6 +616,7 @@ export default defineNuxtConfig({
 ### 共享包配置
 
 #### `packages/shared/package.json`
+
 ```json
 {
   "name": "@survey/shared",
@@ -667,46 +652,46 @@ export default defineNuxtConfig({
 ## 🔧 開發工具配置
 
 ### ESLint 配置 (`.eslintrc.js`)
+
 ```javascript
 module.exports = {
   root: true,
   env: {
     browser: true,
     node: true,
-    es2022: true
+    es2022: true,
   },
   parser: 'vue-eslint-parser',
   parserOptions: {
     parser: '@typescript-eslint/parser',
     ecmaVersion: 2022,
-    sourceType: 'module'
+    sourceType: 'module',
   },
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'plugin:vue/vue3-recommended',
-    'plugin:prettier/recommended'
+    'plugin:prettier/recommended',
   ],
   plugins: ['@typescript-eslint', 'vue'],
   rules: {
     'vue/multi-word-component-names': 'off',
     'vue/no-v-html': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/no-unused-vars': ['error', {
-      argsIgnorePattern: '^_',
-      varsIgnorePattern: '^_'
-    }]
+    '@typescript-eslint/no-unused-vars': [
+      'error',
+      {
+        argsIgnorePattern: '^_',
+        varsIgnorePattern: '^_',
+      },
+    ],
   },
-  ignorePatterns: [
-    'dist',
-    '.nuxt',
-    '.output',
-    'node_modules'
-  ]
-}
+  ignorePatterns: ['dist', '.nuxt', '.output', 'node_modules'],
+};
 ```
 
 ### Prettier 配置 (`.prettierrc`)
+
 ```json
 {
   "semi": false,
@@ -720,6 +705,7 @@ module.exports = {
 ```
 
 ### VS Code 配置 (`.vscode/settings.json`)
+
 ```json
 {
   "editor.formatOnSave": true,
@@ -750,6 +736,7 @@ module.exports = {
 ## 🚀 開發指南
 
 ### 初始化專案
+
 ```bash
 # 克隆專案
 git clone <repository-url>
@@ -769,6 +756,7 @@ pnpm dev
 ```
 
 ### 常用命令
+
 ```bash
 # 開發
 pnpm dev                    # 啟動所有應用
@@ -794,6 +782,7 @@ pnpm clean                  # 清理構建產物和 node_modules
 ```
 
 ### 創建新包
+
 ```bash
 # 在 packages 目錄創建新包
 mkdir packages/new-package
@@ -807,6 +796,7 @@ pnpm init
 ```
 
 ### Git 工作流程
+
 ```bash
 # 功能分支
 git checkout -b feature/drag-drop
@@ -824,6 +814,7 @@ git push origin feature/drag-drop
 ## 📝 命名規範
 
 ### 文件命名
+
 - **組件**：PascalCase (e.g., `DragDropCanvas.vue`)
 - **組合式函數**：camelCase with 'use' prefix (e.g., `useDragDrop.ts`)
 - **工具函數**：camelCase (e.g., `formatDate.ts`)
@@ -832,12 +823,14 @@ git push origin feature/drag-drop
 - **API 路由**：kebab-case (e.g., `survey-response.post.ts`)
 
 ### 代碼命名
+
 - **變數/函數**：camelCase
 - **常數**：UPPER_SNAKE_CASE
 - **類型/介面**：PascalCase
 - **枚舉**：PascalCase (值用 UPPER_SNAKE_CASE)
 
 ### 分支命名
+
 - `feature/` - 新功能
 - `fix/` - 錯誤修復
 - `refactor/` - 重構
@@ -850,12 +843,14 @@ git push origin feature/drag-drop
 ## 📊 依賴管理策略
 
 ### 依賴安裝原則
+
 1. **共享依賴**放在根目錄（開發工具、TypeScript、ESLint 等）
 2. **運行時依賴**放在各自的包/應用中
 3. **類型定義**優先放在 `@survey/shared`
 4. **UI 相關**依賴放在對應的應用或 UI 包中
 
 ### 版本管理
+
 - 使用 `workspace:*` 引用內部包
 - 主要依賴使用精確版本
 - 開發依賴可以使用範圍版本
@@ -866,6 +861,7 @@ git push origin feature/drag-drop
 ## 🔐 環境變數管理
 
 ### 環境變數文件
+
 ```bash
 apps/web/
 ├── .env.example        # 範例文件（提交到 Git）
@@ -875,6 +871,7 @@ apps/web/
 ```
 
 ### 環境變數命名
+
 - `NUXT_` 前綴：Nuxt 自動識別
 - `NUXT_PUBLIC_` 前綴：客戶端可訪問
 - `VITE_` 前綴：Vite 應用使用
@@ -885,6 +882,7 @@ apps/web/
 ## 🚦 品質保證
 
 ### 代碼審查清單
+
 - [ ] 符合命名規範
 - [ ] 有適當的類型定義
 - [ ] 包含必要的錯誤處理
@@ -894,6 +892,7 @@ apps/web/
 - [ ] 有適當的註釋
 
 ### 測試策略
+
 - **單元測試**：關鍵業務邏輯
 - **組件測試**：複雜組件交互
 - **E2E 測試**：關鍵用戶流程
@@ -911,4 +910,4 @@ apps/web/
 
 ---
 
-*本文檔將隨專案發展持續更新*
+_本文檔將隨專案發展持續更新_

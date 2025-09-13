@@ -16,11 +16,5 @@
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".turbo",
-    "**/*.test.*",
-    "**/*.spec.*"
-  ]
+  "exclude": ["node_modules", "dist", ".turbo", "**/*.test.*", "**/*.spec.*"]
 }

@@ -9,28 +9,28 @@
 
 ## 👥 用戶角色定義
 
-| 角色 | 描述 | 主要需求 |
-|------|------|---------|
+| 角色               | 描述       | 主要需求                             |
+| ------------------ | ---------- | ------------------------------------ |
 | **Survey Creator** | 問卷創建者 | 快速創建專業問卷、收集數據、分析結果 |
-| **Respondent** | 問卷填寫者 | 流暢填寫體驗、清晰的問題、進度保存 |
-| **Team Manager** | 團隊管理者 | 管理成員權限、審核問卷、查看團隊數據 |
-| **System Admin** | 系統管理員 | 用戶管理、系統監控、數據維護 |
-| **Collaborator** | 協作者 | 共同編輯、評論、查看結果 |
+| **Respondent**     | 問卷填寫者 | 流暢填寫體驗、清晰的問題、進度保存   |
+| **Team Manager**   | 團隊管理者 | 管理成員權限、審核問卷、查看團隊數據 |
+| **System Admin**   | 系統管理員 | 用戶管理、系統監控、數據維護         |
+| **Collaborator**   | 協作者     | 共同編輯、評論、查看結果             |
 
 ---
 
 ## 📊 Epic 總覽
 
-| Epic ID | Epic 名稱 | Story 數量 | 總 Points | Phase |
-|---------|-----------|------------|-----------|-------|
-| E1 | 認證與用戶管理 | 8 | 34 | 1-2 |
-| E2 | 問卷建構核心 | 15 | 89 | 1-2 |
-| E3 | 問卷發布與收集 | 10 | 55 | 1-2 |
-| E4 | 數據分析基礎 | 8 | 42 | 1-2 |
-| E5 | AI 智能功能 | 6 | 47 | 3-4 |
-| E6 | 團隊協作 | 8 | 55 | 3-4 |
-| E7 | 進階題型與邏輯 | 6 | 34 | 3-4 |
-| E8 | 系統管理 | 5 | 29 | 5-6 |
+| Epic ID | Epic 名稱      | Story 數量 | 總 Points | Phase |
+| ------- | -------------- | ---------- | --------- | ----- |
+| E1      | 認證與用戶管理 | 8          | 34        | 1-2   |
+| E2      | 問卷建構核心   | 15         | 89        | 1-2   |
+| E3      | 問卷發布與收集 | 10         | 55        | 1-2   |
+| E4      | 數據分析基礎   | 8          | 42        | 1-2   |
+| E5      | AI 智能功能    | 6          | 47        | 3-4   |
+| E6      | 團隊協作       | 8          | 55        | 3-4   |
+| E7      | 進階題型與邏輯 | 6          | 34        | 3-4   |
+| E8      | 系統管理       | 5          | 29        | 5-6   |
 
 ---
 
@@ -39,6 +39,7 @@
 ### Epic 1: 認證與用戶管理
 
 #### Story 1.1: 用戶註冊
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -65,6 +66,7 @@ Technical Tasks:
 ```
 
 #### Story 1.2: 用戶登入
+
 **Priority**: P0  
 **Points**: 3  
 **角色**: Survey Creator
@@ -89,6 +91,7 @@ Technical Tasks:
 ```
 
 #### Story 1.3: 忘記密碼
+
 **Priority**: P1  
 **Points**: 3  
 **角色**: Survey Creator
@@ -107,6 +110,7 @@ Acceptance Criteria:
 ```
 
 #### Story 1.4: 用戶個人資料
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Survey Creator
@@ -130,6 +134,7 @@ Technical Tasks:
 ```
 
 #### Story 1.5: OAuth 登入
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Survey Creator
@@ -147,6 +152,7 @@ Acceptance Criteria:
 ```
 
 #### Story 1.6: 帳號安全
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Survey Creator
@@ -164,6 +170,7 @@ Acceptance Criteria:
 ```
 
 #### Story 1.7: 訂閱管理
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Survey Creator
@@ -181,6 +188,7 @@ Acceptance Criteria:
 ```
 
 #### Story 1.8: 帳號刪除
+
 **Priority**: P2  
 **Points**: 3  
 **角色**: Survey Creator
@@ -202,6 +210,7 @@ Acceptance Criteria:
 ### Epic 2: 問卷建構核心
 
 #### Story 2.1: 創建新問卷
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -226,6 +235,7 @@ Technical Tasks:
 ```
 
 #### Story 2.2: 拖拽畫布
+
 **Priority**: P0  
 **Points**: 13  
 **角色**: Survey Creator
@@ -252,6 +262,7 @@ Technical Tasks:
 ```
 
 #### Story 2.3: 單選題組件
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -276,6 +287,7 @@ Technical Tasks:
 ```
 
 #### Story 2.4: 多選題組件
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -294,6 +306,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.5: 文字輸入題
+
 **Priority**: P0  
 **Points**: 3  
 **角色**: Survey Creator
@@ -311,6 +324,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.6: 評分題
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -328,6 +342,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.7: 日期選擇題
+
 **Priority**: P0  
 **Points**: 3  
 **角色**: Survey Creator
@@ -345,6 +360,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.8: 題目屬性面板
+
 **Priority**: P0  
 **Points**: 8  
 **角色**: Survey Creator
@@ -368,6 +384,7 @@ Technical Tasks:
 ```
 
 #### Story 2.9: 題目複製刪除
+
 **Priority**: P0  
 **Points**: 3  
 **角色**: Survey Creator
@@ -385,6 +402,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.10: 即時預覽
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -402,6 +420,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.11: 自動保存
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -425,6 +444,7 @@ Technical Tasks:
 ```
 
 #### Story 2.12: 主題設定
+
 **Priority**: P1  
 **Points**: 8  
 **角色**: Survey Creator
@@ -448,6 +468,7 @@ Technical Tasks:
 ```
 
 #### Story 2.13: 問卷設定
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Survey Creator
@@ -466,6 +487,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.14: 問卷分頁
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Survey Creator
@@ -484,6 +506,7 @@ Acceptance Criteria:
 ```
 
 #### Story 2.15: 匯入匯出
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Survey Creator
@@ -505,6 +528,7 @@ Acceptance Criteria:
 ### Epic 3: 問卷發布與收集
 
 #### Story 3.1: 發布問卷
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -528,6 +552,7 @@ Technical Tasks:
 ```
 
 #### Story 3.2: 分享設定
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -546,6 +571,7 @@ Acceptance Criteria:
 ```
 
 #### Story 3.3: 問卷填寫頁
+
 **Priority**: P0  
 **Points**: 8  
 **角色**: Respondent
@@ -569,6 +595,7 @@ Technical Tasks:
 ```
 
 #### Story 3.4: 回應驗證
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Respondent
@@ -587,6 +614,7 @@ Acceptance Criteria:
 ```
 
 #### Story 3.5: 進度保存
+
 **Priority**: P0  
 **Points**: 8  
 **角色**: Respondent
@@ -610,6 +638,7 @@ Technical Tasks:
 ```
 
 #### Story 3.6: 提交確認
+
 **Priority**: P0  
 **Points**: 3  
 **角色**: Respondent
@@ -628,6 +657,7 @@ Acceptance Criteria:
 ```
 
 #### Story 3.7: 多語言支援
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Respondent
@@ -645,6 +675,7 @@ Acceptance Criteria:
 ```
 
 #### Story 3.8: 防重複提交
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Survey Creator
@@ -662,6 +693,7 @@ Acceptance Criteria:
 ```
 
 #### Story 3.9: 嵌入功能
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Survey Creator
@@ -679,6 +711,7 @@ Acceptance Criteria:
 ```
 
 #### Story 3.10: Email 邀請
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Survey Creator
@@ -701,6 +734,7 @@ Acceptance Criteria:
 ### Epic 4: 數據分析基礎
 
 #### Story 4.1: 回應列表
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -724,6 +758,7 @@ Technical Tasks:
 ```
 
 #### Story 4.2: 基礎統計
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -742,6 +777,7 @@ Acceptance Criteria:
 ```
 
 #### Story 4.3: 圖表視覺化
+
 **Priority**: P0  
 **Points**: 8  
 **角色**: Survey Creator
@@ -765,6 +801,7 @@ Technical Tasks:
 ```
 
 #### Story 4.4: 文字回應分析
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Survey Creator
@@ -782,6 +819,7 @@ Acceptance Criteria:
 ```
 
 #### Story 4.5: 數據導出
+
 **Priority**: P0  
 **Points**: 5  
 **角色**: Survey Creator
@@ -805,6 +843,7 @@ Technical Tasks:
 ```
 
 #### Story 4.6: 即時儀表板
+
 **Priority**: P1  
 **Points**: 8  
 **角色**: Survey Creator
@@ -823,6 +862,7 @@ Acceptance Criteria:
 ```
 
 #### Story 4.7: 交叉分析
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Survey Creator
@@ -840,6 +880,7 @@ Acceptance Criteria:
 ```
 
 #### Story 4.8: 報告生成
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Survey Creator
@@ -864,6 +905,7 @@ Acceptance Criteria:
 ### Epic 5: AI 智能功能
 
 #### Story 5.1: AI 問卷生成
+
 **Priority**: P1  
 **Points**: 13  
 **角色**: Survey Creator
@@ -888,6 +930,7 @@ Technical Tasks:
 ```
 
 #### Story 5.2: 問題優化建議
+
 **Priority**: P1  
 **Points**: 8  
 **角色**: Survey Creator
@@ -906,6 +949,7 @@ Acceptance Criteria:
 ```
 
 #### Story 5.3: 智能問題排序
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Survey Creator
@@ -923,6 +967,7 @@ Acceptance Criteria:
 ```
 
 #### Story 5.4: 自動翻譯
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Survey Creator
@@ -940,6 +985,7 @@ Acceptance Criteria:
 ```
 
 #### Story 5.5: 智能分析報告
+
 **Priority**: P1  
 **Points**: 8  
 **角色**: Survey Creator
@@ -957,6 +1003,7 @@ Acceptance Criteria:
 ```
 
 #### Story 5.6: 回應預測
+
 **Priority**: P3  
 **Points**: 5  
 **角色**: Survey Creator
@@ -978,6 +1025,7 @@ Acceptance Criteria:
 ### Epic 6: 團隊協作
 
 #### Story 6.1: 團隊創建
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Team Manager
@@ -995,6 +1043,7 @@ Acceptance Criteria:
 ```
 
 #### Story 6.2: 成員管理
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Team Manager
@@ -1012,6 +1061,7 @@ Acceptance Criteria:
 ```
 
 #### Story 6.3: 實時協作編輯
+
 **Priority**: P1  
 **Points**: 13  
 **角色**: Collaborator
@@ -1036,6 +1086,7 @@ Technical Tasks:
 ```
 
 #### Story 6.4: 評論系統
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Collaborator
@@ -1054,6 +1105,7 @@ Acceptance Criteria:
 ```
 
 #### Story 6.5: 版本控制
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Survey Creator
@@ -1072,6 +1124,7 @@ Acceptance Criteria:
 ```
 
 #### Story 6.6: 審批流程
+
 **Priority**: P2  
 **Points**: 8  
 **角色**: Team Manager
@@ -1090,6 +1143,7 @@ Acceptance Criteria:
 ```
 
 #### Story 6.7: 團隊模板庫
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Team Manager
@@ -1107,6 +1161,7 @@ Acceptance Criteria:
 ```
 
 #### Story 6.8: 團隊分析儀表板
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Team Manager
@@ -1128,6 +1183,7 @@ Acceptance Criteria:
 ### Epic 7: 進階題型與邏輯
 
 #### Story 7.1: 矩陣題型
+
 **Priority**: P1  
 **Points**: 8  
 **角色**: Survey Creator
@@ -1145,6 +1201,7 @@ Acceptance Criteria:
 ```
 
 #### Story 7.2: 排序題型
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Survey Creator
@@ -1162,6 +1219,7 @@ Acceptance Criteria:
 ```
 
 #### Story 7.3: 滑桿題型
+
 **Priority**: P2  
 **Points**: 3  
 **角色**: Survey Creator
@@ -1179,6 +1237,7 @@ Acceptance Criteria:
 ```
 
 #### Story 7.4: 條件邏輯
+
 **Priority**: P1  
 **Points**: 8  
 **角色**: Survey Creator
@@ -1196,6 +1255,7 @@ Acceptance Criteria:
 ```
 
 #### Story 7.5: 跳轉邏輯
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: Survey Creator
@@ -1213,6 +1273,7 @@ Acceptance Criteria:
 ```
 
 #### Story 7.6: 動態內容
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: Survey Creator
@@ -1236,6 +1297,7 @@ Acceptance Criteria:
 ### Epic 8: 系統管理
 
 #### Story 8.1: 管理員儀表板
+
 **Priority**: P1  
 **Points**: 8  
 **角色**: System Admin
@@ -1259,6 +1321,7 @@ Technical Tasks:
 ```
 
 #### Story 8.2: 用戶管理
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: System Admin
@@ -1277,6 +1340,7 @@ Acceptance Criteria:
 ```
 
 #### Story 8.3: 內容審核
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: System Admin
@@ -1294,6 +1358,7 @@ Acceptance Criteria:
 ```
 
 #### Story 8.4: 系統配置
+
 **Priority**: P2  
 **Points**: 5  
 **角色**: System Admin
@@ -1311,6 +1376,7 @@ Acceptance Criteria:
 ```
 
 #### Story 8.5: 數據備份
+
 **Priority**: P1  
 **Points**: 5  
 **角色**: System Admin
@@ -1332,38 +1398,42 @@ Acceptance Criteria:
 ## 📊 Story Points 統計
 
 ### Phase 分配
-| Phase | Stories | Total Points | 預估時間 |
-|-------|---------|--------------|----------|
-| Phase 1-2 | 41 | 220 | 8 週 |
-| Phase 3-4 | 20 | 165 | 8 週 |
-| Phase 5-6 | 5 | 28 | 4 週 |
-| **Total** | **66** | **413** | **20 週** |
+
+| Phase     | Stories | Total Points | 預估時間  |
+| --------- | ------- | ------------ | --------- |
+| Phase 1-2 | 41      | 220          | 8 週      |
+| Phase 3-4 | 20      | 165          | 8 週      |
+| Phase 5-6 | 5       | 28           | 4 週      |
+| **Total** | **66**  | **413**      | **20 週** |
 
 ### 優先級分配
-| Priority | Stories | Points | 百分比 |
-|----------|---------|--------|--------|
-| P0 (Must) | 23 | 138 | 33% |
-| P1 (Should) | 20 | 145 | 35% |
-| P2 (Could) | 20 | 115 | 28% |
-| P3 (Won't) | 3 | 15 | 4% |
+
+| Priority    | Stories | Points | 百分比 |
+| ----------- | ------- | ------ | ------ |
+| P0 (Must)   | 23      | 138    | 33%    |
+| P1 (Should) | 20      | 145    | 35%    |
+| P2 (Could)  | 20      | 115    | 28%    |
+| P3 (Won't)  | 3       | 15     | 4%     |
 
 ### Epic 複雜度
-| Epic | 平均 Points | 複雜度 |
-|------|-------------|--------|
-| E1 認證 | 4.3 | 低 |
-| E2 建構 | 5.9 | 中 |
-| E3 發布 | 5.5 | 中 |
-| E4 分析 | 5.3 | 中 |
-| E5 AI | 7.8 | 高 |
-| E6 協作 | 6.9 | 高 |
-| E7 進階 | 5.7 | 中 |
-| E8 管理 | 5.8 | 中 |
+
+| Epic    | 平均 Points | 複雜度 |
+| ------- | ----------- | ------ |
+| E1 認證 | 4.3         | 低     |
+| E2 建構 | 5.9         | 中     |
+| E3 發布 | 5.5         | 中     |
+| E4 分析 | 5.3         | 中     |
+| E5 AI   | 7.8         | 高     |
+| E6 協作 | 6.9         | 高     |
+| E7 進階 | 5.7         | 中     |
+| E8 管理 | 5.8         | 中     |
 
 ---
 
 ## 🚀 開發建議
 
 ### Sprint 規劃（2週一個 Sprint）
+
 - **Sprint 1-2**: 認證系統 + 基礎 UI
 - **Sprint 3-4**: 拖拽建構器核心
 - **Sprint 5-6**: 問卷發布與填寫
@@ -1372,10 +1442,12 @@ Acceptance Criteria:
 - **Sprint 11-12**: 團隊協作功能
 
 ### 技術債務預留
+
 - 每個 Sprint 預留 20% 時間處理技術債務
 - 每 4 個 Sprint 進行一次重構 Sprint
 
 ### 測試策略
+
 - P0 Stories: 90% 測試覆蓋
 - P1 Stories: 70% 測試覆蓋
 - P2 Stories: 50% 測試覆蓋
@@ -1386,18 +1458,21 @@ Acceptance Criteria:
 
 ```markdown
 ### Functional Criteria
+
 - [ ] 功能正常運作
 - [ ] UI 符合設計稿
 - [ ] 響應式設計完成
 - [ ] 無明顯 bug
 
 ### Technical Criteria
+
 - [ ] 程式碼審查通過
 - [ ] 單元測試編寫
 - [ ] 整合測試通過
 - [ ] 文檔更新
 
 ### Performance Criteria
+
 - [ ] 頁面載入 < 3s
 - [ ] API 響應 < 500ms
 - [ ] 無記憶體洩漏
@@ -1405,4 +1480,4 @@ Acceptance Criteria:
 
 ---
 
-*本文檔將隨開發進度持續更新和調整優先級*
+_本文檔將隨開發進度持續更新和調整優先級_

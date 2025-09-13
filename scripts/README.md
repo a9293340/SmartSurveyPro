@@ -1,8 +1,8 @@
 # Scripts - 自動化腳本目錄 🔧
 
 > 📅 最後更新：2025-01-13
-> 🎯 用途：存放開發、部署、維護相關的自動化腳本
-> 🚀 執行方式：透過 npm scripts 或直接執行
+> 🎯 用途：存放開發、部署、維護相關的自動化腳本 🚀 執行方式：透過 npm
+> scripts 或直接執行
 
 ---
 
@@ -45,6 +45,7 @@ scripts/
 ## 🚀 常用腳本
 
 ### 初始化專案
+
 ```bash
 # 完整初始化（安裝依賴、設置環境、初始化資料庫）
 ./scripts/setup/init.sh
@@ -57,6 +58,7 @@ scripts/
 ```
 
 ### 開發輔助
+
 ```bash
 # 清理所有快取和建構產物
 ./scripts/dev/clean.sh
@@ -69,6 +71,7 @@ pnpm tsx scripts/dev/seed-data.ts
 ```
 
 ### 建構與部署
+
 ```bash
 # 建構所有應用
 ./scripts/build/build-all.sh
@@ -88,6 +91,7 @@ pnpm tsx scripts/dev/seed-data.ts
 ## 📝 腳本開發規範
 
 ### Shell 腳本規範
+
 ```bash
 #!/bin/bash
 # 腳本描述：簡要說明腳本用途
@@ -129,6 +133,7 @@ main "$@"
 ```
 
 ### TypeScript 腳本規範
+
 ```typescript
 #!/usr/bin/env tsx
 /**
@@ -137,41 +142,41 @@ main "$@"
  * 更新：YYYY-MM-DD
  */
 
-import { program } from 'commander'
-import chalk from 'chalk'
+import { program } from 'commander';
+import chalk from 'chalk';
 
 // 設定命令列參數
 program
   .name('script-name')
   .description('腳本說明')
   .option('-v, --verbose', '詳細輸出')
-  .parse()
+  .parse();
 
-const options = program.opts()
+const options = program.opts();
 
 // 輔助函數
 function logInfo(message: string) {
-  console.log(chalk.green('[INFO]'), message)
+  console.log(chalk.green('[INFO]'), message);
 }
 
 function logError(message: string) {
-  console.error(chalk.red('[ERROR]'), message)
-  process.exit(1)
+  console.error(chalk.red('[ERROR]'), message);
+  process.exit(1);
 }
 
 // 主要邏輯
 async function main() {
   try {
-    logInfo('開始執行...')
+    logInfo('開始執行...');
     // 腳本邏輯
-    logInfo('執行完成！')
+    logInfo('執行完成！');
   } catch (error) {
-    logError(`執行失敗：${error.message}`)
+    logError(`執行失敗：${error.message}`);
   }
 }
 
 // 執行
-main()
+main();
 ```
 
 ---
@@ -179,6 +184,7 @@ main()
 ## 🔧 腳本配置
 
 ### package.json scripts
+
 ```json
 {
   "scripts": {
@@ -193,6 +199,7 @@ main()
 ```
 
 ### 執行權限設定
+
 ```bash
 # 給予腳本執行權限
 chmod +x scripts/**/*.sh
@@ -206,21 +213,25 @@ find scripts -type f -name "*.sh" -exec chmod +x {} \;
 ## 💡 最佳實踐
 
 ### 1. 錯誤處理
+
 - 使用 `set -e` 確保錯誤時退出
 - 提供清晰的錯誤訊息
 - 記錄執行日誌
 
 ### 2. 可維護性
+
 - 腳本保持簡單，複雜邏輯抽取成函數
 - 添加充足的註解
 - 使用有意義的變數名
 
 ### 3. 安全性
+
 - 不要在腳本中硬編碼密碼
 - 使用環境變數傳遞敏感資訊
 - 驗證輸入參數
 
 ### 4. 跨平台相容
+
 - 優先使用 Node.js 腳本（跨平台）
 - Shell 腳本註明依賴（bash, zsh）
 - 避免使用平台特定命令
@@ -230,16 +241,19 @@ find scripts -type f -name "*.sh" -exec chmod +x {} \;
 ## 📋 待開發腳本
 
 ### Phase 1
+
 - [ ] init.sh - 專案初始化腳本
 - [ ] create-env.sh - 環境變數設置助手
 - [ ] seed-data.ts - 測試資料生成器
 
 ### Phase 2
+
 - [ ] generate-types.ts - 從 Schema 生成 TypeScript 類型
 - [ ] backup-db.sh - 資料庫備份腳本
 - [ ] health-check.ts - 健康檢查腳本
 
 ### Phase 3
+
 - [ ] deploy-docker.sh - Docker 部署腳本
 - [ ] performance-test.ts - 效能測試腳本
 - [ ] security-audit.sh - 安全審計腳本
@@ -254,4 +268,4 @@ find scripts -type f -name "*.sh" -exec chmod +x {} \;
 
 ---
 
-*腳本是提高開發效率的重要工具，請保持腳本的簡潔和可維護性*
+_腳本是提高開發效率的重要工具，請保持腳本的簡潔和可維護性_

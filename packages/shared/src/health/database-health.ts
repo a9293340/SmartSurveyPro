@@ -104,7 +104,7 @@ async function checkRedisHealth(config: HealthCheckConfig): Promise<ServiceHealt
 
 // TODO(human): 實作整合健康檢查邏輯
 export async function performHealthCheck(
-  config: HealthCheckConfig = DEFAULT_CONFIG,
+  config: HealthCheckConfig = DEFAULT_CONFIG
 ): Promise<HealthCheckResult> {
   const overallStart = Date.now();
 

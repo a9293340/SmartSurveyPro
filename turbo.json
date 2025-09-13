@@ -46,10 +46,5 @@
       "cache": false
     }
   },
-  "globalDependencies": [
-    "package.json",
-    "pnpm-workspace.yaml",
-    ".env*",
-    "turbo.json"
-  ]
+  "globalDependencies": ["package.json", "pnpm-workspace.yaml", ".env*", "turbo.json"]
 }

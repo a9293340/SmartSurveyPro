@@ -1,10 +1,10 @@
 // SmartSurvey Pro - 共享套件入口點
 
 // 基礎版本資訊
-export const VERSION = '0.0.1'
+export const VERSION = '0.0.1';
 
 // 資料庫連接
-export { connectToDatabase, getDatabase, dbConnection } from './db/connection'
+export { connectToDatabase, getDatabase, dbConnection } from './db/connection';
 
 // Redis 連接和 Key 管理
 export {
@@ -12,14 +12,10 @@ export {
   getRedisClient,
   redisConnection,
   RedisHelper,
-  getRedisHelper
-} from './db/redis'
+  getRedisHelper,
+} from './db/redis';
 
-export {
-  RedisKeyBuilder,
-  RedisKeys,
-  RedisKeyUtils
-} from './db/redis-keys'
+export { RedisKeyBuilder, RedisKeys, RedisKeyUtils } from './db/redis-keys';
 
 // 健康檢查系統
 export {
@@ -28,8 +24,8 @@ export {
   detailedHealthCheck,
   type HealthCheckResult,
   type ServiceHealth,
-  type HealthCheckConfig
-} from './health/database-health'
+  type HealthCheckConfig,
+} from './health/database-health';
 
 // 暫時的基礎匯出，後續任務會擴展
-export const SHARED_READY = true
+export const SHARED_READY = true;

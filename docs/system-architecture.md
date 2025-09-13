@@ -18,33 +18,33 @@ graph TB
         M[手機瀏覽器]
         A[管理員瀏覽器]
     end
-    
+
     subgraph "CDN 層"
         CF[Cloudflare CDN<br/>DDoS 防護]
     end
-    
+
     subgraph "負載均衡層"
         GLB[Google Cloud<br/>Load Balancer]
     end
-    
+
     subgraph "應用層 - Cloud Run"
         CR1[survey-web<br/>Nuxt3 SSR<br/>前台應用]
         CR2[survey-admin<br/>Vite SPA<br/>後台前端]
         CR3[survey-api<br/>Go API<br/>後台 API]
     end
-    
+
     subgraph "資料層"
         MDB[(MongoDB Atlas<br/>主資料庫)]
         RD[(Redis Cloud<br/>快取層)]
         GCS[Cloud Storage<br/>檔案存儲]
     end
-    
+
     subgraph "外部服務"
         OAI[OpenAI API]
         SES[SendGrid<br/>郵件服務]
         GA[Google Analytics]
     end
-    
+
     U --> CF
     M --> CF
     A --> CF
@@ -52,17 +52,17 @@ graph TB
     GLB --> CR1
     GLB --> CR2
     GLB --> CR3
-    
+
     CR1 --> MDB
     CR1 --> RD
     CR1 --> GCS
     CR1 --> OAI
     CR1 --> SES
-    
+
     CR2 --> CR3
     CR3 --> MDB
     CR3 --> RD
-    
+
     CR1 --> GA
     CR2 --> GA
 ```
@@ -73,11 +73,11 @@ graph TB
 
 ### 三層服務架構
 
-| 服務名稱 | 技術棧 | 用途 | URL | 部署階段 |
-|---------|--------|------|-----|----------|
-| **survey-web** | Nuxt3 + Nitro | 用戶前台 SSR | survey.example.com | Phase 1 |
-| **survey-admin** | Vite + Vue3 | 管理後台 SPA | admin.survey.example.com | Phase 5 |
-| **survey-api** | Go + Gin | 高性能 API | api.survey.example.com | Phase 7 |
+| 服務名稱         | 技術棧        | 用途         | URL                      | 部署階段 |
+| ---------------- | ------------- | ------------ | ------------------------ | -------- |
+| **survey-web**   | Nuxt3 + Nitro | 用戶前台 SSR | survey.example.com       | Phase 1  |
+| **survey-admin** | Vite + Vue3   | 管理後台 SPA | admin.survey.example.com | Phase 5  |
+| **survey-api**   | Go + Gin      | 高性能 API   | api.survey.example.com   | Phase 7  |
 
 ### 服務間通訊
 
@@ -91,7 +91,7 @@ sequenceDiagram
     participant API as survey-api
     participant MongoDB
     participant Redis
-    
+
     User->>CloudFlare: HTTPS Request
     CloudFlare->>GLB: Cached/Forward
     GLB->>Web: Route to Service
@@ -101,7 +101,7 @@ sequenceDiagram
     MongoDB-->>Web: Return Data
     Web->>Redis: Update Cache
     Web-->>User: SSR HTML
-    
+
     Note over Admin,API: Admin Flow (Phase 7+)
     Admin->>API: REST API Call
     API->>Redis: Check Cache
@@ -126,7 +126,7 @@ services:
     max_instances: 10
     concurrency: 80
     timeout: 60s
-    
+
   survey-admin:
     region: asia-east1
     cpu: 1
@@ -135,8 +135,8 @@ services:
     max_instances: 3
     concurrency: 100
     timeout: 30s
-    
-  survey-api:  # Phase 7+
+
+  survey-api: # Phase 7+
     region: asia-east1
     cpu: 2-4
     memory: 1Gi-2Gi
@@ -155,24 +155,24 @@ graph LR
         D2[admin.survey.example.com]
         D3[api.survey.example.com]
     end
-    
+
     subgraph "CDN (Cloudflare)"
         CF1[Proxy & Cache]
         CF2[WAF Rules]
         CF3[DDoS Protection]
     end
-    
+
     subgraph "Load Balancer"
         GLB[Global LB<br/>SSL Termination]
         NEG[Network Endpoint Groups]
     end
-    
+
     subgraph "Cloud Run Services"
         CR1[survey-web]
         CR2[survey-admin]
         CR3[survey-api]
     end
-    
+
     D1 --> CF1
     D2 --> CF1
     D3 --> CF1
@@ -206,11 +206,12 @@ CMD ["node", "server/index.mjs"]
 steps:
   # Build and push survey-web
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/survey-web:$COMMIT_SHA', 'apps/web']
-  
+    args:
+      ['build', '-t', 'gcr.io/$PROJECT_ID/survey-web:$COMMIT_SHA', 'apps/web']
+
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/$PROJECT_ID/survey-web:$COMMIT_SHA']
-  
+
   # Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
@@ -238,28 +239,28 @@ timeout: 1200s
 ```javascript
 // 連接配置
 const mongoConfig = {
-  cluster: "survey-cluster",
-  region: "gcp-asia-east1",
-  tier: "M10", // 初期
+  cluster: 'survey-cluster',
+  region: 'gcp-asia-east1',
+  tier: 'M10', // 初期
   // M30 當用戶 > 10000
-  
-  database: "survey_db",
+
+  database: 'survey_db',
   collections: {
-    users: "users",
-    surveys: "surveys",
-    responses: "responses",
-    teams: "teams",
-    analytics: "analytics"
+    users: 'users',
+    surveys: 'surveys',
+    responses: 'responses',
+    teams: 'teams',
+    analytics: 'analytics',
   },
-  
+
   // 連接設定
   connection: {
     retryWrites: true,
-    w: "majority",
-    readPreference: "primaryPreferred",
-    maxPoolSize: 50
-  }
-}
+    w: 'majority',
+    readPreference: 'primaryPreferred',
+    maxPoolSize: 50,
+  },
+};
 ```
 
 ### 資料庫 Schema
@@ -269,124 +270,124 @@ const mongoConfig = {
 
 // users collection
 interface User {
-  _id: ObjectId
-  email: string
-  password: string // bcrypt hashed
+  _id: ObjectId;
+  email: string;
+  password: string; // bcrypt hashed
   profile: {
-    name: string
-    avatar?: string
-    timezone: string
-    language: string
-  }
+    name: string;
+    avatar?: string;
+    timezone: string;
+    language: string;
+  };
   subscription: {
-    plan: 'free' | 'pro' | 'team' | 'enterprise'
-    validUntil: Date
+    plan: 'free' | 'pro' | 'team' | 'enterprise';
+    validUntil: Date;
     usage: {
-      surveys: number
-      responses: number
-    }
-  }
-  teams: ObjectId[]
-  createdAt: Date
-  updatedAt: Date
-  lastLogin: Date
+      surveys: number;
+      responses: number;
+    };
+  };
+  teams: ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
+  lastLogin: Date;
 }
 
-// surveys collection  
+// surveys collection
 interface Survey {
-  _id: ObjectId
-  title: string
-  description?: string
-  createdBy: ObjectId
-  teamId?: ObjectId
-  status: 'draft' | 'published' | 'closed' | 'archived'
-  
-  questions: Question[]
-  theme: Theme
+  _id: ObjectId;
+  title: string;
+  description?: string;
+  createdBy: ObjectId;
+  teamId?: ObjectId;
+  status: 'draft' | 'published' | 'closed' | 'archived';
+
+  questions: Question[];
+  theme: Theme;
   settings: {
-    allowMultipleResponses: boolean
-    requireLogin: boolean
-    password?: string
-    startDate?: Date
-    endDate?: Date
-    responseLimit?: number
-  }
-  
-  logic: LogicRule[]
-  
+    allowMultipleResponses: boolean;
+    requireLogin: boolean;
+    password?: string;
+    startDate?: Date;
+    endDate?: Date;
+    responseLimit?: number;
+  };
+
+  logic: LogicRule[];
+
   stats: {
-    views: number
-    starts: number
-    completions: number
-    avgCompletionTime: number
-  }
-  
-  version: number
-  versions: Version[]
-  
-  createdAt: Date
-  updatedAt: Date
-  publishedAt?: Date
+    views: number;
+    starts: number;
+    completions: number;
+    avgCompletionTime: number;
+  };
+
+  version: number;
+  versions: Version[];
+
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt?: Date;
 }
 
 // responses collection
 interface Response {
-  _id: ObjectId
-  surveyId: ObjectId
-  surveyVersion: number
-  
+  _id: ObjectId;
+  surveyId: ObjectId;
+  surveyVersion: number;
+
   respondent?: {
-    userId?: ObjectId
-    sessionId: string
-    ip: string
-    userAgent: string
+    userId?: ObjectId;
+    sessionId: string;
+    ip: string;
+    userAgent: string;
     location?: {
-      country: string
-      city: string
-    }
-  }
-  
-  answers: Answer[]
-  
+      country: string;
+      city: string;
+    };
+  };
+
+  answers: Answer[];
+
   metadata: {
-    startTime: Date
-    submitTime: Date
-    completionTime: number // seconds
-    device: 'desktop' | 'tablet' | 'mobile'
-    browser: string
-  }
-  
-  status: 'in_progress' | 'completed' | 'abandoned'
-  
-  createdAt: Date
-  updatedAt: Date
+    startTime: Date;
+    submitTime: Date;
+    completionTime: number; // seconds
+    device: 'desktop' | 'tablet' | 'mobile';
+    browser: string;
+  };
+
+  status: 'in_progress' | 'completed' | 'abandoned';
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 // teams collection
 interface Team {
-  _id: ObjectId
-  name: string
-  owner: ObjectId
-  
+  _id: ObjectId;
+  name: string;
+  owner: ObjectId;
+
   members: {
-    userId: ObjectId
-    role: 'owner' | 'admin' | 'editor' | 'viewer'
-    joinedAt: Date
-  }[]
-  
+    userId: ObjectId;
+    role: 'owner' | 'admin' | 'editor' | 'viewer';
+    joinedAt: Date;
+  }[];
+
   settings: {
-    allowedDomains?: string[]
-    ssoEnabled: boolean
-  }
-  
+    allowedDomains?: string[];
+    ssoEnabled: boolean;
+  };
+
   subscription: {
-    plan: 'team' | 'enterprise'
-    seats: number
-    validUntil: Date
-  }
-  
-  createdAt: Date
-  updatedAt: Date
+    plan: 'team' | 'enterprise';
+    seats: number;
+    validUntil: Date;
+  };
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 ```
 
@@ -394,18 +395,18 @@ interface Team {
 
 ```javascript
 // 索引優化
-db.users.createIndex({ email: 1 }, { unique: true })
-db.users.createIndex({ "subscription.plan": 1 })
+db.users.createIndex({ email: 1 }, { unique: true });
+db.users.createIndex({ 'subscription.plan': 1 });
 
-db.surveys.createIndex({ createdBy: 1, status: 1 })
-db.surveys.createIndex({ teamId: 1 })
-db.surveys.createIndex({ "stats.completions": -1 })
+db.surveys.createIndex({ createdBy: 1, status: 1 });
+db.surveys.createIndex({ teamId: 1 });
+db.surveys.createIndex({ 'stats.completions': -1 });
 
-db.responses.createIndex({ surveyId: 1, status: 1 })
-db.responses.createIndex({ "respondent.userId": 1 })
-db.responses.createIndex({ createdAt: -1 })
+db.responses.createIndex({ surveyId: 1, status: 1 });
+db.responses.createIndex({ 'respondent.userId': 1 });
+db.responses.createIndex({ createdAt: -1 });
 
-db.teams.createIndex({ "members.userId": 1 })
+db.teams.createIndex({ 'members.userId': 1 });
 ```
 
 ### Redis Cloud 配置
@@ -413,46 +414,46 @@ db.teams.createIndex({ "members.userId": 1 })
 ```javascript
 // Redis 使用策略
 const redisConfig = {
-  provider: "Redis Cloud",
-  region: "gcp-asia-east1",
-  plan: "30MB", // 免費層
+  provider: 'Redis Cloud',
+  region: 'gcp-asia-east1',
+  plan: '30MB', // 免費層
   // 升級到 1GB 當需要時
-  
+
   databases: {
-    0: "session",     // 用戶 Session
-    1: "cache",       // 一般快取
-    2: "rate_limit",  // API 限流
-    3: "websocket",   // WebSocket 狀態
-    4: "analytics"    // 即時分析數據
-  }
-}
+    0: 'session', // 用戶 Session
+    1: 'cache', // 一般快取
+    2: 'rate_limit', // API 限流
+    3: 'websocket', // WebSocket 狀態
+    4: 'analytics', // 即時分析數據
+  },
+};
 
 // 快取策略
 const cacheStrategy = {
   // Session
-  "session:*": {
+  'session:*': {
     ttl: 7 * 24 * 60 * 60, // 7 天
-    db: 0
+    db: 0,
   },
-  
+
   // Survey 快取
-  "survey:*": {
+  'survey:*': {
     ttl: 60 * 60, // 1 小時
-    db: 1
+    db: 1,
   },
-  
+
   // Response 統計
-  "stats:*": {
+  'stats:*': {
     ttl: 5 * 60, // 5 分鐘
-    db: 1
+    db: 1,
   },
-  
+
   // API 限流
-  "rate:*": {
+  'rate:*': {
     ttl: 60, // 1 分鐘滑動窗口
-    db: 2
-  }
-}
+    db: 2,
+  },
+};
 ```
 
 ---
@@ -490,11 +491,11 @@ service_account_permissions:
     - storage.objects.create
     - storage.objects.get
     - secretmanager.versions.access
-    
+
   survey-admin:
     - storage.objects.list
     - monitoring.timeSeries.list
-    
+
   survey-api:
     - storage.admin
     - monitoring.admin
@@ -521,26 +522,26 @@ graph LR
         A2[survey-admin]
         A3[survey-api]
     end
-    
+
     subgraph "Monitoring Stack"
         M1[Cloud Monitoring]
         M2[Cloud Logging]
         M3[Error Reporting]
         M4[Cloud Trace]
     end
-    
+
     subgraph "Alerting"
         AL1[Email Alerts]
         AL2[Slack Notifications]
         AL3[PagerDuty]
     end
-    
+
     subgraph "Dashboards"
         D1[Performance Dashboard]
         D2[Error Dashboard]
         D3[Business Metrics]
     end
-    
+
     A1 --> M1
     A2 --> M1
     A3 --> M1
@@ -575,12 +576,12 @@ alerts:
     condition: error_rate > 5%
     duration: 5m
     severity: critical
-    
+
   - name: high_latency
     condition: latency_p95 > 1000ms
     duration: 10m
     severity: warning
-    
+
   - name: low_disk_space
     condition: disk_usage > 90%
     severity: critical
@@ -592,11 +593,11 @@ alerts:
 
 ### 環境配置
 
-| 環境 | 用途 | URL | 自動部署 |
-|------|------|-----|----------|
-| **Development** | 開發測試 | dev.survey.example.com | 每次 commit |
-| **Staging** | 預發布測試 | staging.survey.example.com | PR 合併到 main |
-| **Production** | 正式環境 | survey.example.com | 手動觸發 + 審核 |
+| 環境            | 用途       | URL                        | 自動部署        |
+| --------------- | ---------- | -------------------------- | --------------- |
+| **Development** | 開發測試   | dev.survey.example.com     | 每次 commit     |
+| **Staging**     | 預發布測試 | staging.survey.example.com | PR 合併到 main  |
+| **Production**  | 正式環境   | survey.example.com         | 手動觸發 + 審核 |
 
 ### CI/CD Pipeline
 
@@ -607,11 +608,11 @@ graph LR
     C -->|feature| D[Run Tests]
     C -->|main| E[Run Tests]
     C -->|release| F[Run Tests]
-    
+
     D --> G[Build Preview]
     E --> H[Deploy Staging]
     F --> I[Deploy Production]
-    
+
     H --> J[Smoke Tests]
     I --> K[Health Checks]
     K --> L[Rollback if Failed]
@@ -671,13 +672,13 @@ graph TD
 
 ### 水平擴展策略
 
-| 用戶規模 | Cloud Run | MongoDB | Redis | 預估成本/月 |
-|---------|-----------|---------|-------|-------------|
-| 0-1K | 1 instance | M0 Free | 30MB Free | $0-10 |
-| 1K-10K | 2-5 instances | M10 | 250MB | $100 |
-| 10K-50K | 5-10 instances | M30 | 1GB | $500 |
-| 50K-100K | 10-20 instances | M40 | 5GB | $1500 |
-| 100K+ | 20+ instances | Cluster | Cluster | $3000+ |
+| 用戶規模 | Cloud Run       | MongoDB | Redis     | 預估成本/月 |
+| -------- | --------------- | ------- | --------- | ----------- |
+| 0-1K     | 1 instance      | M0 Free | 30MB Free | $0-10       |
+| 1K-10K   | 2-5 instances   | M10     | 250MB     | $100        |
+| 10K-50K  | 5-10 instances  | M30     | 1GB       | $500        |
+| 50K-100K | 10-20 instances | M40     | 5GB       | $1500       |
+| 100K+    | 20+ instances   | Cluster | Cluster   | $3000+      |
 
 ---
 
@@ -688,18 +689,18 @@ graph TD
 ```yaml
 backup_strategy:
   mongodb:
-    continuous: true  # Atlas 持續備份
+    continuous: true # Atlas 持續備份
     point_in_time: 24h
     snapshots: daily
     retention: 30_days
-    
+
   cloud_storage:
     versioning: enabled
     lifecycle:
       - action: delete
         condition:
           age: 90
-          
+
   redis:
     persistence: RDB + AOF
     backup_frequency: hourly
@@ -724,13 +725,13 @@ graph LR
 
 ### 日常維護
 
-| 任務 | 頻率 | 負責人 | 工具 |
-|------|------|--------|------|
-| 監控檢查 | 每日 | DevOps | Cloud Console |
-| 日誌審查 | 每週 | DevOps | Cloud Logging |
-| 性能優化 | 每月 | 開發團隊 | APM Tools |
-| 安全審計 | 每季 | 安全團隊 | Security Scanner |
-| 災難演練 | 每半年 | 全團隊 | Chaos Engineering |
+| 任務     | 頻率   | 負責人   | 工具              |
+| -------- | ------ | -------- | ----------------- |
+| 監控檢查 | 每日   | DevOps   | Cloud Console     |
+| 日誌審查 | 每週   | DevOps   | Cloud Logging     |
+| 性能優化 | 每月   | 開發團隊 | APM Tools         |
+| 安全審計 | 每季   | 安全團隊 | Security Scanner  |
+| 災難演練 | 每半年 | 全團隊   | Chaos Engineering |
 
 ### 故障處理流程
 
@@ -755,13 +756,13 @@ graph TD
 
 ## 📋 技術債務追蹤
 
-| 項目 | 優先級 | 影響 | 計劃解決時間 |
-|------|--------|------|--------------|
-| 添加 API Gateway | Medium | API 管理 | Phase 5 |
-| 實施 Service Mesh | Low | 微服務通訊 | Phase 8 |
-| 多區域部署 | Medium | 可用性 | Phase 6 |
-| GraphQL 支援 | Low | API 靈活性 | Future |
-| Kubernetes 遷移 | Low | 複雜度 | Future |
+| 項目              | 優先級 | 影響       | 計劃解決時間 |
+| ----------------- | ------ | ---------- | ------------ |
+| 添加 API Gateway  | Medium | API 管理   | Phase 5      |
+| 實施 Service Mesh | Low    | 微服務通訊 | Phase 8      |
+| 多區域部署        | Medium | 可用性     | Phase 6      |
+| GraphQL 支援      | Low    | API 靈活性 | Future       |
+| Kubernetes 遷移   | Low    | 複雜度     | Future       |
 
 ---
 
@@ -772,12 +773,14 @@ graph TD
 **決策**: 使用 Cloud Run 作為主要計算平台
 
 **原因**:
+
 1. 簡化運維，無需管理集群
 2. 自動擴展，包括縮放到零
 3. 按使用付費，成本效益高
 4. 內建 HTTPS 和負載均衡
 
 **後果**:
+
 - ✅ 降低運維成本
 - ✅ 快速部署和迭代
 - ⚠️ 某些高級功能受限
@@ -788,12 +791,14 @@ graph TD
 **決策**: 使用 MongoDB Atlas 託管服務
 
 **原因**:
+
 1. 自動備份和恢復
 2. 內建監控和告警
 3. 輕鬆擴展
 4. 全球分佈式部署
 
 **後果**:
+
 - ✅ 減少資料庫管理工作
 - ✅ 高可用性保證
 - ⚠️ 成本較自建略高
@@ -804,12 +809,14 @@ graph TD
 **決策**: 採用 Monorepo 管理所有服務
 
 **原因**:
+
 1. 代碼共享容易
 2. 統一的構建和測試
 3. 原子化提交
 4. 簡化依賴管理
 
 **後果**:
+
 - ✅ 提高開發效率
 - ✅ 確保版本一致性
 - ⚠️ 倉庫體積增大
@@ -827,4 +834,4 @@ graph TD
 
 ---
 
-*本文檔為 SmartSurvey Pro 系統架構設計的核心參考，將隨項目發展持續更新*
+_本文檔為 SmartSurvey Pro 系統架構設計的核心參考，將隨項目發展持續更新_

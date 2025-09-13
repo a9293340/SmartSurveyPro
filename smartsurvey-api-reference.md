@@ -27,6 +27,7 @@
 ## 🔐 認證規範
 
 ### JWT Token
+
 ```typescript
 // Request Header
 Authorization: Bearer <jwt_token>
@@ -47,13 +48,14 @@ Refresh Token: 7 days
 ```
 
 ### Session Cookie
+
 ```typescript
 // Cookie 設定
 survey_session: {
-  httpOnly: true
-  secure: true  // production only
-  sameSite: 'lax'
-  maxAge: 7 * 24 * 60 * 60 * 1000  // 7 days
+  httpOnly: true;
+  secure: true; // production only
+  sameSite: 'lax';
+  maxAge: 7 * 24 * 60 * 60 * 1000; // 7 days
 }
 ```
 
@@ -62,6 +64,7 @@ survey_session: {
 ## 📐 通用規則
 
 ### Request Headers
+
 ```http
 Content-Type: application/json
 Accept: application/json
@@ -69,6 +72,7 @@ X-Request-ID: <uuid>  // 選擇性，用於追蹤
 ```
 
 ### Response Format
+
 ```typescript
 // 成功回應
 {
@@ -95,16 +99,18 @@ X-Request-ID: <uuid>  // 選擇性，用於追蹤
 ```
 
 ### 分頁參數
+
 ```typescript
 // Query Parameters
 ?page=1&limit=20&sort=-createdAt&search=keyword
 
-// sort: 
+// sort:
 //   fieldName (升序)
 //   -fieldName (降序)
 ```
 
 ### Rate Limiting
+
 ```yaml
 匿名用戶: 60 requests/minute
 認證用戶: 300 requests/minute
@@ -121,40 +127,42 @@ X-RateLimit-Reset: 1609459200
 ## ❌ 錯誤處理
 
 ### HTTP 狀態碼
-| Code | 說明 | 使用場景 |
-|------|------|----------|
-| 200 | OK | 成功取得資料 |
-| 201 | Created | 成功建立資源 |
-| 204 | No Content | 成功刪除 |
-| 400 | Bad Request | 請求格式錯誤 |
-| 401 | Unauthorized | 未認證 |
-| 403 | Forbidden | 無權限 |
-| 404 | Not Found | 資源不存在 |
-| 409 | Conflict | 資源衝突（如 email 重複）|
-| 422 | Unprocessable | 驗證失敗 |
-| 429 | Too Many Requests | 超過限流 |
-| 500 | Server Error | 伺服器錯誤 |
+
+| Code | 說明              | 使用場景                  |
+| ---- | ----------------- | ------------------------- |
+| 200  | OK                | 成功取得資料              |
+| 201  | Created           | 成功建立資源              |
+| 204  | No Content        | 成功刪除                  |
+| 400  | Bad Request       | 請求格式錯誤              |
+| 401  | Unauthorized      | 未認證                    |
+| 403  | Forbidden         | 無權限                    |
+| 404  | Not Found         | 資源不存在                |
+| 409  | Conflict          | 資源衝突（如 email 重複） |
+| 422  | Unprocessable     | 驗證失敗                  |
+| 429  | Too Many Requests | 超過限流                  |
+| 500  | Server Error      | 伺服器錯誤                |
 
 ### 錯誤代碼
+
 ```typescript
 enum ErrorCode {
   // 認證相關
   AUTH_INVALID_CREDENTIALS = 'AUTH001',
   AUTH_TOKEN_EXPIRED = 'AUTH002',
   AUTH_EMAIL_EXISTS = 'AUTH003',
-  
+
   // 驗證相關
   VALIDATION_FAILED = 'VAL001',
   VALIDATION_REQUIRED = 'VAL002',
   VALIDATION_FORMAT = 'VAL003',
-  
+
   // 資源相關
   RESOURCE_NOT_FOUND = 'RES001',
   RESOURCE_LIMIT_EXCEEDED = 'RES002',
-  
+
   // 權限相關
   PERMISSION_DENIED = 'PERM001',
-  SUBSCRIPTION_REQUIRED = 'PERM002'
+  SUBSCRIPTION_REQUIRED = 'PERM002',
 }
 ```
 
@@ -165,6 +173,7 @@ enum ErrorCode {
 ## 認證 APIs
 
 ### 註冊 `POST /auth/register`
+
 ```typescript
 // Request
 {
@@ -193,6 +202,7 @@ enum ErrorCode {
 ```
 
 ### 登入 `POST /auth/login`
+
 ```typescript
 // Request
 {
@@ -213,6 +223,7 @@ enum ErrorCode {
 ```
 
 ### 登出 `POST /auth/logout`
+
 ```typescript
 // Request
 {
@@ -227,6 +238,7 @@ enum ErrorCode {
 ```
 
 ### 重新整理 Token `POST /auth/refresh`
+
 ```typescript
 // Request
 {
@@ -244,6 +256,7 @@ enum ErrorCode {
 ```
 
 ### 忘記密碼 `POST /auth/forgot-password`
+
 ```typescript
 // Request
 {
@@ -258,6 +271,7 @@ enum ErrorCode {
 ```
 
 ### 重設密碼 `POST /auth/reset-password`
+
 ```typescript
 // Request
 {
@@ -277,6 +291,7 @@ enum ErrorCode {
 ## 用戶 APIs
 
 ### 取得當前用戶 `GET /users/me`
+
 ```typescript
 // Response (200)
 {
@@ -317,6 +332,7 @@ enum ErrorCode {
 ```
 
 ### 更新個人資料 `PATCH /users/me`
+
 ```typescript
 // Request (Partial Update)
 {
@@ -342,6 +358,7 @@ enum ErrorCode {
 ```
 
 ### 更改密碼 `POST /users/me/change-password`
+
 ```typescript
 // Request
 {
@@ -357,6 +374,7 @@ enum ErrorCode {
 ```
 
 ### 刪除帳號 `DELETE /users/me`
+
 ```typescript
 // Request
 {
@@ -373,6 +391,7 @@ enum ErrorCode {
 ## 問卷 APIs
 
 ### 取得問卷列表 `GET /surveys`
+
 ```typescript
 // Query Parameters
 ?page=1
@@ -396,6 +415,7 @@ enum ErrorCode {
 ```
 
 ### 建立問卷 `POST /surveys`
+
 ```typescript
 // Request
 {
@@ -424,6 +444,7 @@ enum ErrorCode {
 ```
 
 ### 取得問卷詳情 `GET /surveys/:id`
+
 ```typescript
 // Path Parameters
 :id - Survey ID or Slug
@@ -443,6 +464,7 @@ enum ErrorCode {
 ```
 
 ### 更新問卷 `PUT /surveys/:id`
+
 ```typescript
 // Request (Complete Update)
 {
@@ -466,6 +488,7 @@ enum ErrorCode {
 ```
 
 ### 部分更新問卷 `PATCH /surveys/:id`
+
 ```typescript
 // Request (Partial Update)
 {
@@ -483,6 +506,7 @@ enum ErrorCode {
 ```
 
 ### 刪除問卷 `DELETE /surveys/:id`
+
 ```typescript
 // Query Parameters
 ?permanent=false  // true: 永久刪除, false: 軟刪除
@@ -497,6 +521,7 @@ enum ErrorCode {
 ```
 
 ### 發布問卷 `POST /surveys/:id/publish`
+
 ```typescript
 // Request
 {
@@ -522,6 +547,7 @@ enum ErrorCode {
 ```
 
 ### 關閉問卷 `POST /surveys/:id/close`
+
 ```typescript
 // Response (200)
 {
@@ -535,6 +561,7 @@ enum ErrorCode {
 ```
 
 ### 複製問卷 `POST /surveys/:id/duplicate`
+
 ```typescript
 // Request
 {
@@ -550,6 +577,7 @@ enum ErrorCode {
 ```
 
 ### 更新問題 `PUT /surveys/:id/questions`
+
 ```typescript
 // Request
 {
@@ -568,6 +596,7 @@ enum ErrorCode {
 ```
 
 ### 新增單一問題 `POST /surveys/:id/questions`
+
 ```typescript
 // Request
 {
@@ -588,6 +617,7 @@ enum ErrorCode {
 ```
 
 ### 更新單一問題 `PATCH /surveys/:id/questions/:questionId`
+
 ```typescript
 // Request (Partial Update)
 {
@@ -606,6 +636,7 @@ enum ErrorCode {
 ```
 
 ### 刪除問題 `DELETE /surveys/:id/questions/:questionId`
+
 ```typescript
 // Response (204)
 // No Content
@@ -615,6 +646,7 @@ enum ErrorCode {
 ```
 
 ### 問題排序 `POST /surveys/:id/questions/reorder`
+
 ```typescript
 // Request
 {
@@ -633,6 +665,7 @@ enum ErrorCode {
 ## 回應 APIs
 
 ### 取得回應列表 `GET /surveys/:id/responses`
+
 ```typescript
 // Query Parameters
 ?page=1
@@ -660,6 +693,7 @@ enum ErrorCode {
 ```
 
 ### 取得單一回應 `GET /responses/:id`
+
 ```typescript
 // Response (200)
 {
@@ -686,6 +720,7 @@ enum ErrorCode {
 ```
 
 ### 開始填寫問卷 `POST /surveys/:id/responses/start`
+
 ```typescript
 // Request
 {
@@ -713,6 +748,7 @@ enum ErrorCode {
 ```
 
 ### 提交回應 `POST /surveys/:id/responses`
+
 ```typescript
 // Request
 {
@@ -745,6 +781,7 @@ enum ErrorCode {
 ```
 
 ### 儲存進度 `PATCH /responses/:id`
+
 ```typescript
 // Request
 {
@@ -765,6 +802,7 @@ enum ErrorCode {
 ```
 
 ### 刪除回應 `DELETE /responses/:id`
+
 ```typescript
 // Response (204)
 // No Content
@@ -779,6 +817,7 @@ enum ErrorCode {
 ## 分析 APIs
 
 ### 取得問卷統計 `GET /surveys/:id/analytics`
+
 ```typescript
 // Query Parameters
 ?startDate=2025-01-01
@@ -799,12 +838,12 @@ enum ErrorCode {
       abandons: number
       abandonRate: number
     },
-    
+
     questionStats: Array<{
       questionId: string
       title: string
       type: QuestionType
-      
+
       // 選擇題統計
       choices?: Array<{
         optionId: string
@@ -812,7 +851,7 @@ enum ErrorCode {
         count: number
         percentage: number
       }>
-      
+
       // 評分題統計
       rating?: {
         min: number
@@ -821,18 +860,18 @@ enum ErrorCode {
         median: number
         distribution: Record<number, number>
       }
-      
+
       // 文字題統計
       text?: {
         totalResponses: number
         wordCloud: Array<{word: string, count: number}>
         samples: string[]  // 前 5 筆
       }
-      
+
       skipRate: number
       avgTimeSpent: number
     }>,
-    
+
     // 趨勢資料
     trends: Array<{
       date: string
@@ -840,14 +879,14 @@ enum ErrorCode {
       starts: number
       completions: number
     }>,
-    
+
     // 設備分佈
     deviceStats: {
       desktop: number
       mobile: number
       tablet: number
     },
-    
+
     // 地理分佈
     geoStats: Array<{
       country: string
@@ -859,6 +898,7 @@ enum ErrorCode {
 ```
 
 ### 取得即時統計 `GET /surveys/:id/analytics/realtime`
+
 ```typescript
 // Response (200)
 {
@@ -884,6 +924,7 @@ ws://api.smartsurvey.com/surveys/:id/realtime
 ```
 
 ### 匯出分析報告 `GET /surveys/:id/analytics/export`
+
 ```typescript
 // Query Parameters
 ?format=pdf,excel,csv
@@ -901,6 +942,7 @@ ws://api.smartsurvey.com/surveys/:id/realtime
 ## 團隊 APIs (Phase 3+)
 
 ### 取得團隊列表 `GET /teams`
+
 ```typescript
 // Response (200)
 {
@@ -910,6 +952,7 @@ ws://api.smartsurvey.com/surveys/:id/realtime
 ```
 
 ### 建立團隊 `POST /teams`
+
 ```typescript
 // Request
 {
@@ -925,6 +968,7 @@ ws://api.smartsurvey.com/surveys/:id/realtime
 ```
 
 ### 邀請成員 `POST /teams/:id/members`
+
 ```typescript
 // Request
 {
@@ -947,301 +991,308 @@ ws://api.smartsurvey.com/surveys/:id/realtime
 ## 📊 資料模型
 
 ### User Model
+
 ```typescript
 interface User {
-  id: string
-  email: string
+  id: string;
+  email: string;
   profile: {
-    firstName: string
-    lastName: string
-    displayName: string
-    avatarUrl?: string
-    timezone: string
-    language: string
+    firstName: string;
+    lastName: string;
+    displayName: string;
+    avatarUrl?: string;
+    timezone: string;
+    language: string;
     notificationPreferences: {
-      email: boolean
-      push: boolean
-      surveyResponses: boolean
-      teamUpdates: boolean
-    }
-  }
+      email: boolean;
+      push: boolean;
+      surveyResponses: boolean;
+      teamUpdates: boolean;
+    };
+  };
   subscription: {
-    plan: 'free' | 'pro' | 'team' | 'enterprise'
-    status: 'active' | 'cancelled' | 'expired'
-    validUntil: Date
-    limits: SubscriptionLimits
-    usage: SubscriptionUsage
-  }
+    plan: 'free' | 'pro' | 'team' | 'enterprise';
+    status: 'active' | 'cancelled' | 'expired';
+    validUntil: Date;
+    limits: SubscriptionLimits;
+    usage: SubscriptionUsage;
+  };
   teams: Array<{
-    teamId: string
-    role: TeamRole
-    joinedAt: Date
-  }>
-  createdAt: Date
-  updatedAt: Date
-  lastLoginAt: Date
-  isActive: boolean
+    teamId: string;
+    role: TeamRole;
+    joinedAt: Date;
+  }>;
+  createdAt: Date;
+  updatedAt: Date;
+  lastLoginAt: Date;
+  isActive: boolean;
 }
 ```
 
 ### Survey Model
+
 ```typescript
 interface Survey {
-  id: string
-  title: string
-  description?: string
-  slug: string                    // URL-friendly unique ID
-  createdBy: string              // User ID
-  teamId?: string
-  
-  status: 'draft' | 'published' | 'closed' | 'archived'
-  visibility: 'public' | 'private' | 'password' | 'token'
-  
-  questions: Question[]
-  theme: Theme
-  settings: SurveySettings
-  logic?: LogicRule[]
-  
+  id: string;
+  title: string;
+  description?: string;
+  slug: string; // URL-friendly unique ID
+  createdBy: string; // User ID
+  teamId?: string;
+
+  status: 'draft' | 'published' | 'closed' | 'archived';
+  visibility: 'public' | 'private' | 'password' | 'token';
+
+  questions: Question[];
+  theme: Theme;
+  settings: SurveySettings;
+  logic?: LogicRule[];
+
   statsSummary: {
-    views: number
-    starts: number
-    completions: number
-    avgCompletionTime: number
-    lastResponseAt?: Date
-  }
-  
-  version: number
-  createdAt: Date
-  updatedAt: Date
-  publishedAt?: Date
-  closedAt?: Date
+    views: number;
+    starts: number;
+    completions: number;
+    avgCompletionTime: number;
+    lastResponseAt?: Date;
+  };
+
+  version: number;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt?: Date;
+  closedAt?: Date;
 }
 ```
 
 ### Question Model
+
 ```typescript
 interface Question {
-  id: string
-  type: QuestionType
-  title: string
-  description?: string
-  placeholder?: string
-  required: boolean
-  order: number
-  
+  id: string;
+  type: QuestionType;
+  title: string;
+  description?: string;
+  placeholder?: string;
+  required: boolean;
+  order: number;
+
   // 選擇題選項
   options?: Array<{
-    id: string
-    text: string
-    value: string
-    imageUrl?: string
-    order: number
-  }>
-  
+    id: string;
+    text: string;
+    value: string;
+    imageUrl?: string;
+    order: number;
+  }>;
+
   // 驗證規則
   validation?: {
-    min?: number              // 最小值/長度
-    max?: number              // 最大值/長度
-    pattern?: string          // RegExp
-    customError?: string
-    
+    min?: number; // 最小值/長度
+    max?: number; // 最大值/長度
+    pattern?: string; // RegExp
+    customError?: string;
+
     // 特定類型驗證
-    email?: boolean
-    url?: boolean
-    number?: boolean
+    email?: boolean;
+    url?: boolean;
+    number?: boolean;
     dateRange?: {
-      start?: Date
-      end?: Date
-    }
-  }
-  
+      start?: Date;
+      end?: Date;
+    };
+  };
+
   // 進階設定
   settings?: {
-    randomizeOptions?: boolean
-    allowOther?: boolean
-    multipleColumns?: number
+    randomizeOptions?: boolean;
+    allowOther?: boolean;
+    multipleColumns?: number;
     ratingScale?: {
-      min: number
-      max: number
-      minLabel?: string
-      maxLabel?: string
-    }
-  }
-  
+      min: number;
+      max: number;
+      minLabel?: string;
+      maxLabel?: string;
+    };
+  };
+
   // 邏輯跳轉
   logic?: {
-    conditions: LogicCondition[]
-    action: 'show' | 'hide' | 'skip_to'
-    target?: string          // Question ID or Page
-  }
+    conditions: LogicCondition[];
+    action: 'show' | 'hide' | 'skip_to';
+    target?: string; // Question ID or Page
+  };
 }
 ```
 
 ### QuestionType Enum
+
 ```typescript
-type QuestionType = 
+type QuestionType =
   // 基礎題型
-  | 'single_choice'      // 單選題
-  | 'multiple_choice'    // 多選題
-  | 'dropdown'          // 下拉選單
-  | 'text_short'        // 簡答題
-  | 'text_long'         // 詳答題
-  | 'number'            // 數字題
-  | 'email'             // Email
-  | 'phone'             // 電話
-  | 'date'              // 日期
-  | 'time'              // 時間
-  
+  | 'single_choice' // 單選題
+  | 'multiple_choice' // 多選題
+  | 'dropdown' // 下拉選單
+  | 'text_short' // 簡答題
+  | 'text_long' // 詳答題
+  | 'number' // 數字題
+  | 'email' // Email
+  | 'phone' // 電話
+  | 'date' // 日期
+  | 'time' // 時間
+
   // 進階題型
-  | 'rating'            // 評分題
-  | 'scale'             // 量表題
-  | 'matrix'            // 矩陣題
-  | 'ranking'           // 排序題
-  | 'slider'            // 滑桿題
-  | 'file_upload'       // 檔案上傳
-  | 'signature'         // 簽名
-  | 'location'          // 地理位置
-  | 'yes_no'            // 是非題
-  | 'nps'               // NPS 分數
+  | 'rating' // 評分題
+  | 'scale' // 量表題
+  | 'matrix' // 矩陣題
+  | 'ranking' // 排序題
+  | 'slider' // 滑桿題
+  | 'file_upload' // 檔案上傳
+  | 'signature' // 簽名
+  | 'location' // 地理位置
+  | 'yes_no' // 是非題
+  | 'nps'; // NPS 分數
 ```
 
 ### Response Model
+
 ```typescript
 interface Response {
-  id: string
-  surveyId: string
-  surveyVersion: number
-  userId?: string                // 登入用戶
-  
+  id: string;
+  surveyId: string;
+  surveyVersion: number;
+  userId?: string; // 登入用戶
+
   respondent: {
-    sessionId: string
-    ipHash: string              // 隱私保護
-    country: string
-    deviceType: 'desktop' | 'mobile' | 'tablet'
-    browser: string
-    referrer?: string
-    utmSource?: string
-    utmMedium?: string
-    utmCampaign?: string
-  }
-  
+    sessionId: string;
+    ipHash: string; // 隱私保護
+    country: string;
+    deviceType: 'desktop' | 'mobile' | 'tablet';
+    browser: string;
+    referrer?: string;
+    utmSource?: string;
+    utmMedium?: string;
+    utmCampaign?: string;
+  };
+
   answers: Array<{
-    questionId: string
-    value: any                  // 根據題型
-    text?: string               // 其他選項文字
-    skipped: boolean
-    answeredAt: Date
-    timeSpent: number          // seconds
-  }>
-  
-  status: 'in_progress' | 'completed' | 'abandoned'
-  
+    questionId: string;
+    value: any; // 根據題型
+    text?: string; // 其他選項文字
+    skipped: boolean;
+    answeredAt: Date;
+    timeSpent: number; // seconds
+  }>;
+
+  status: 'in_progress' | 'completed' | 'abandoned';
+
   progress: {
-    currentPage: number
-    totalPages: number
-    percentage: number
-  }
-  
-  startedAt: Date
-  updatedAt: Date
-  submittedAt?: Date
-  totalTime: number            // seconds
-  
-  qualityFlags?: string[]      // ['speeding', 'straight_lining']
-  isTest: boolean
+    currentPage: number;
+    totalPages: number;
+    percentage: number;
+  };
+
+  startedAt: Date;
+  updatedAt: Date;
+  submittedAt?: Date;
+  totalTime: number; // seconds
+
+  qualityFlags?: string[]; // ['speeding', 'straight_lining']
+  isTest: boolean;
 }
 ```
 
 ### Theme Model
+
 ```typescript
 interface Theme {
-  id?: string
-  name?: string
-  
+  id?: string;
+  name?: string;
+
   colors: {
-    primary: string
-    secondary: string
-    background: string
-    surface: string
-    text: string
-    textSecondary: string
-    error: string
-    success: string
-  }
-  
+    primary: string;
+    secondary: string;
+    background: string;
+    surface: string;
+    text: string;
+    textSecondary: string;
+    error: string;
+    success: string;
+  };
+
   typography: {
-    fontFamily: string
+    fontFamily: string;
     fontSize: {
-      small: string
-      base: string
-      large: string
-      xl: string
-    }
+      small: string;
+      base: string;
+      large: string;
+      xl: string;
+    };
     fontWeight: {
-      normal: number
-      medium: number
-      bold: number
-    }
-  }
-  
+      normal: number;
+      medium: number;
+      bold: number;
+    };
+  };
+
   spacing: {
-    xs: string
-    sm: string
-    md: string
-    lg: string
-    xl: string
-  }
-  
-  borderRadius: string
-  boxShadow: string
-  
-  customCss?: string
+    xs: string;
+    sm: string;
+    md: string;
+    lg: string;
+    xl: string;
+  };
+
+  borderRadius: string;
+  boxShadow: string;
+
+  customCss?: string;
 }
 ```
 
 ### SurveySettings Model
+
 ```typescript
 interface SurveySettings {
   // 存取控制
-  allowMultipleResponses: boolean
-  requireLogin: boolean
-  collectIp: boolean
-  password?: string
-  
+  allowMultipleResponses: boolean;
+  requireLogin: boolean;
+  collectIp: boolean;
+  password?: string;
+
   // 時間控制
-  startDate?: Date
-  endDate?: Date
-  timezone: string
-  
+  startDate?: Date;
+  endDate?: Date;
+  timezone: string;
+
   // 回應限制
-  responseLimit?: number
-  dailyResponseLimit?: number
-  
+  responseLimit?: number;
+  dailyResponseLimit?: number;
+
   // 頁面設定
-  showProgressBar: boolean
-  showQuestionNumbers: boolean
-  randomizeQuestions: boolean
-  oneQuestionPerPage: boolean
-  preventGoBack: boolean
-  
+  showProgressBar: boolean;
+  showQuestionNumbers: boolean;
+  randomizeQuestions: boolean;
+  oneQuestionPerPage: boolean;
+  preventGoBack: boolean;
+
   // 自動化
-  autoSave: boolean
-  autoAdvance: boolean
-  timeLimit?: number            // minutes
-  
+  autoSave: boolean;
+  autoAdvance: boolean;
+  timeLimit?: number; // minutes
+
   // 完成設定
-  showCompletionPage: boolean
-  completionMessage?: string
-  redirectUrl?: string
-  
+  showCompletionPage: boolean;
+  completionMessage?: string;
+  redirectUrl?: string;
+
   // 通知
-  emailNotification: boolean
-  notificationEmails?: string[]
-  
+  emailNotification: boolean;
+  notificationEmails?: string[];
+
   // 語言
-  language: string
-  multiLanguage: boolean
-  languages?: string[]
+  language: string;
+  multiLanguage: boolean;
+  languages?: string[];
 }
 ```
 
@@ -1250,6 +1301,7 @@ interface SurveySettings {
 ## 🔌 WebSocket Events
 
 ### 連接
+
 ```typescript
 // 連接 URL
 ws://api.smartsurvey.com/ws
@@ -1264,6 +1316,7 @@ ws://api.smartsurvey.com/ws
 ### 事件類型
 
 #### 問卷編輯協作
+
 ```typescript
 // 訂閱問卷編輯
 {
@@ -1295,6 +1348,7 @@ ws://api.smartsurvey.com/ws
 ```
 
 #### 即時分析
+
 ```typescript
 // 訂閱即時統計
 {
@@ -1317,6 +1371,7 @@ ws://api.smartsurvey.com/ws
 ```
 
 #### 系統通知
+
 ```typescript
 // 接收通知
 {
@@ -1339,6 +1394,7 @@ ws://api.smartsurvey.com/ws
 ## 📝 備註
 
 ### 開發環境差異
+
 ```yaml
 Development:
   Base URL: http://localhost:3000/api
@@ -1354,12 +1410,14 @@ Production:
 ```
 
 ### API 版本管理
+
 - 當前版本：v1
 - 版本支援期：至少 6 個月通知
 - Breaking changes：新版本號
 - 向下相容：盡可能維持
 
 ### 待實作功能 (標記為 📅)
+
 - AI 相關 APIs (Phase 3)
 - 團隊協作 APIs (Phase 3)
 - Webhook APIs (Phase 4)
@@ -1368,5 +1426,5 @@ Production:
 
 ---
 
-*最後更新：2025-01-10*  
-*此文件會隨開發進度持續更新*
+_最後更新：2025-01-10_  
+_此文件會隨開發進度持續更新_

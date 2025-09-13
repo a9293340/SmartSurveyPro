@@ -1,8 +1,7 @@
 # Packages - 共享套件目錄 📦
 
-> 📅 最後更新：2025-01-13
-> 🎯 用途：存放跨應用共享的程式碼包
-> 🔧 管理方式：PNPM Workspace
+> 📅 最後更新：2025-01-13 🎯 用途：存放跨應用共享的程式碼包 🔧 管理方式：PNPM
+> Workspace
 
 ---
 
@@ -20,11 +19,12 @@ packages/
 ## 📦 套件說明
 
 ### 🔧 shared - 共享基礎包
-**用途**：跨專案共享的類型定義、常數、工具函數
-**開發階段**：Phase 1 (進行中)
+
+**用途**：跨專案共享的類型定義、常數、工具函數 **開發階段**：Phase 1 (進行中)
 **引用方式**：`@survey/shared`
 
 **包含內容**：
+
 ```typescript
 // 類型定義
 types/
@@ -53,22 +53,24 @@ utils/
 ```
 
 ### 🎨 ui - UI 組件庫
-**用途**：可重用的 Vue 組件庫
-**開發階段**：Phase 2 (計劃中)
+
+**用途**：可重用的 Vue 組件庫 **開發階段**：Phase 2 (計劃中)
 **引用方式**：`@survey/ui`
 
 **計劃包含**：
+
 - 基礎組件（Button、Input、Modal）
 - 表單組件（Form、Field、Validation）
 - 數據展示（Table、Chart、Card）
 - 佈局組件（Layout、Grid、Container）
 
 ### 💼 core - 核心業務邏輯
-**用途**：業務邏輯、算法、資料處理
-**開發階段**：Phase 2 (計劃中)
+
+**用途**：業務邏輯、算法、資料處理 **開發階段**：Phase 2 (計劃中)
 **引用方式**：`@survey/core`
 
 **計劃包含**：
+
 - 問卷引擎（Builder、Validator、Logic）
 - 分析引擎（Statistics、Reports）
 - 資料處理（Transform、Export、Import）
@@ -105,10 +107,10 @@ echo 'export {}' > src/index.ts
 
 ```typescript
 // 在 apps/web 中使用
-import { Survey, Question } from '@survey/shared/types'
-import { validateEmail } from '@survey/shared/utils'
-import { Button } from '@survey/ui'
-import { SurveyEngine } from '@survey/core'
+import { Survey, Question } from '@survey/shared/types';
+import { validateEmail } from '@survey/shared/utils';
+import { Button } from '@survey/ui';
+import { SurveyEngine } from '@survey/core';
 ```
 
 ### 套件依賴管理
@@ -174,17 +176,18 @@ git commit -m "chore: release @survey/package-name v1.0.0"
 
 ```typescript
 // tests/example.test.ts
-import { describe, it, expect } from 'vitest'
-import { someFunction } from '../src'
+import { describe, it, expect } from 'vitest';
+import { someFunction } from '../src';
 
 describe('someFunction', () => {
   it('should work correctly', () => {
-    expect(someFunction()).toBe(expected)
-  })
-})
+    expect(someFunction()).toBe(expected);
+  });
+});
 ```
 
 測試覆蓋率目標：
+
 - 工具函數：>= 90%
 - 業務邏輯：>= 80%
 - UI 組件：>= 70%
@@ -194,6 +197,7 @@ describe('someFunction', () => {
 ## 📝 文件要求
 
 每個套件必須包含：
+
 1. **README.md**：套件說明和使用指南
 2. **CHANGELOG.md**：版本更新記錄
 3. **API 文件**：所有公開 API 的說明
@@ -220,4 +224,4 @@ describe('someFunction', () => {
 
 ---
 
-*此目錄包含所有可重用的共享程式碼包*
+_此目錄包含所有可重用的共享程式碼包_

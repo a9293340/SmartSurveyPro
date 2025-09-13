@@ -1,4 +1,4 @@
-import { createBaseConfig } from './base'
+import { createBaseConfig } from './base';
 
 // Web 應用程式專用配置
 export const webConfig = createBaseConfig({
@@ -7,4 +7,4 @@ export const webConfig = createBaseConfig({
   dts: false, // Nuxt3 有自己的型別生成機制
   splitting: true,
   treeshake: true,
-})
+});

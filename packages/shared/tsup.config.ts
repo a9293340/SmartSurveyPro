@@ -1,3 +1,3 @@
-import { packageConfig } from '../config/tsup/package.js'
+import { packageConfig } from '../config/tsup/package.js';
 
-export default packageConfig
+export default packageConfig;

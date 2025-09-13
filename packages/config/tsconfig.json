@@ -5,9 +5,5 @@
     "rootDir": ".",
     "outDir": "./dist"
   },
-  "include": [
-    "tsconfig/**/*.json",
-    "tsup/**/*.ts",
-    "eslint/**/*.js"
-  ]
+  "include": ["tsconfig/**/*.json", "tsup/**/*.ts", "eslint/**/*.js"]
 }

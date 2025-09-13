@@ -115,55 +115,55 @@ stores/
 
 <script setup lang="ts">
 // 1. 引入 (imports)
-import { ref, computed, onMounted } from 'vue'
-import type { PropType } from 'vue'
+import { ref, computed, onMounted } from 'vue';
+import type { PropType } from 'vue';
 
 // 2. 類型定義
 interface User {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 // 3. Props 定義
 interface Props {
-  title: string
-  users?: User[]
-  isLoading?: boolean
+  title: string;
+  users?: User[];
+  isLoading?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   users: () => [],
-  isLoading: false
-})
+  isLoading: false,
+});
 
 // 4. Emits 定義
 interface Emits {
-  submit: [data: User]
-  cancel: []
+  submit: [data: User];
+  cancel: [];
 }
 
-const emit = defineEmits<Emits>()
+const emit = defineEmits<Emits>();
 
 // 5. 響應式數據
-const isVisible = ref(false)
-const selectedUser = ref<User | null>(null)
+const isVisible = ref(false);
+const selectedUser = ref<User | null>(null);
 
 // 6. 計算屬性
 const displayUsers = computed(() => {
-  return props.users.filter(user => user.name.length > 0)
-})
+  return props.users.filter(user => user.name.length > 0);
+});
 
 // 7. 方法
 const handleSubmit = () => {
   if (selectedUser.value) {
-    emit('submit', selectedUser.value)
+    emit('submit', selectedUser.value);
   }
-}
+};
 
 // 8. 生命週期
 onMounted(() => {
   // 初始化邏輯
-})
+});
 </script>
 
 <style scoped>
@@ -177,16 +177,16 @@ onMounted(() => {
 // ✅ 推薦：使用 TypeScript interface
 interface Props {
   // 必須屬性
-  title: string
-  userId: string
-  
+  title: string;
+  userId: string;
+
   // 可選屬性，提供預設值
-  isActive?: boolean
-  items?: string[]
-  
+  isActive?: boolean;
+  items?: string[];
+
   // 複雜類型
-  user?: User
-  config?: SurveyConfig
+  user?: User;
+  config?: SurveyConfig;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -194,18 +194,18 @@ const props = withDefaults(defineProps<Props>(), {
   items: () => [],
   config: () => ({
     theme: 'default',
-    allowEdit: true
-  })
-})
+    allowEdit: true,
+  }),
+});
 
 // ❌ 避免：運行時驗證 (一人團隊不需要過度複雜)
 const props = defineProps({
   title: {
     type: String,
     required: true,
-    validator: (value: string) => value.length > 0
-  }
-})
+    validator: (value: string) => value.length > 0,
+  },
+});
 ```
 
 #### 3. 事件處理規範
@@ -214,77 +214,80 @@ const props = defineProps({
 // ✅ 推薦：使用 TypeScript 類型定義 emits
 interface Emits {
   // 事件名稱：[參數類型]
-  'update:modelValue': [value: string]
-  'survey:save': [survey: Survey]
-  'user:delete': [userId: string]
-  'validation:error': [errors: ValidationError[]]
+  'update:modelValue': [value: string];
+  'survey:save': [survey: Survey];
+  'user:delete': [userId: string];
+  'validation:error': [errors: ValidationError[]];
 }
 
-const emit = defineEmits<Emits>()
+const emit = defineEmits<Emits>();
 
 // 使用時保持命名一致性
 const handleSave = (survey: Survey) => {
-  emit('survey:save', survey)
-}
+  emit('survey:save', survey);
+};
 
 // ❌ 避免：不明確的事件名稱
-emit('update', data)        // 太籠統
-emit('click', event)        // 沒有業務意義
+emit('update', data); // 太籠統
+emit('click', event); // 沒有業務意義
 ```
 
 ### Composables 規範
 
 ```typescript
 // composables/useSurvey.ts
-import { ref, computed } from 'vue'
-import type { Survey, CreateSurveyRequest } from '~/types/survey'
+import { ref, computed } from 'vue';
+import type { Survey, CreateSurveyRequest } from '~/types/survey';
 
 export const useSurvey = () => {
   // 狀態
-  const surveys = ref<Survey[]>([])
-  const currentSurvey = ref<Survey | null>(null)
-  const isLoading = ref(false)
-  const error = ref<string | null>(null)
+  const surveys = ref<Survey[]>([]);
+  const currentSurvey = ref<Survey | null>(null);
+  const isLoading = ref(false);
+  const error = ref<string | null>(null);
 
   // 計算屬性
   const activeSurveys = computed(() => {
-    return surveys.value.filter(survey => survey.status === 'active')
-  })
+    return surveys.value.filter(survey => survey.status === 'active');
+  });
 
   // 方法
   const fetchSurveys = async () => {
     try {
-      isLoading.value = true
-      error.value = null
-      
-      const { data } = await $fetch<{ surveys: Survey[] }>('/api/surveys')
-      surveys.value = data.surveys
-    } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Unknown error'
-    } finally {
-      isLoading.value = false
-    }
-  }
+      isLoading.value = true;
+      error.value = null;
 
-  const createSurvey = async (request: CreateSurveyRequest): Promise<Survey | null> => {
+      const { data } = await $fetch<{ surveys: Survey[] }>('/api/surveys');
+      surveys.value = data.surveys;
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Unknown error';
+    } finally {
+      isLoading.value = false;
+    }
+  };
+
+  const createSurvey = async (
+    request: CreateSurveyRequest
+  ): Promise<Survey | null> => {
     try {
-      isLoading.value = true
-      error.value = null
+      isLoading.value = true;
+      error.value = null;
 
       const { data } = await $fetch<{ survey: Survey }>('/api/surveys', {
         method: 'POST',
-        body: request
-      })
+        body: request,
+      });
 
-      surveys.value.push(data.survey)
-      return data.survey
+      surveys.value.push(data.survey);
+      return data.survey;
     } catch (err) {
-      error.value = err instanceof Error ? err.message : 'Failed to create survey'
-      return null
+      error.value =
+        err instanceof Error ? err.message : 'Failed to create survey';
+      return null;
     } finally {
-      isLoading.value = false
+      isLoading.value = false;
     }
-  }
+  };
 
   // 返回所有公開的狀態和方法
   return {
@@ -293,29 +296,29 @@ export const useSurvey = () => {
     currentSurvey: readonly(currentSurvey),
     isLoading: readonly(isLoading),
     error: readonly(error),
-    
+
     // 計算屬性
     activeSurveys,
-    
+
     // 方法
     fetchSurveys,
-    createSurvey
-  }
-}
+    createSurvey,
+  };
+};
 ```
 
 ### Pinia Store 規範
 
 ```typescript
 // stores/auth.ts
-import { defineStore } from 'pinia'
-import type { User, LoginRequest, RegisterRequest } from '~/types/auth'
+import { defineStore } from 'pinia';
+import type { User, LoginRequest, RegisterRequest } from '~/types/auth';
 
 interface AuthState {
-  user: User | null
-  token: string | null
-  isAuthenticated: boolean
-  isLoading: boolean
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 }
 
 export const useAuthStore = defineStore('auth', {
@@ -323,92 +326,92 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     token: null,
     isAuthenticated: false,
-    isLoading: false
+    isLoading: false,
   }),
 
   getters: {
     userName: (state): string => {
-      return state.user ? `${state.user.firstName} ${state.user.lastName}` : ''
+      return state.user ? `${state.user.firstName} ${state.user.lastName}` : '';
     },
 
-    hasPermission: (state) => {
+    hasPermission: state => {
       return (permission: string): boolean => {
-        return state.user?.permissions?.includes(permission) ?? false
-      }
-    }
+        return state.user?.permissions?.includes(permission) ?? false;
+      };
+    },
   },
 
   actions: {
     async login(credentials: LoginRequest): Promise<boolean> {
       try {
-        this.isLoading = true
+        this.isLoading = true;
 
         const { data } = await $fetch<{
-          user: User
-          token: string
+          user: User;
+          token: string;
         }>('/api/auth/login', {
           method: 'POST',
-          body: credentials
-        })
+          body: credentials,
+        });
 
-        this.user = data.user
-        this.token = data.token
-        this.isAuthenticated = true
+        this.user = data.user;
+        this.token = data.token;
+        this.isAuthenticated = true;
 
         // 儲存到 localStorage
         const tokenCookie = useCookie('auth-token', {
           default: () => null,
-          maxAge: 60 * 60 * 24 * 7 // 7 days
-        })
-        tokenCookie.value = data.token
+          maxAge: 60 * 60 * 24 * 7, // 7 days
+        });
+        tokenCookie.value = data.token;
 
-        return true
+        return true;
       } catch (error) {
-        console.error('Login failed:', error)
-        return false
+        console.error('Login failed:', error);
+        return false;
       } finally {
-        this.isLoading = false
+        this.isLoading = false;
       }
     },
 
     async logout(): Promise<void> {
       // 清理本地狀態
-      this.user = null
-      this.token = null
-      this.isAuthenticated = false
+      this.user = null;
+      this.token = null;
+      this.isAuthenticated = false;
 
       // 清理 cookie
-      const tokenCookie = useCookie('auth-token')
-      tokenCookie.value = null
+      const tokenCookie = useCookie('auth-token');
+      tokenCookie.value = null;
 
       // 重定向到登入頁
-      await navigateTo('/login')
+      await navigateTo('/login');
     },
 
     async validateToken(): Promise<boolean> {
-      const tokenCookie = useCookie('auth-token')
+      const tokenCookie = useCookie('auth-token');
       if (!tokenCookie.value) {
-        return false
+        return false;
       }
 
       try {
         const { data } = await $fetch<{ user: User }>('/api/auth/me', {
           headers: {
-            Authorization: `Bearer ${tokenCookie.value}`
-          }
-        })
+            Authorization: `Bearer ${tokenCookie.value}`,
+          },
+        });
 
-        this.user = data.user
-        this.token = tokenCookie.value
-        this.isAuthenticated = true
-        return true
+        this.user = data.user;
+        this.token = tokenCookie.value;
+        this.isAuthenticated = true;
+        return true;
       } catch {
-        await this.logout()
-        return false
+        await this.logout();
+        return false;
       }
-    }
-  }
-})
+    },
+  },
+});
 ```
 
 ---
@@ -419,101 +422,103 @@ export const useAuthStore = defineStore('auth', {
 
 ```typescript
 // server/api/surveys/index.get.ts
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   try {
     // 1. 驗證權限
-    const user = await validateAuthToken(event)
+    const user = await validateAuthToken(event);
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Unauthorized'
-      })
+        statusMessage: 'Unauthorized',
+      });
     }
 
     // 2. 解析查詢參數
-    const query = getQuery(event)
-    const { page = 1, limit = 10, status } = query
+    const query = getQuery(event);
+    const { page = 1, limit = 10, status } = query;
 
     // 3. 驗證參數
     const validation = await validateQuery({
       page: Number(page),
       limit: Number(limit),
-      status: status as string
-    })
+      status: status as string,
+    });
 
     if (!validation.success) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Invalid query parameters',
-        data: validation.errors
-      })
+        data: validation.errors,
+      });
     }
 
     // 4. 業務邏輯
     const surveys = await getSurveysByUser(user.id, {
       page: validation.data.page,
       limit: validation.data.limit,
-      status: validation.data.status
-    })
+      status: validation.data.status,
+    });
 
     // 5. 回傳結果
     return {
       success: true,
       data: {
         surveys: surveys.items,
-        pagination: surveys.pagination
-      }
-    }
+        pagination: surveys.pagination,
+      },
+    };
   } catch (error) {
     // 統一錯誤處理
-    return handleAPIError(error)
+    return handleAPIError(error);
   }
-})
+});
 ```
 
 ### 中介軟體規範
 
 ```typescript
 // server/middleware/auth.ts
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   // 只處理 API 路由
   if (!event.node.req.url?.startsWith('/api/')) {
-    return
+    return;
   }
 
   // 跳過不需要認證的路由
-  const publicRoutes = ['/api/auth/login', '/api/auth/register', '/api/health']
+  const publicRoutes = ['/api/auth/login', '/api/auth/register', '/api/health'];
   if (publicRoutes.includes(event.node.req.url)) {
-    return
+    return;
   }
 
   try {
-    const token = getCookie(event, 'auth-token') || getHeader(event, 'authorization')?.replace('Bearer ', '')
-    
+    const token =
+      getCookie(event, 'auth-token') ||
+      getHeader(event, 'authorization')?.replace('Bearer ', '');
+
     if (!token) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Authentication token required'
-      })
+        statusMessage: 'Authentication token required',
+      });
     }
 
-    const user = await validateJWTToken(token)
+    const user = await validateJWTToken(token);
     if (!user) {
       throw createError({
         statusCode: 401,
-        statusMessage: 'Invalid or expired token'
-      })
+        statusMessage: 'Invalid or expired token',
+      });
     }
 
     // 將用戶資訊附加到 context
-    event.context.user = user
+    event.context.user = user;
   } catch (error) {
     throw createError({
       statusCode: 401,
-      statusMessage: 'Authentication failed'
-    })
+      statusMessage: 'Authentication failed',
+    });
   }
-})
+});
 ```
 
 ### 錯誤處理規範
@@ -521,15 +526,15 @@ export default defineEventHandler(async (event) => {
 ```typescript
 // server/utils/error-handler.ts
 interface APIError {
-  statusCode: number
-  statusMessage: string
-  data?: any
+  statusCode: number;
+  statusMessage: string;
+  data?: any;
 }
 
 export const handleAPIError = (error: unknown): APIError => {
   // H3 錯誤 (createError)
   if (error && typeof error === 'object' && 'statusCode' in error) {
-    return error as APIError
+    return error as APIError;
   }
 
   // MongoDB 錯誤
@@ -538,32 +543,32 @@ export const handleAPIError = (error: unknown): APIError => {
       return {
         statusCode: 400,
         statusMessage: 'Validation failed',
-        data: parseValidationError(error)
-      }
+        data: parseValidationError(error),
+      };
     }
 
     if (error.name === 'CastError') {
       return {
         statusCode: 400,
-        statusMessage: 'Invalid ID format'
-      }
+        statusMessage: 'Invalid ID format',
+      };
     }
 
     if (error.message.includes('duplicate key')) {
       return {
         statusCode: 409,
-        statusMessage: 'Resource already exists'
-      }
+        statusMessage: 'Resource already exists',
+      };
     }
   }
 
   // 預設錯誤
-  console.error('Unhandled API error:', error)
+  console.error('Unhandled API error:', error);
   return {
     statusCode: 500,
-    statusMessage: 'Internal server error'
-  }
-}
+    statusMessage: 'Internal server error',
+  };
+};
 
 // 統一回應格式
 export const createAPIResponse = <T>(data: T, message?: string) => {
@@ -571,18 +576,18 @@ export const createAPIResponse = <T>(data: T, message?: string) => {
     success: true,
     message: message || 'Success',
     data,
-    timestamp: new Date().toISOString()
-  }
-}
+    timestamp: new Date().toISOString(),
+  };
+};
 
 export const createAPIErrorResponse = (error: APIError) => {
   return {
     success: false,
     message: error.statusMessage,
     data: error.data || null,
-    timestamp: new Date().toISOString()
-  }
-}
+    timestamp: new Date().toISOString(),
+  };
+};
 ```
 
 ---
@@ -625,7 +630,7 @@ package handlers
 import (
     "net/http"
     "strconv"
-    
+
     "github.com/gin-gonic/gin"
     "your-domain/smartsurvey/internal/models"
     "your-domain/smartsurvey/internal/services"
@@ -761,7 +766,7 @@ package services
 import (
     "context"
     "fmt"
-    
+
     "your-domain/smartsurvey/internal/models"
     "your-domain/smartsurvey/internal/repositories"
 )
@@ -940,9 +945,11 @@ Closes #123
 ## PR Template
 
 ### 📝 變更摘要
+
 簡述這次變更的內容和目的
 
 ### 🔄 變更類型
+
 - [ ] 新功能 (feature)
 - [ ] 修復 (fix)
 - [ ] 重構 (refactor)
@@ -950,12 +957,14 @@ Closes #123
 - [ ] 測試 (test)
 
 ### 🧪 測試項目
+
 - [ ] 單元測試通過
 - [ ] 整合測試通過
 - [ ] 手動測試完成
 - [ ] 無回歸問題
 
 ### 📋 檢查清單
+
 - [ ] 程式碼符合規範
 - [ ] 沒有 console.log 或除錯程式碼
 - [ ] TypeScript 類型檢查通過
@@ -964,11 +973,12 @@ Closes #123
 - [ ] 安全性檢查
 
 ### 📸 截圖/錄影
+
 （如有 UI 變更，請提供截圖或錄影）
 
 ### 🔗 相關 Issue
-Closes #123
-Related to #456
+
+Closes #123 Related to #456
 ```
 
 ---
@@ -1021,13 +1031,8 @@ echo "✅ Pre-commit checks passed!"
 ```json
 // .lintstagedrc.json
 {
-  "*.{js,ts,vue}": [
-    "eslint --fix",
-    "prettier --write"
-  ],
-  "*.{css,scss,html,md,json}": [
-    "prettier --write"
-  ]
+  "*.{js,ts,vue}": ["eslint --fix", "prettier --write"],
+  "*.{css,scss,html,md,json}": ["prettier --write"]
 }
 ```
 
@@ -1039,30 +1044,30 @@ echo "✅ Pre-commit checks passed!"
 module.exports = {
   rules: {
     // 認知複雜度 (一人團隊建議放寬到 15)
-    'complexity': ['warn', 15],
-    
+    complexity: ['warn', 15],
+
     // 函數長度限制
     'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true }],
-    
+
     // 檔案長度限制
     'max-lines': ['warn', { max: 300, skipBlankLines: true }],
-    
+
     // 參數數量限制
     'max-params': ['warn', 5],
-    
+
     // 巢狀深度限制
     'max-depth': ['warn', 4],
-    
+
     // 變數命名規範
-    'camelcase': ['error', { properties: 'never' }],
-    
+    camelcase: ['error', { properties: 'never' }],
+
     // 禁止未使用的變數
     'no-unused-vars': 'error',
-    
+
     // 禁止 console.log（警告，而非錯誤）
-    'no-console': ['warn', { allow: ['warn', 'error'] }]
-  }
-}
+    'no-console': ['warn', { allow: ['warn', 'error'] }],
+  },
+};
 ```
 
 ### 4. 效能監控
@@ -1072,36 +1077,45 @@ module.exports = {
 export const performanceMonitor = {
   // 測量函數執行時間
   measureTime: <T>(fn: () => T, label: string): T => {
-    const start = performance.now()
-    const result = fn()
-    const end = performance.now()
-    
-    if (end - start > 100) { // 超過 100ms 就警告
-      console.warn(`🐌 Slow operation: ${label} took ${(end - start).toFixed(2)}ms`)
+    const start = performance.now();
+    const result = fn();
+    const end = performance.now();
+
+    if (end - start > 100) {
+      // 超過 100ms 就警告
+      console.warn(
+        `🐌 Slow operation: ${label} took ${(end - start).toFixed(2)}ms`
+      );
     }
-    
-    return result
+
+    return result;
   },
 
   // 測量非同步函數執行時間
-  measureAsyncTime: async <T>(fn: () => Promise<T>, label: string): Promise<T> => {
-    const start = performance.now()
-    const result = await fn()
-    const end = performance.now()
-    
-    if (end - start > 500) { // 非同步操作超過 500ms 就警告
-      console.warn(`🐌 Slow async operation: ${label} took ${(end - start).toFixed(2)}ms`)
+  measureAsyncTime: async <T>(
+    fn: () => Promise<T>,
+    label: string
+  ): Promise<T> => {
+    const start = performance.now();
+    const result = await fn();
+    const end = performance.now();
+
+    if (end - start > 500) {
+      // 非同步操作超過 500ms 就警告
+      console.warn(
+        `🐌 Slow async operation: ${label} took ${(end - start).toFixed(2)}ms`
+      );
     }
-    
-    return result
-  }
-}
+
+    return result;
+  },
+};
 
 // 使用範例
 const surveys = await performanceMonitor.measureAsyncTime(
   () => fetchSurveys(),
   'fetchSurveys'
-)
+);
 ```
 
 ### 5. 記憶體洩漏檢查
@@ -1111,9 +1125,12 @@ const surveys = await performanceMonitor.measureAsyncTime(
 export const memoryMonitor = {
   // 檢查大型物件
   checkObjectSize: (obj: any, name: string) => {
-    const size = JSON.stringify(obj).length
-    if (size > 1024 * 1024) { // 超過 1MB
-      console.warn(`💾 Large object detected: ${name} is ${(size / 1024 / 1024).toFixed(2)}MB`)
+    const size = JSON.stringify(obj).length;
+    if (size > 1024 * 1024) {
+      // 超過 1MB
+      console.warn(
+        `💾 Large object detected: ${name} is ${(size / 1024 / 1024).toFixed(2)}MB`
+      );
     }
   },
 
@@ -1122,11 +1139,12 @@ export const memoryMonitor = {
     if (process.client) {
       console.log(`📊 Memory usage after ${componentName}:`, {
         used: Math.round(performance.memory?.usedJSHeapSize / 1024 / 1024) || 0,
-        total: Math.round(performance.memory?.totalJSHeapSize / 1024 / 1024) || 0
-      })
+        total:
+          Math.round(performance.memory?.totalJSHeapSize / 1024 / 1024) || 0,
+      });
     }
-  }
-}
+  },
+};
 ```
 
 ---
@@ -1142,45 +1160,48 @@ module.exports = {
   env: {
     browser: true,
     node: true,
-    es2022: true
+    es2022: true,
   },
   extends: [
     '@nuxtjs/eslint-config-typescript',
     'plugin:vue/vue3-recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier'
+    'prettier',
   ],
   plugins: ['@typescript-eslint'],
   rules: {
     // Vue 規則
     'vue/multi-word-component-names': 'off',
     'vue/no-multiple-template-root': 'off',
-    'vue/component-tags-order': ['error', {
-      order: ['template', 'script', 'style']
-    }],
+    'vue/component-tags-order': [
+      'error',
+      {
+        order: ['template', 'script', 'style'],
+      },
+    ],
     'vue/component-name-in-template-casing': ['error', 'PascalCase'],
     'vue/component-definition-name-casing': ['error', 'PascalCase'],
-    
+
     // TypeScript 規則
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
-    
+
     // 通用規則
     'no-console': ['warn', { allow: ['warn', 'error'] }],
     'prefer-const': 'error',
     'no-var': 'error',
     'object-shorthand': 'error',
     'prefer-template': 'error',
-    
+
     // 程式碼品質
-    'complexity': ['warn', 15],
+    complexity: ['warn', 15],
     'max-lines-per-function': ['warn', { max: 50 }],
     'max-depth': ['warn', 4],
-    'max-params': ['warn', 5]
-  }
-}
+    'max-params': ['warn', 5],
+  },
+};
 ```
 
 ### Prettier 配置
@@ -1216,15 +1237,8 @@ module.exports = {
     "exactOptionalPropertyTypes": true,
     "noUncheckedIndexedAccess": true
   },
-  "include": [
-    "**/*.ts",
-    "**/*.vue"
-  ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    ".nuxt"
-  ]
+  "include": ["**/*.ts", "**/*.vue"],
+  "exclude": ["node_modules", "dist", ".nuxt"]
 }
 ```
 
@@ -1232,8 +1246,8 @@ module.exports = {
 
 ```typescript
 // vitest.config.ts
-import { defineConfig } from 'vitest/config'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vitest/config';
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   plugins: [vue()],
@@ -1247,13 +1261,13 @@ export default defineConfig({
           branches: 70,
           functions: 70,
           lines: 70,
-          statements: 70
-        }
-      }
+          statements: 70,
+        },
+      },
     },
-    setupFiles: ['./test/setup.ts']
-  }
-})
+    setupFiles: ['./test/setup.ts'],
+  },
+});
 ```
 
 ---
@@ -1261,12 +1275,14 @@ export default defineConfig({
 ## 📋 日常開發檢查清單
 
 ### 🌅 每日開始前
+
 - [ ] `git pull origin develop` 同步最新代碼
 - [ ] `npm install` 更新依賴（如有需要）
 - [ ] `npm run quality` 檢查程式碼品質
 - [ ] 檢視 GitHub Issues 和 Project Board
 
 ### ⚡ 開發過程中
+
 - [ ] 每個功能都有對應的測試
 - [ ] 複雜邏輯有註解說明
 - [ ] 新增的 API 都有類型定義
@@ -1274,6 +1290,7 @@ export default defineConfig({
 - [ ] 錯誤處理完整
 
 ### 🌙 提交前檢查
+
 - [ ] `npm run quality` 通過
 - [ ] 手動測試功能正常
 - [ ] 檢查 Network 面板無異常請求
@@ -1282,6 +1299,7 @@ export default defineConfig({
 - [ ] Git commit 訊息符合規範
 
 ### 📅 每週檢查
+
 - [ ] 依賴套件安全性檢查 `npm audit`
 - [ ] 效能分析報告
 - [ ] 程式碼覆蓋率報告
@@ -1304,4 +1322,4 @@ export default defineConfig({
 
 ---
 
-*本文檔會隨著專案發展持續更新和優化。*
+_本文檔會隨著專案發展持續更新和優化。_

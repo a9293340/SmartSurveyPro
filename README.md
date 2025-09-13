@@ -1,7 +1,7 @@
 # SmartSurvey Pro 🚀
 
 > 智慧問卷建構與分析平台 - 讓問卷調查變得簡單而強大
-> 
+>
 > **開發狀態**: 🏗️ MVP Development (Phase 1)  
 > **目標上線**: 2025年3月  
 > **技術棧**: Nuxt3 + Vue3 + MongoDB + Redis  
@@ -25,15 +25,19 @@
 
 ## 專案概述
 
-SmartSurvey Pro 是一個現代化的問卷建構與分析平台，提供拖放式問卷編輯器、即時資料分析、AI 智慧建議等功能。目標是打造比 Google Forms 更專業、比 SurveyMonkey 更易用的解決方案。
+SmartSurvey
+Pro 是一個現代化的問卷建構與分析平台，提供拖放式問卷編輯器、即時資料分析、AI 智慧建議等功能。目標是打造比 Google
+Forms 更專業、比 SurveyMonkey 更易用的解決方案。
 
 ### 🎯 核心價值
+
 - **直覺操作**: 拖放式編輯器，5分鐘創建專業問卷
 - **智慧分析**: 即時統計圖表，AI 洞察建議
 - **彈性擴展**: 支援複雜邏輯跳轉、自訂主題
 - **團隊協作**: 多人編輯、權限管理（Phase 3+）
 
 ### 📊 目標用戶
+
 - 主要：中小企業、教育機構、研究單位
 - 次要：個人用戶、非營利組織
 
@@ -42,18 +46,21 @@ SmartSurvey Pro 是一個現代化的問卷建構與分析平台，提供拖放�
 ## 核心功能
 
 ### ✅ 已實現功能
+
 - [ ] 基礎架構設置
 - [ ] 用戶認證系統
 - [ ] 問卷 CRUD 操作
 - [ ] 拖放式問卷編輯器
 
 ### 🚧 開發中功能 (Phase 1-2)
+
 - [ ] 10+ 種題型支援
 - [ ] 問卷預覽與測試
 - [ ] 基礎資料統計
 - [ ] 回應資料匯出
 
 ### 📅 計劃功能 (Phase 3+)
+
 - [ ] 進階邏輯跳轉
 - [ ] AI 問卷生成
 - [ ] 即時協作編輯
@@ -67,20 +74,20 @@ SmartSurvey Pro 是一個現代化的問卷建構與分析平台，提供拖放�
 
 ### 🔧 技術棧
 
-| 層級 | 技術 | 版本 | 說明 |
-|-----|------|------|------|
-| **前端** | Nuxt 3 | ^3.9.0 | SSR/SSG 框架 |
-| | Vue 3 | ^3.4.0 | 漸進式框架 |
-| | TypeScript | ^5.3.0 | 類型安全 |
-| | Tailwind CSS | ^3.4.0 | 原子化 CSS |
-| | Pinia | ^2.1.0 | 狀態管理 |
-| **後端** | Nitro | 內建 | Nuxt3 伺服器引擎 |
-| | MongoDB | ^6.3.0 | 主資料庫驅動 |
-| | Redis | ^4.6.0 | 快取客戶端 |
-| **工具** | Turborepo | ^1.11.0 | Monorepo 管理 |
-| | PNPM | 8.15.0+ | 套件管理 |
-| | Docker | 24.0+ | 容器化 (選用) |
-| **部署** | Google Cloud Run | - | 主要部署平台 |
+| 層級     | 技術             | 版本    | 說明             |
+| -------- | ---------------- | ------- | ---------------- |
+| **前端** | Nuxt 3           | ^3.9.0  | SSR/SSG 框架     |
+|          | Vue 3            | ^3.4.0  | 漸進式框架       |
+|          | TypeScript       | ^5.3.0  | 類型安全         |
+|          | Tailwind CSS     | ^3.4.0  | 原子化 CSS       |
+|          | Pinia            | ^2.1.0  | 狀態管理         |
+| **後端** | Nitro            | 內建    | Nuxt3 伺服器引擎 |
+|          | MongoDB          | ^6.3.0  | 主資料庫驅動     |
+|          | Redis            | ^4.6.0  | 快取客戶端       |
+| **工具** | Turborepo        | ^1.11.0 | Monorepo 管理    |
+|          | PNPM             | 8.15.0+ | 套件管理         |
+|          | Docker           | 24.0+   | 容器化 (選用)    |
+| **部署** | Google Cloud Run | -       | 主要部署平台     |
 
 ### 🏗️ 系統架構圖
 
@@ -106,13 +113,13 @@ SmartSurvey Pro 是一個現代化的問卷建構與分析平台，提供拖放�
 
 ### 📊 Collections 概覽
 
-| Collection | 用途 | 預估規模 | 索引策略 |
-|------------|------|----------|----------|
-| `users` | 用戶資料 | 10萬筆 | email, teams |
-| `surveys` | 問卷主體 | 100萬筆 | creator, status, slug |
+| Collection  | 用途     | 預估規模 | 索引策略               |
+| ----------- | -------- | -------- | ---------------------- |
+| `users`     | 用戶資料 | 10萬筆   | email, teams           |
+| `surveys`   | 問卷主體 | 100萬筆  | creator, status, slug  |
 | `responses` | 回應資料 | 1000萬筆 | surveyId, userId, date |
-| `teams` | 團隊資料 | 1萬筆 | slug, members |
-| `analytics` | 統計快取 | 100萬筆 | surveyId, date |
+| `teams`     | 團隊資料 | 1萬筆    | slug, members          |
+| `analytics` | 統計快取 | 100萬筆  | surveyId, date         |
 
 ### 🔑 Redis 快取結構
 
@@ -138,31 +145,34 @@ rate:{ip}:{endpoint} → count (TTL: 1m)
 ## API 端點
 
 ### 🔐 認證相關
-| Method | Endpoint | 說明 | 狀態 |
-|--------|----------|------|------|
-| POST | `/api/auth/register` | 註冊 | 🚧 |
-| POST | `/api/auth/login` | 登入 | 🚧 |
-| POST | `/api/auth/logout` | 登出 | 🚧 |
-| GET | `/api/auth/me` | 當前用戶 | 🚧 |
+
+| Method | Endpoint             | 說明     | 狀態 |
+| ------ | -------------------- | -------- | ---- |
+| POST   | `/api/auth/register` | 註冊     | 🚧   |
+| POST   | `/api/auth/login`    | 登入     | 🚧   |
+| POST   | `/api/auth/logout`   | 登出     | 🚧   |
+| GET    | `/api/auth/me`       | 當前用戶 | 🚧   |
 
 ### 📝 問卷管理
-| Method | Endpoint | 說明 | 狀態 |
-|--------|----------|------|------|
-| GET | `/api/surveys` | 問卷列表 | 🚧 |
-| POST | `/api/surveys` | 創建問卷 | 🚧 |
-| GET | `/api/surveys/:id` | 問卷詳情 | 🚧 |
-| PUT | `/api/surveys/:id` | 更新問卷 | 🚧 |
-| DELETE | `/api/surveys/:id` | 刪除問卷 | 🚧 |
-| POST | `/api/surveys/:id/publish` | 發布問卷 | 📅 |
-| POST | `/api/surveys/:id/duplicate` | 複製問卷 | 📅 |
+
+| Method | Endpoint                     | 說明     | 狀態 |
+| ------ | ---------------------------- | -------- | ---- |
+| GET    | `/api/surveys`               | 問卷列表 | 🚧   |
+| POST   | `/api/surveys`               | 創建問卷 | 🚧   |
+| GET    | `/api/surveys/:id`           | 問卷詳情 | 🚧   |
+| PUT    | `/api/surveys/:id`           | 更新問卷 | 🚧   |
+| DELETE | `/api/surveys/:id`           | 刪除問卷 | 🚧   |
+| POST   | `/api/surveys/:id/publish`   | 發布問卷 | 📅   |
+| POST   | `/api/surveys/:id/duplicate` | 複製問卷 | 📅   |
 
 ### 📊 回應與分析
-| Method | Endpoint | 說明 | 狀態 |
-|--------|----------|------|------|
-| POST | `/api/surveys/:id/responses` | 提交回應 | 🚧 |
-| GET | `/api/surveys/:id/responses` | 回應列表 | 🚧 |
-| GET | `/api/surveys/:id/analytics` | 統計分析 | 📅 |
-| GET | `/api/surveys/:id/export` | 匯出資料 | 📅 |
+
+| Method | Endpoint                     | 說明     | 狀態 |
+| ------ | ---------------------------- | -------- | ---- |
+| POST   | `/api/surveys/:id/responses` | 提交回應 | 🚧   |
+| GET    | `/api/surveys/:id/responses` | 回應列表 | 🚧   |
+| GET    | `/api/surveys/:id/analytics` | 統計分析 | 📅   |
+| GET    | `/api/surveys/:id/export`    | 匯出資料 | 📅   |
 
 **圖例**: ✅ 完成 | 🚧 開發中 | 📅 計劃中
 
@@ -206,7 +216,8 @@ SmartSurveyPro/
 
 ## 開發進度
 
-### 📅 Phase 1: MVP (第1-2個月) 
+### 📅 Phase 1: MVP (第1-2個月)
+
 **目標**: 基礎問卷建構與回應收集
 
 - [x] 專案架構設置
@@ -218,6 +229,7 @@ SmartSurveyPro/
 - [ ] 基礎統計頁面
 
 ### 📅 Phase 2: 核心功能 (第3-4個月)
+
 **目標**: 完整問卷功能與基礎分析
 
 - [ ] 10+ 種題型
@@ -228,6 +240,7 @@ SmartSurveyPro/
 - [ ] 效能優化
 
 ### 📅 Phase 3: 進階功能 (第5-6個月)
+
 **目標**: 團隊協作與 AI 功能
 
 - [ ] 團隊管理
@@ -243,6 +256,7 @@ SmartSurveyPro/
 ## 快速開始
 
 ### 環境需求
+
 - Node.js 18+
 - PNPM 8.15+
 - MongoDB 7.0+
@@ -285,6 +299,7 @@ pnpm type-check   # TypeScript 檢查
 ## 部署資訊
 
 ### 🚀 部署平台
+
 - **開發環境**: Vercel (自動部署)
 - **生產環境**: Google Cloud Platform (Cloud Run)
 
@@ -330,9 +345,11 @@ ENABLE_TEAM_FEATURES=false
 ## 相關文件
 
 ### 📚 文件索引中心
+
 - 📋 [文件索引總覽](./docs/README.md) - 所有文件的快速導航
 
 ### 📖 核心文件
+
 - 🤖 [Claude 開發指南](./CLAUDE.md) - AI 協作指南
 - 📊 [開發路線圖](./smartsurvey-roadmap.md) - 完整開發計劃
 - 📖 [API 參考文件](./smartsurvey-api-reference.md)
@@ -340,6 +357,7 @@ ENABLE_TEAM_FEATURES=false
 - 💼 [業務邏輯規則](./smartsurvey-business-logic.md)
 
 ### 🔧 技術文件
+
 - 🏗️ [系統架構](./docs/system-architecture.md)
 - 📦 [Monorepo 架構](./docs/monorepo-architecture.md)
 - 🎨 [設計系統](./docs/design-system.md)
@@ -356,4 +374,5 @@ ENABLE_TEAM_FEATURES=false
 
 ---
 
-> 💡 **開發筆記**: 本專案採用漸進式開發策略，優先實現核心功能，根據用戶反饋迭代優化。遵循 YAGNI 原則，避免過度設計。
+> 💡
+> **開發筆記**: 本專案採用漸進式開發策略，優先實現核心功能，根據用戶反饋迭代優化。遵循 YAGNI 原則，避免過度設計。

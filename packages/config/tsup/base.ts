@@ -1,4 +1,4 @@
-import { defineConfig, type Options } from 'tsup'
+import { defineConfig, type Options } from 'tsup';
 
 export const createBaseConfig = (options: Partial<Options> = {}): Options => {
   return defineConfig({
@@ -10,16 +10,11 @@ export const createBaseConfig = (options: Partial<Options> = {}): Options => {
     skipNodeModulesBundle: true,
 
     // 預設不包含的外部套件
-    external: [
-      'mongodb',
-      'redis',
-      'prisma',
-      '@prisma/client'
-    ],
+    external: ['mongodb', 'redis', 'prisma', '@prisma/client'],
 
     // 合併用戶自定義選項
-    ...options
-  })
-}
+    ...options,
+  });
+};
 
-export const baseConfig = createBaseConfig()
+export const baseConfig = createBaseConfig();
