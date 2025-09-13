@@ -1,0 +1,12 @@
+# PNPM Workspace 配置
+# 定義 monorepo 中的工作區
+
+packages:
+  # 應用程式
+  - 'apps/*'
+
+  # 共享套件
+  - 'packages/*'
+
+  # 微服務 (Phase 4+)
+  - 'services/*'
