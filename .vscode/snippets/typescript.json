@@ -1,0 +1,52 @@
+{
+  "Interface with Generic": {
+    "prefix": "interface",
+    "body": [
+      "/**",
+      " * ${3:描述介面用途}",
+      " */",
+      "export interface ${1:InterfaceName}<T = ${2:unknown}> {",
+      "  $0",
+      "}"
+    ],
+    "description": "建立 TypeScript 介面"
+  },
+  "Type Definition": {
+    "prefix": "type",
+    "body": ["/**", " * ${2:描述類型用途}", " */", "export type ${1:TypeName} = $0"],
+    "description": "建立 TypeScript 類型定義"
+  },
+  "Utility Function": {
+    "prefix": "util",
+    "body": [
+      "/**",
+      " * ${3:描述函數功能}",
+      " * @param ${4:param} ${5:參數說明}",
+      " * @returns ${6:返回值說明}",
+      " */",
+      "export function ${1:functionName}(${4:param}: ${7:ParamType}): ${8:ReturnType} {",
+      "  $0",
+      "}"
+    ],
+    "description": "建立工具函數"
+  },
+  "Async Utility Function": {
+    "prefix": "utilasync",
+    "body": [
+      "/**",
+      " * ${3:描述非同步函數功能}",
+      " * @param ${4:param} ${5:參數說明}",
+      " * @returns Promise<${6:返回值說明}>",
+      " */",
+      "export async function ${1:functionName}(${4:param}: ${7:ParamType}): Promise<${8:ReturnType}> {",
+      "  $0",
+      "}"
+    ],
+    "description": "建立非同步工具函數"
+  },
+  "Error Handler": {
+    "prefix": "errorhandler",
+    "body": ["try {", "  $1", "} catch (error) {", "  console.error('${2:Error context}:', error)", "  $0", "}"],
+    "description": "錯誤處理區塊"
+  }
+}

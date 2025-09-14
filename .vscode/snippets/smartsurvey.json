@@ -1,0 +1,96 @@
+{
+  "SmartSurvey Component Header": {
+    "prefix": "sspcomp",
+    "body": [
+      "/**",
+      " * ${1:ComponentName} - ${2:元件描述}",
+      " * ",
+      " * @author SmartSurvey Pro Team",
+      " * @since ${3:版本號}",
+      " * @see {@link ${4:相關文件連結}}",
+      " */",
+      "$0"
+    ],
+    "description": "SmartSurvey 元件檔頭"
+  },
+  "Database Model": {
+    "prefix": "sspmodel",
+    "body": [
+      "import { Schema, model, type Document } from 'mongoose'",
+      "",
+      "/**",
+      " * ${1:ModelName} 資料模型介面",
+      " */",
+      "export interface I${1:ModelName} extends Document {",
+      "  $2",
+      "  createdAt: Date",
+      "  updatedAt: Date",
+      "}",
+      "",
+      "/**",
+      " * ${1:ModelName} Schema 定義",
+      " */",
+      "const ${3:modelName}Schema = new Schema<I${1:ModelName}>({",
+      "  $4",
+      "}, {",
+      "  timestamps: true,",
+      "  collection: '${5:collection-name}'",
+      "})",
+      "",
+      "export const ${1:ModelName} = model<I${1:ModelName}>('${1:ModelName}', ${3:modelName}Schema)"
+    ],
+    "description": "建立 MongoDB 資料模型"
+  },
+  "API Route Handler": {
+    "prefix": "sspapi",
+    "body": [
+      "import type { APIResponse } from '~/types/api'",
+      "",
+      "/**",
+      " * ${1:API endpoint description}",
+      " */",
+      "export default defineEventHandler(async (event): Promise<APIResponse<${2:ResponseType}>> => {",
+      "  try {",
+      "    // TODO: 實作 API 邏輯",
+      "    $0",
+      "",
+      "    return {",
+      "      success: true,",
+      "      data: ${3:responseData},",
+      "      message: '${4:成功訊息}'",
+      "    }",
+      "  } catch (error) {",
+      "    console.error('${5:API error context}:', error)",
+      "    return {",
+      "      success: false,",
+      "      error: '${6:錯誤訊息}',",
+      "      code: '${7:ERROR_CODE}'",
+      "    }",
+      "  }",
+      "})"
+    ],
+    "description": "建立 API 路由處理器"
+  },
+  "Service Function": {
+    "prefix": "sspservice",
+    "body": [
+      "/**",
+      " * ${1:Service function description}",
+      " * @param ${2:param} ${3:參數說明}",
+      " * @returns ${4:返回值說明}",
+      " */",
+      "export class ${5:ServiceName}Service {",
+      "  async ${6:methodName}(${2:param}: ${7:ParamType}): Promise<${8:ReturnType}> {",
+      "    try {",
+      "      // TODO: 實作服務邏輯",
+      "      $0",
+      "    } catch (error) {",
+      "      console.error('Service error:', error)",
+      "      throw new Error('${9:Service operation failed}')",
+      "    }",
+      "  }",
+      "}"
+    ],
+    "description": "建立服務類別方法"
+  }
+}

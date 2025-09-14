@@ -1,0 +1,47 @@
+{
+  "recommendations": [
+    // === 必要核心套件 ===
+    "vue.volar", // Vue 3 官方語言服務
+    "vue.vscode-typescript-vue-plugin", // Vue 3 TypeScript 支援
+    "ms-vscode.vscode-typescript-next", // TypeScript 增強功能
+
+    // === 程式碼品質 ===
+    "dbaeumer.vscode-eslint", // ESLint 支援
+    "esbenp.prettier-vscode", // Prettier 格式化
+    "streetsidesoftware.code-spell-checker", // 拼字檢查
+
+    // === 開發工具 ===
+    "ms-vscode.vscode-json", // JSON 語言支援
+    "redhat.vscode-yaml", // YAML 語言支援
+    "bradlc.vscode-tailwindcss", // Tailwind CSS 支援
+    "antfu.iconify", // Iconify 圖示預覽
+
+    // === Git 工具 ===
+    "eamodio.gitlens", // Git 增強功能
+    "github.vscode-pull-request-github", // GitHub 整合
+
+    // === Monorepo 工具 ===
+    "ms-vscode-remote.remote-containers", // 容器開發
+    "ms-vscode.remote-repositories", // 遠端倉庫
+
+    // === 其他實用工具 ===
+    "formulahendry.auto-rename-tag", // 自動重命名標籤
+    "christian-kohler.path-intellisense", // 路徑智慧提示
+    "ms-vscode.vscode-todo-highlight", // TODO 高亮顯示
+    "gruntfuggly.todo-tree", // TODO 樹狀檢視
+
+    // === 除錯工具 ===
+    "ms-vscode.js-debug", // JavaScript 除錯器
+    "firefox-devtools.vscode-firefox-debug", // Firefox 除錯器
+
+    // === 主題與美化 ===
+    "pkief.material-icon-theme", // 圖示主題
+    "github.github-vscode-theme" // GitHub 主題
+  ],
+  "unwantedRecommendations": [
+    // === 過時或衝突的套件 ===
+    "octref.vetur", // Vue 2 套件，與 Volar 衝突
+    "ms-vscode.vscode-json-languageservice", // 內建已包含
+    "hookyqr.beautify" // 與 Prettier 衝突
+  ]
+}
