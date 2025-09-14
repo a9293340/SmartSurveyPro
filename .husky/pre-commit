@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 執行提交前檢查..."
+
+# 執行 lint-staged 對暫存文件進行檢查
+echo "📝 檢查暫存文件..."
+npx lint-staged
+
+# 執行 TypeScript 類型檢查
+echo "🔎 TypeScript 類型檢查..."
+pnpm type-check
+
+echo "✅ 提交前檢查通過！"

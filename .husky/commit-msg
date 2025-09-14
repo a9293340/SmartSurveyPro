@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "📝 檢查提交訊息格式..."
+npx --no -- commitlint --edit $1
+
+if [ $? -eq 0 ]; then
+  echo "✅ 提交訊息格式正確！"
+else
+  echo "❌ 提交訊息格式錯誤！"
+  echo ""
+  echo "📋 正確格式範例："
+  echo "  feat: 新增用戶登入功能"
+  echo "  fix: 修復資料庫連接問題"
+  echo "  docs: 更新 API 文件"
+  echo "  style: 調整程式碼格式"
+  echo "  refactor: 重構認證模組"
+  echo ""
+  echo "📖 詳細規範請參考: https://www.conventionalcommits.org/"
+  exit 1
+fi
