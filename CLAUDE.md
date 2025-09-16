@@ -68,19 +68,31 @@
 
 ### 5. 代碼品質驗證 🔴 **必須遵守**
 
-**提交代碼前必須通過以下檢查：**
+#### 版控前檢查流程
+
+**⚠️ 重要：提交代碼前必須依序執行以下檢查：**
 
 ```bash
-# 一鍵檢查所有品質指標
-pnpm quality
+# 標準檢查流程（依序執行）
+1. pnpm type-check   # TypeScript 類型檢查 - 確保類型正確
+2. pnpm lint         # ESLint 檢查並自動修復 - 確保代碼規範
+3. pnpm format       # Prettier 自動格式化 - 確保格式一致
 
-# 個別檢查命令
-pnpm lint:check    # ESLint 檢查
+# 或使用一鍵檢查（推薦）
+pnpm quality:fix     # 自動執行上述所有步驟
+```
+
+**檢查命令詳解：**
+
+```bash
+# 檢查類命令（只檢查不修復）
+pnpm quality       # 一鍵檢查所有品質指標
+pnpm lint:check    # ESLint 檢查（不修復）
 pnpm type-check    # TypeScript 類型檢查
-pnpm format:check  # Prettier 格式檢查
+pnpm format:check  # Prettier 格式檢查（不修復）
 
-# 自動修復（建議）
-pnpm quality:fix   # 一鍵修復所有可修復問題
+# 修復類命令（自動修復）
+pnpm quality:fix   # 一鍵修復所有可修復問題 ✅ 推薦
 pnpm lint          # 自動修復 ESLint 問題
 pnpm format        # 自動格式化代碼
 ```
@@ -88,15 +100,45 @@ pnpm format        # 自動格式化代碼
 **配置特點：**
 
 - **適度嚴格**：any 為警告而非錯誤，允許必要時使用
-- **console 允許**：warn 和 error 級別的 console 可以使用
+- **console 限制**：目前只允許 console.warn 和 console.error
 - **自動修復**：大部分格式和風格問題可自動修復
 - **快速反饋**：使用 Turbo 快取，重複檢查速度極快
+- **Git Hooks**：已配置自動檢查，但仍建議手動檢查
 
 **重要提醒：**
 
 - 🚫 **絕不提交**未通過檢查的代碼
-- ✅ **建議流程**：開發 → 修復 → 檢查 → 提交
+- ✅ **標準流程**：開發 → type-check → lint → format → commit
 - ⚡ **提升效率**：設置 IDE 自動格式化和自動修復
+- 📝 **提交前必做**：執行 `pnpm quality:fix` 確保品質
+
+#### 日誌系統規劃 🔮
+
+**當前狀態：**
+
+- 開發階段使用 console.warn/error 進行除錯
+- 已限制 console.log 使用，避免生產環境洩漏
+
+**Phase 2 規劃（第3-4月）：**
+
+```typescript
+// 預計引入專業日誌系統
+- 後端：Pino 或 Winston（高性能結構化日誌）
+- 前端：自訂 Logger Service（錯誤追蹤整合）
+- 整合：Sentry 或 LogRocket（生產環境監控）
+
+// 日誌等級規劃
+- ERROR: 系統錯誤、異常
+- WARN: 警告、效能問題
+- INFO: 重要業務事件
+- DEBUG: 開發除錯資訊
+```
+
+**遷移計劃：**
+
+1. Phase 1：使用 console.warn/error（當前）
+2. Phase 2：引入日誌系統，統一日誌介面
+3. Phase 3：整合監控平台，建立告警機制
 
 ---
 
@@ -532,7 +574,7 @@ docs: 新增開發工作流程指引
 ## 🔄 文件更新記錄
 
 - 2025-01-13：初始版本建立，加入教學導向開發原則
-- [待更新]：根據開發進度持續更新
+- 2025-01-16：加入版控前檢查流程與日誌系統規劃
 
 ---
 
