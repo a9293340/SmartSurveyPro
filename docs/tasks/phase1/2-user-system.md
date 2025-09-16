@@ -6,8 +6,8 @@
 - **優先級**: 🔴 Critical
 - **狀態**: 🟨 進行中
 - **預估工時**: 28h （原 24h + 4h Nuxt3 初始化）
-- **實際工時**: 4h
-- **進度**: 14% ███░░░░░░░░░░░░░░░░░
+- **實際工時**: 8h
+- **進度**: 29% ██████░░░░░░░░░░░░░░
 - **開始日期**: 2025-01-16
 - **完成日期**: -
 
@@ -81,37 +81,49 @@ pnpm add @smartsurvey/shared
 - Pinia 狀態管理 ✅
 - 健康檢查 API ✅
 
-### 2.1 資料模型設計 [6h]
+### 2.1 資料模型設計 [6h] ✅
 
-**狀態**: ⬜ **優先級**: 🔴
+**狀態**: ✅ **優先級**: 🔴
 
 #### 2.1.1 User Schema 定義
 
-- **預估**: 3h | **實際**: -
-- **狀態**: ⬜
+- **預估**: 3h | **實際**: 4h
+- **狀態**: ✅
 - **負責**: Claude + Human
+- **完成日期**: 2025-01-16
 
 **任務說明**: 根據業務需求設計 User 資料結構和 Zod 驗證
 
-**TODO(human)**:
+**已完成內容**:
 
-```typescript
-// 在 packages/shared/src/types/user.ts 中定義
-// 思考：用戶基本資料包含哪些欄位？
-// 訂閱資訊如何設計？團隊關聯如何處理？
+✅ 完整的 TypeScript 介面系統：
 
-export interface User {
-  // 你來定義完整的 User interface
-  id: string;
-  // ... 其他欄位
-}
-```
+- `packages/shared/src/types/user.ts` - 用戶相關所有類型
+- `packages/shared/src/types/group.ts` - 群組和訂閱相關類型
+- `packages/shared/src/types/permission.ts` - ABAC 權限系統類型
+- `packages/shared/src/types/invitation.ts` - 邀請系統類型
+- `packages/shared/src/types/relationship.ts` - 用戶群組角色關聯類型
+
+✅ 完整的 Zod 驗證 schemas：
+
+- `packages/shared/src/schemas/user.ts` - 用戶驗證規則
+- `packages/shared/src/schemas/group.ts` - 群組驗證規則
+- `packages/shared/src/schemas/permission.ts` - 權限驗證規則
+- `packages/shared/src/schemas/invitation.ts` - 邀請驗證規則
+- `packages/shared/src/schemas/relationship.ts` - 關聯表驗證規則
+
+✅ 系統常數和配置：
+
+- `packages/shared/src/constants/index.ts` - 完整的系統常數定義
 
 **驗收標準**:
 
-- [ ] User interface 包含所有必要欄位
-- [ ] Zod schema 定義完整的驗證規則
-- [ ] 密碼相關欄位正確處理
+- [x] User interface 包含所有必要欄位 (User, AuthUser, UserProfile 等)
+- [x] Zod schema 定義完整的驗證規則 (含中文錯誤訊息)
+- [x] 密碼相關欄位正確處理 (passwordHash, 重設 token 等)
+- [x] 企業級多租戶 ABAC 權限系統設計
+- [x] 完整邀請流程和成員管理系統
+- [x] 訂閱方案限制和功能開關設計
 
 #### 2.1.2 訂閱方案 Schema
 
@@ -119,7 +131,14 @@ export interface User {
 - **狀態**: ⬜
 - **負責**: Human
 
-**任務說明**: 定義訂閱方案的資料結構和限制邏輯
+**任務說明**: 定義訂閱方案的資料結構和限制邏輯，建立獨立的訂閱系統設計文件
+
+**TODO(human)**: 需要建立 `docs/design/subscription-system.md` 包含：
+
+- 訂閱方案詳細規格
+- 計費邏輯設計
+- 限制檢查機制
+- 升級降級流程
 
 #### 2.1.3 MongoDB Collection 結構
 
@@ -127,7 +146,14 @@ export interface User {
 - **狀態**: ⬜
 - **負責**: Claude + Human
 
-**任務說明**: 設計 MongoDB Users Collection 的索引和結構
+**任務說明**: 根據新的 ABAC 權限系統更新 MongoDB 資料庫設計
+
+**TODO(human)**: 需要更新 `docs/smartsurvey-db-structure.md` 包含：
+
+- 新的權限系統 Collections
+- 邀請系統資料結構
+- 索引策略優化
+- 查詢效能考量
 
 ### 2.2 認證 API 實作 [12h]
 
@@ -288,6 +314,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
 - 2025-01-13: 任務建立，狀態設為未開始
 - 2025-01-16: 開始執行，完成 Nuxt3 主應用初始化（任務 2.0）
+- 2025-01-16: 完成基礎介面工程（任務 2.1），建立完整的 TypeScript 類型系統和 Zod 驗證架構
 
 ## 💡 給 Claude 的上下文
 

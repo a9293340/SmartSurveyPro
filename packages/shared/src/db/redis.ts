@@ -23,7 +23,7 @@ class RedisConnection {
           }
           // 指數退避策略：1s, 2s, 4s, 8s...
           const delay = Math.min(1000 * Math.pow(2, retries), 30000);
-          console.log(`⏳ Redis 重連中... (第 ${retries + 1} 次，${delay}ms 後重試)`);
+          console.warn(`⏳ Redis 重連中... (第 ${retries + 1} 次，${delay}ms 後重試)`);
           return delay;
         },
         connectTimeout: 10000,
@@ -54,7 +54,7 @@ class RedisConnection {
 
       this.client = createClient(options);
       await this.client.connect();
-      console.log('✅ Redis 連接成功');
+      console.warn('✅ Redis 連接成功');
       return this.client;
     } catch (error) {
       this.isConnecting = false;
@@ -70,7 +70,7 @@ class RedisConnection {
     if (this.client) {
       try {
         await this.client.quit();
-        console.log('🔌 Redis 連接已關閉');
+        console.warn('🔌 Redis 連接已關閉');
       } catch (error) {
         console.error('關閉 Redis 連接時發生錯誤:', error);
         await this.client.disconnect();

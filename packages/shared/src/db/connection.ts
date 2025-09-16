@@ -49,7 +49,7 @@ class DatabaseConnection {
       await this.client.connect();
       this.db = this.client.db(dbName);
 
-      console.log(`✅ MongoDB 連接成功：${dbName}`);
+      console.warn(`✅ MongoDB 連接成功：${dbName}`);
       return this.db;
     } catch (error) {
       console.error('❌ MongoDB 連接失敗:', error);

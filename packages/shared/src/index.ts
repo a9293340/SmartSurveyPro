@@ -27,5 +27,46 @@ export {
   type HealthCheckConfig,
 } from './health/database-health';
 
-// 暫時的基礎匯出，後續任務會擴展
+// === 類型定義 ===
+// 共用類型
+export * from './types/common';
+
+// 用戶相關類型
+export * from './types/user';
+
+// 群組和訂閱相關類型
+export * from './types/group';
+
+// 權限系統相關類型
+export * from './types/permission';
+
+// 邀請系統相關類型
+export * from './types/invitation';
+
+// 關聯表相關類型
+export * from './types/relationship';
+
+// === 驗證 Schemas ===
+// 共用驗證 schemas
+export * from './schemas/common';
+
+// 用戶驗證 schemas
+export * from './schemas/user';
+
+// 群組驗證 schemas
+export * from './schemas/group';
+
+// 權限驗證 schemas
+export * from './schemas/permission';
+
+// 邀請驗證 schemas
+export * from './schemas/invitation';
+
+// 關聯表驗證 schemas
+export * from './schemas/relationship';
+
+// === 系統常數 ===
+export * from './constants/index';
+
+// 套件準備狀態
 export const SHARED_READY = true;

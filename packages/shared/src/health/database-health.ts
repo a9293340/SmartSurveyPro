@@ -6,7 +6,7 @@ export interface ServiceHealth {
   status: 'healthy' | 'degraded' | 'unhealthy';
   latency?: number;
   error?: string;
-  details?: Record<string, any> | undefined;
+  details?: Record<string, unknown> | undefined;
 }
 
 export interface HealthCheckResult {
