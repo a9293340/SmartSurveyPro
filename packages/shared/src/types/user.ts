@@ -17,6 +17,10 @@ export enum UserStatus {
   DELETED = 'deleted',
 }
 
+// === 訂閱相關類型已移至 group.ts ===
+// 🔴 重要：PlanType、PlanLimits 等訂閱相關類型現在定義在 group.ts 中
+// 因為訂閱是以 Group 為單位，而非個人用戶
+
 // === 用戶角色（系統層級，非群組層級） ===
 export enum SystemRole {
   /** 系統管理員 */
@@ -95,6 +99,10 @@ export interface User extends BaseEntity {
   /** 系統角色 */
   systemRole: SystemRole;
 
+  // === 訂閱相關已移除 ===
+  // 🔴 重要：訂閱資訊已移至 Group，User 不再直接擁有 planType
+  // User 透過加入 Group 來獲得訂閱權益
+
   // === Email 驗證相關 ===
   /** Email 是否已驗證 */
   emailVerified: boolean;
@@ -159,6 +167,10 @@ export interface AuthUser {
   emailVerified: boolean;
   preferences: UserPreferences;
   stats: UserStats;
+
+  // === 訂閱相關已移除 ===
+  // 🔴 重要：User 不再直接擁有訂閱資訊
+  // 訂閱權益透過所屬的 Group 來確定
 
   // === 當前 session 相關 ===
   /** 當前所在的群組 ID */
@@ -317,3 +329,11 @@ export const DEFAULT_USER_STATS: UserStats = {
 export const DEFAULT_USER_SECURITY: UserSecurity = {
   twoFactorEnabled: false,
 };
+
+// === 訂閱相關配置已移至 group.ts ===
+// 🔴 重要：SUBSCRIPTION_LIMITS 等配置現在定義在 group.ts 中
+// 請使用 group.ts 中的 SUBSCRIPTION_LIMITS 和相關工具函數
+
+// === 訂閱相關預設值已移至 Group ===
+// 🔴 重要：訂閱預設值現在定義在 Group 相關類型中
+// 這些配置將用於新建 Group 時的預設設定

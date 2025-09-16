@@ -279,12 +279,9 @@ interface User {
     timezone: string;
     language: string;
   };
-  subscription: {
-    plan: 'free' | 'pro' | 'team' | 'enterprise';
-    validUntil: Date;
-    usage: {
-      surveys: number;
-      responses: number;
+  // 🔴 架構修正：訂閱已移至 Group，User 不再直接擁有訂閱
+  // User 透過加入 Group 來獲得訂閱權益
+  // subscription: { ... } // 已移至 Group
     };
   };
   teams: ObjectId[];
@@ -396,7 +393,8 @@ interface Team {
 ```javascript
 // 索引優化
 db.users.createIndex({ email: 1 }, { unique: true });
-db.users.createIndex({ 'subscription.plan': 1 });
+// db.users.createIndex({ 'subscription.plan': 1 }); // 🔴 已移至 Group
+db.groups.createIndex({ subscriptionTier: 1 }); // 🔴 訂閱索引現在在 Group
 
 db.surveys.createIndex({ createdBy: 1, status: 1 });
 db.surveys.createIndex({ teamId: 1 });

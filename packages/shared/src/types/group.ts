@@ -30,6 +30,10 @@ export interface GroupLimits {
   /** 可用功能列表 */
   features: string[];
 
+  // === AI 功能限制 (Phase 1 新增) ===
+  /** 每日 AI 調用上限 */
+  maxAiCallsPerDay: number;
+
   // === 高級功能限制 ===
   /** 自定義角色上限 */
   maxCustomRoles: number;
@@ -55,6 +59,12 @@ export interface GroupStats {
   storageUsed: number;
   /** 本月 API 調用數 */
   apiCallsThisMonth: number;
+
+  // === AI 功能統計 (Phase 1 新增) ===
+  /** 今日 AI 調用數 */
+  aiCallsToday: number;
+  /** AI 調用統計日期 (YYYY-MM-DD) */
+  aiCallsDate: string;
 
   // === 統計週期 ===
   /** 統計月份 (YYYY-MM 格式) */
@@ -247,6 +257,8 @@ export const DEFAULT_GROUP_STATS: GroupStats = {
   monthlyResponses: 0,
   storageUsed: 0,
   apiCallsThisMonth: 0,
+  aiCallsToday: 0, // Phase 1 新增
+  aiCallsDate: new Date().toISOString().slice(0, 10), // YYYY-MM-DD
   statsMonth: new Date().toISOString().slice(0, 7), // YYYY-MM
   lastUpdated: new Date(),
 };
@@ -258,6 +270,7 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, GroupLimits> = {
     maxSurveys: 3,
     maxResponses: 100,
     maxStorage: 50, // 50MB
+    maxAiCallsPerDay: 5, // Phase 1 新增
     maxCustomRoles: 1,
     maxApiCalls: 0,
     features: ['basic_surveys', 'basic_analytics'],
@@ -271,6 +284,7 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, GroupLimits> = {
     maxSurveys: -1, // 無限制
     maxResponses: 10000,
     maxStorage: 1000, // 1GB
+    maxAiCallsPerDay: 50, // Phase 1 新增
     maxCustomRoles: 5,
     maxApiCalls: 10000,
     features: ['all_question_types', 'logic_branching', 'themes'],
@@ -284,6 +298,7 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, GroupLimits> = {
     maxSurveys: -1,
     maxResponses: 50000,
     maxStorage: 5000, // 5GB
+    maxAiCallsPerDay: 200, // Phase 1 新增
     maxCustomRoles: 20,
     maxApiCalls: 50000,
     features: ['collaboration', 'approval_workflow', 'team_analytics'],
@@ -297,6 +312,7 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, GroupLimits> = {
     maxSurveys: -1,
     maxResponses: -1,
     maxStorage: -1,
+    maxAiCallsPerDay: 1000, // Phase 1 新增
     maxCustomRoles: -1,
     maxApiCalls: -1,
     features: ['sso', 'custom_domain', 'dedicated_support'],
@@ -305,6 +321,13 @@ export const SUBSCRIPTION_LIMITS: Record<SubscriptionTier, GroupLimits> = {
     whiteLabel: true,
   },
 };
+
+// === Phase 1 測試配置 ===
+/** Phase 1 測試環境預設方案 */
+export const DEFAULT_SUBSCRIPTION_TIER = SubscriptionTier.ENTERPRISE;
+
+/** 新建 Group 的預設限制配置 */
+export const DEFAULT_GROUP_LIMITS = SUBSCRIPTION_LIMITS[DEFAULT_SUBSCRIPTION_TIER];
 
 // === 功能檢查輔助函數類型 ===
 export type FeatureFlag =

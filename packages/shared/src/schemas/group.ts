@@ -19,6 +19,12 @@ export const GroupLimitsSchema = z.object({
   maxStorage: z.number().min(-1, '儲存空間不能小於 -1').int('儲存空間必須是整數'),
   features: z.array(z.string().min(1, '功能名稱不能為空')),
 
+  // AI 功能限制 (Phase 1 新增)
+  maxAiCallsPerDay: z
+    .number()
+    .min(-1, '每日 AI 調用上限不能小於 -1')
+    .int('每日 AI 調用上限必須是整數'),
+
   // 高級功能限制
   maxCustomRoles: z.number().min(-1, '自定義角色上限不能小於 -1').int('自定義角色上限必須是整數'),
   maxApiCalls: z.number().min(-1, 'API 調用上限不能小於 -1').int('API 調用上限必須是整數'),
@@ -34,6 +40,10 @@ export const GroupStatsSchema = z.object({
   monthlyResponses: z.number().min(0, '月回應數不能為負數').int('月回應數必須是整數'),
   storageUsed: z.number().min(0, '已使用儲存空間不能為負數'),
   apiCallsThisMonth: z.number().min(0, 'API 調用數不能為負數').int('API 調用數必須是整數'),
+
+  // AI 功能統計 (Phase 1 新增)
+  aiCallsToday: z.number().min(0, '今日 AI 調用數不能為負數').int('今日 AI 調用數必須是整數'),
+  aiCallsDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'AI 調用統計日期格式必須是 YYYY-MM-DD'),
 
   // 統計週期
   statsMonth: z.string().regex(/^\d{4}-\d{2}$/, '統計月份格式必須是 YYYY-MM'),
@@ -193,6 +203,7 @@ export const GroupUsageSummarySchema = z.object({
   responseUsage: LimitCheckResultSchema,
   storageUsage: LimitCheckResultSchema,
   apiUsage: LimitCheckResultSchema,
+  aiUsage: LimitCheckResultSchema, // Phase 1 新增：AI 調用使用率檢查
 });
 
 // === 功能檢查輔助 schema ===
@@ -255,6 +266,8 @@ export const DefaultGroupStatsSchema = z.object({
   monthlyResponses: z.literal(0),
   storageUsed: z.literal(0),
   apiCallsThisMonth: z.literal(0),
+  aiCallsToday: z.literal(0), // Phase 1 新增
+  aiCallsDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
   statsMonth: z.string().regex(/^\d{4}-\d{2}$/),
   lastUpdated: z.date(),
 });

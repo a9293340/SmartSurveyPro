@@ -1,7 +1,7 @@
 # SmartSurvey 資料庫結構設計文件
 
-> MongoDB Atlas M5 (無分片) + Redis Cloud 架構設計  
-> 版本：v1.0 | 更新日期：2025-01-10
+> MongoDB Atlas M5 (無分片) + Redis Cloud 架構設計版本：v1.1
+> | 更新日期：2025-01-16 **Phase 1 版本**：簡化版訂閱系統，專注核心功能
 
 ---
 
@@ -57,31 +57,29 @@
 ### Database 架構
 
 ```javascript
-// 資料庫分離策略（因 M5 無法分片，採用邏輯分離）
+// Phase 1 資料庫架構（簡化版）
 databases = {
-  survey_core: {
-    // 核心業務資料
-    collections: ['users', 'surveys', 'teams', 'subscriptions'],
-    size_estimate: '~50GB',
-    access_pattern: 'high_frequency',
-  },
-  survey_responses: {
-    // 回應資料（最大量）
-    collections: ['responses', 'response_archives'],
-    size_estimate: '~300GB',
-    access_pattern: 'write_heavy',
-  },
-  survey_analytics: {
-    // 分析資料
-    collections: ['analytics_daily', 'analytics_monthly', 'realtime_stats'],
-    size_estimate: '~100GB',
-    access_pattern: 'read_heavy',
-  },
-  survey_system: {
-    // 系統資料
-    collections: ['audit_logs', 'notifications', 'jobs'],
-    size_estimate: '~50GB',
-    access_pattern: 'append_only',
+  smartsurvey_dev: {
+    // 核心業務資料 (Phase 1)
+    collections: [
+      'users', // 用戶系統（含簡化訂閱）
+      'surveys', // 問卷資料
+      'responses', // 回應資料
+      'groups', // 團隊/群組（簡化版）
+      'user_group_roles', // 用戶群組角色關聯
+      'invitations', // 邀請系統
+    ],
+    size_estimate: '~20GB (Phase 1)',
+    access_pattern: 'mixed',
+
+    // Phase 3 擴展預留
+    future_collections: [
+      'subscriptions', // 完整訂閱系統
+      'usage_records', // 使用量追蹤
+      'response_archives', // 歷史資料歸檔
+      'analytics_daily', // 日度分析
+      'audit_logs', // 審計日誌
+    ],
   },
 };
 ```
@@ -90,85 +88,99 @@ databases = {
 
 ## 📚 Collection 詳細設計
 
-### 1. Users Collection
+### 1. Users Collection (Phase 1 簡化版)
 
 ```javascript
-// 資料庫：survey_core
-// 預估規模：10萬筆記錄，~1GB
+// 資料庫：smartsurvey_dev
+// 預估規模：1萬筆記錄，~100MB (Phase 1)
 {
   _id: ObjectId,
 
   // 認證資訊（常用，需索引）
   auth: {
     email: String,              // unique index
-    password_hash: String,
-    provider: String,           // 'local' | 'google' | 'github'
-    provider_id: String,        // compound index with provider
-    email_verified: Boolean,
-    two_factor_enabled: Boolean,
-    two_factor_secret: String   // encrypted
+    passwordHash: String,       // bcrypt hash
+    provider: String,           // 'local' | 'google' (Phase 1 僅支援本地認證)
+    emailVerified: Boolean,
+    lastLoginAt: Date,
+    // Phase 3 擴展：two_factor_enabled, provider_id
   },
 
   // 個人資料（內嵌以減少查詢）
   profile: {
-    first_name: String,
-    last_name: String,
-    display_name: String,
-    avatar_url: String,
-    timezone: String,
-    language: String,
-    notification_preferences: {
-      email: Boolean,
-      push: Boolean,
-      survey_responses: Boolean,
-      team_updates: Boolean
-    }
+    firstName: String,
+    lastName: String,
+    displayName: String,
+    avatarUrl: String,
+    timezone: String,           // 預設 'Asia/Taipei'
+    language: String,           // 預設 'zh-TW'
   },
 
-  // 訂閱資訊（頻繁查詢）
-  subscription: {
-    plan: String,               // 'free' | 'pro' | 'team' | 'enterprise'
-    status: String,             // 'active' | 'cancelled' | 'expired'
-    valid_until: Date,
-    limits: {
-      surveys: Number,
-      responses_per_survey: Number,
-      team_members: Number,
-      storage_mb: Number,
-      ai_credits: Number
-    },
-    usage: {                    // 定期更新，考慮快取
-      surveys: Number,
-      responses: Number,
-      storage_mb: Number,
-      ai_credits_used: Number
-    }
-  },
+  // Phase 1 簡化版訂閱（直接整合到 User）
+  planType: String,             // 'free' | 'pro' | 'team' | 'enterprise'
+                                // Phase 1 測試預設 'enterprise'
 
-  // 團隊關聯（陣列較小，內嵌）
-  teams: [{
-    team_id: ObjectId,
-    role: String,
-    joined_at: Date
-  }],
+  // 基礎限制配置（靜態配置）
+  limits: {
+    maxSurveys: Number,         // 根據 planType 設定
+    maxAiCallsPerDay: Number,   // 根據 planType 設定
+    maxResponsesPerSurvey: Number,
+    maxTeamMembers: Number,
+    // Phase 3 擴展：使用量追蹤
+  },
 
   // 系統欄位
-  created_at: Date,
-  updated_at: Date,
-  last_login_at: Date,
-  is_active: Boolean,
-  is_deleted: Boolean,         // 軟刪除
-  deleted_at: Date
-}
+  createdAt: Date,
+  updatedAt: Date,
+  isActive: Boolean,            // 預設 true
+  isDeleted: Boolean,           // 軟刪除，預設 false
+  deletedAt: Date,
 
-// 索引設計
-db.users.createIndex({ "auth.email": 1 }, { unique: true })
-db.users.createIndex({ "auth.provider": 1, "auth.provider_id": 1 })
-db.users.createIndex({ "teams.team_id": 1 })
-db.users.createIndex({ "subscription.plan": 1, "subscription.status": 1 })
-db.users.createIndex({ created_at: -1 })
-db.users.createIndex({ is_deleted: 1 }, { partialFilterExpression: { is_deleted: true }})
+  // Phase 3 擴展預留
+  // subscription: { ... },     // 完整訂閱資訊
+  // usage: { ... },            // 使用量統計
+}
 ```
+
+### Phase 1 方案限制配置
+
+```javascript
+// 靜態配置，寫在應用程式中
+const PLAN_LIMITS = {
+  free: {
+    maxSurveys: 3,
+    maxAiCallsPerDay: 5,
+    maxResponsesPerSurvey: 100,
+    maxTeamMembers: 1,
+  },
+  pro: {
+    maxSurveys: -1, // -1 表示無限
+    maxAiCallsPerDay: 50,
+    maxResponsesPerSurvey: 10000,
+    maxTeamMembers: 5,
+  },
+  team: {
+    maxSurveys: -1,
+    maxAiCallsPerDay: 200,
+    maxResponsesPerSurvey: 50000,
+    maxTeamMembers: 20,
+  },
+  enterprise: {
+    // Phase 1 測試預設
+    maxSurveys: -1,
+    maxAiCallsPerDay: 1000,
+    maxResponsesPerSurvey: -1,
+    maxTeamMembers: -1,
+  },
+};
+```
+
+// Phase 1 索引設計（簡化版）db.users.createIndex({ "auth.email": 1 }, { unique:
+true }) db.users.createIndex({ planType: 1 }) db.users.createIndex({ createdAt:
+-1 }) db.users.createIndex({ isDeleted: 1 }, { partialFilterExpression: {
+isDeleted: true } }) db.users.createIndex({ isActive: 1 })
+
+````
 
 ### 2. Surveys Collection
 
@@ -282,7 +294,7 @@ db.surveys.createIndex({ created_at: -1 })
 db.surveys.createIndex({ is_deleted: 1, archived_at: 1 }, {
   partialFilterExpression: { is_deleted: true }
 })
-```
+````
 
 ### 3. Responses Collection
 
@@ -393,7 +405,167 @@ db.response_archives.createIndex({ survey_id: 1, partition_key: 1 })
 db.response_archives.createIndex({ submitted_at: 1 })
 ```
 
-### 5. Teams Collection
+### 4. Groups Collection (Phase 1 簡化版團隊)
+
+```javascript
+// 資料庫：smartsurvey_dev
+// 預估規模：100筆記錄，~10MB (Phase 1)
+{
+  _id: ObjectId,
+
+  // 基本資訊
+  name: String,
+  description: String,
+  ownerId: ObjectId,          // User ID
+
+  // === 訂閱方案（Phase 1 核心） ===
+  subscriptionTier: String,   // 'free' | 'pro' | 'team' | 'enterprise'
+                              // Phase 1 測試預設 'enterprise'
+
+  // 方案限制配置（從靜態配置計算而來）
+  limits: {
+    maxMembers: Number,       // 成員上限
+    maxSurveys: Number,       // 問卷上限 (-1 表示無限制)
+    maxResponses: Number,     // 月回應上限
+    maxStorage: Number,       // 儲存空間上限 (MB)
+    maxAiCallsPerDay: Number, // 每日 AI 調用上限
+    maxCustomRoles: Number,   // 自定義角色上限
+    maxApiCalls: Number,      // API 調用上限
+    features: [String],       // 可用功能列表
+    exportFormats: [String],  // 支援的匯出格式
+    advancedAnalytics: Boolean,
+    whiteLabel: Boolean,
+  },
+
+  // 使用統計
+  stats: {
+    memberCount: Number,      // 成員數量
+    surveyCount: Number,      // 問卷數量
+    monthlyResponses: Number, // 本月回應數
+    storageUsed: Number,      // 已使用儲存空間 (MB)
+    apiCallsThisMonth: Number,
+    aiCallsToday: Number,     // 今日 AI 調用數
+    aiCallsDate: String,      // AI 調用統計日期 (YYYY-MM-DD)
+    statsMonth: String,       // 統計月份 (YYYY-MM)
+    lastUpdated: Date,
+  },
+
+  // 設定
+  settings: {
+    allowMemberInvites: Boolean,
+    isPublic: Boolean,        // Phase 1 僅 false
+    defaultSurveyPublic: Boolean,
+    requireApprovalForSurveys: Boolean,
+  },
+
+  // 系統欄位
+  createdAt: Date,
+  updatedAt: Date,
+  isActive: Boolean,          // 預設 true
+}
+
+// Phase 1 索引設計
+db.groups.createIndex({ ownerId: 1 })
+db.groups.createIndex({ subscriptionTier: 1 })     // 訂閱方案查詢
+db.groups.createIndex({ isActive: 1 })
+db.groups.createIndex({ createdAt: -1 })
+```
+
+### 5. User Group Roles Collection (用戶群組角色關聯)
+
+```javascript
+// 資料庫：smartsurvey_dev
+// 預估規模：500筆記錄，~5MB (Phase 1)
+{
+  _id: ObjectId,
+
+  // 關聯
+  userId: ObjectId,
+  groupId: ObjectId,
+
+  // 角色與權限
+  role: String,               // 'owner' | 'admin' | 'editor' | 'viewer'
+
+  // 權限（Phase 1 簡化版）
+  permissions: {
+    surveys: {
+      create: Boolean,
+      edit: Boolean,
+      delete: Boolean,
+      view: Boolean,
+    },
+    responses: {
+      view: Boolean,
+      export: Boolean,
+    },
+    team: {
+      invite: Boolean,
+      manage: Boolean,
+    }
+  },
+
+  // 邀請資訊
+  invitedBy: ObjectId,        // User ID
+  invitedAt: Date,
+  joinedAt: Date,
+
+  // 狀態
+  status: String,             // 'pending' | 'active' | 'inactive'
+
+  // 系統欄位
+  createdAt: Date,
+  updatedAt: Date,
+}
+
+// 複合索引
+db.user_group_roles.createIndex({ userId: 1, groupId: 1 }, { unique: true })
+db.user_group_roles.createIndex({ groupId: 1, status: 1 })
+db.user_group_roles.createIndex({ userId: 1 })
+```
+
+### 6. Invitations Collection (邀請系統)
+
+```javascript
+// 資料庫：smartsurvey_dev
+// 預估規模：200筆記錄，~2MB (Phase 1)
+{
+  _id: ObjectId,
+
+  // 邀請基本資訊
+  email: String,              // 被邀請者 email
+  groupId: ObjectId,
+  role: String,               // 預設角色
+
+  // 邀請者資訊
+  invitedBy: ObjectId,        // User ID
+  invitationToken: String,    // UUID v4，用於驗證連結
+
+  // 狀態與時效
+  status: String,             // 'pending' | 'accepted' | 'expired' | 'revoked'
+  expiresAt: Date,            // 7 天後過期
+
+  // 接受邀請時填入
+  acceptedBy: ObjectId,       // User ID (可能與 email 不同)
+  acceptedAt: Date,
+
+  // 系統欄位
+  createdAt: Date,
+  updatedAt: Date,
+}
+
+// 索引設計
+db.invitations.createIndex({ email: 1, groupId: 1 })
+db.invitations.createIndex({ invitationToken: 1 }, { unique: true })
+db.invitations.createIndex({ status: 1, expiresAt: 1 })
+db.invitations.createIndex({ groupId: 1 })
+
+// TTL 索引：自動清理過期邀請
+db.invitations.createIndex({ expiresAt: 1 }, {
+  expireAfterSeconds: 0
+})
+```
+
+### 7. Teams Collection (保留原設計，Phase 3 使用)
 
 ```javascript
 // 資料庫：survey_core
@@ -1070,7 +1242,19 @@ const maintenanceTasks = {
 
 ## 📈 容量規劃
 
-### 儲存空間預估（1年）
+### Phase 1 儲存空間預估（6個月）
+
+| Collection       | 記錄數 | 平均大小 | 總大小     | 說明                 |
+| ---------------- | ------ | -------- | ---------- | -------------------- |
+| users            | 1K     | 2KB      | 2MB        | 測試用戶             |
+| surveys          | 500    | 30KB     | 15MB       | 基礎問卷功能         |
+| responses        | 5K     | 15KB     | 75MB       | 基礎回應收集         |
+| groups           | 50     | 1KB      | 50KB       | 簡化團隊功能         |
+| user_group_roles | 200    | 0.5KB    | 100KB      | 角色關聯             |
+| invitations      | 100    | 0.5KB    | 50KB       | 邀請系統             |
+| **Phase 1 總計** | -      | -        | **~100MB** | MongoDB M0 Free 足夠 |
+
+### 完整系統儲存空間預估（1年後）
 
 | Collection        | 記錄數 | 平均大小 | 總大小     | 成長率/月 |
 | ----------------- | ------ | -------- | ---------- | --------- |
@@ -1078,15 +1262,26 @@ const maintenanceTasks = {
 | surveys           | 1M     | 50KB     | 50GB       | 20%       |
 | responses         | 10M    | 20KB     | 200GB      | 30%       |
 | response_archives | 5M     | 5KB      | 25GB       | 持平      |
-| teams             | 10K    | 10KB     | 100MB      | 5%        |
+| groups            | 10K    | 5KB      | 50MB       | 5%        |
+| user_group_roles  | 50K    | 1KB      | 50MB       | 10%       |
+| subscriptions     | 100K   | 2KB      | 200MB      | 10%       |
+| usage_records     | 1M     | 1KB      | 1GB        | 20%       |
 | analytics_daily   | 365K   | 5KB      | 2GB        | 線性      |
-| **總計**          | -      | -        | **~280GB** | -         |
+| **完整系統總計**  | -      | -        | **~280GB** | -         |
 
 ### 擴展計劃
 
-1. **Phase 1 (0-6月)**：MongoDB M5 + Redis 250MB
-2. **Phase 2 (6-12月)**：考慮升級至 M10 + Redis 1GB
-3. **Phase 3 (12月+)**：評估分片需求或採用 M30
+1. **Phase 1 (0-6月)**：MongoDB M0 Free (512MB) + 無 Redis
+   - 成本：$0/月
+   - 足夠支援基礎開發和測試
+
+2. **Phase 2 (6-12月)**：MongoDB M5 (512GB) + Redis 250MB
+   - 成本：~$57/月
+   - 支援中等規模用戶使用
+
+3. **Phase 3 (12月+)**：MongoDB M10 + Redis 1GB
+   - 成本：~$97/月
+   - 企業級功能完整支援
 
 ---
 
@@ -1123,5 +1318,22 @@ const maintenanceTasks = {
 
 ---
 
-_文件版本：v1.0 | 最後更新：2025-01-10_ _適用於：SmartSurvey MongoDB Atlas M5
-(無分片) + Redis Cloud 架構_
+---
+
+## 📝 版本更新記錄
+
+- **v1.1 (2025-01-16)**：
+  - 調整為 Phase 1 簡化版架構
+  - 移除複雜訂閱系統 Collections
+  - 整合簡化版 planType 到 User Collection
+  - 新增 Groups、UserGroupRoles、Invitations Collections
+  - 更新容量規劃為階段性成長模式
+
+- **v1.0 (2025-01-10)**：
+  - 初始完整系統架構設計
+  - 完整訂閱系統與分析系統設計
+
+---
+
+_文件版本：v1.1 | 最後更新：2025-01-16_ _適用於：Phase 1 - MongoDB M0 Free
+(開發測試) / MongoDB M5 (生產)_ _未來擴展：Phase 3 完整企業功能_
