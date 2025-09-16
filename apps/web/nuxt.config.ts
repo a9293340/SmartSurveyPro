@@ -19,14 +19,17 @@ export default defineNuxtConfig({
   runtimeConfig: {
     // 私有配置（僅伺服器端可用）
     jwtSecret: process.env.JWT_SECRET || 'dev-secret-change-in-production',
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
     sessionSecret: process.env.SESSION_SECRET || 'dev-session-secret',
     mongodbUri: process.env.MONGODB_URI || '',
+    mongodbDbName: process.env.MONGODB_DB_NAME || 'smartsurvey-dev',
     redisUrl: process.env.REDIS_URL || '',
+    bcryptRounds: process.env.BCRYPT_ROUNDS || '10',
 
     // 公開配置（客戶端和伺服器端都可用）
     public: {
       apiBase: process.env.API_BASE || '/api',
-      appName: 'SmartSurvey Pro',
+      appName: process.env.APP_NAME || 'SmartSurvey Pro',
       appVersion: '0.0.1',
     },
   },
