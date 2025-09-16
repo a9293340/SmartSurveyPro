@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@smartsurvey/shared": "workspace:*",
+    "bcrypt": "^6.0.0",
     "mongodb": "^6.0.0",
     "nuxt": "^4.1.2",
     "redis": "^4.6.0",
@@ -24,8 +25,9 @@
     "@nuxtjs/eslint-config-typescript": "^12.1.0",
     "@nuxtjs/tailwindcss": "^6.13.2",
     "@pinia/nuxt": "^0.11.2",
+    "@types/bcrypt": "^6.0.0",
     "@types/bcryptjs": "^2.4.6",
-    "@types/jsonwebtoken": "^9.0.5",
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/mongodb": "^4.0.7",
     "@types/redis": "^4.0.11",
     "bcryptjs": "^2.4.3",
