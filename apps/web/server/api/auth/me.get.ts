@@ -87,11 +87,11 @@ export default defineEventHandler(async event => {
       });
     }
 
-    // TODO(future): Workspace 工作區模式重構 [Phase 2 架構重構] [詳見 /docs/TODO.md]
-    // 目前採用全域權限模式（權限並集），但應改為 Workspace 選擇模式：
-    // - 用戶登入後選擇工作區，只能操作當前工作區資源
-    // - me.get.ts 應返回 currentWorkspace + availableWorkspaces
-    // - 權限檢查從全域改為工作區隔離，提升用戶體驗和資料安全性
+    // TODO(future): Workspace 分段實作 [Phase 1 基礎 + Phase 2 完善] [詳見 /docs/TODO.md]
+    // 目前採用全域權限模式（權限並集），規劃分段改為 Workspace 選擇模式：
+    // Phase 1 (Task 5): 基礎工作區選擇，session 狀態管理，基本資料隔離
+    // Phase 2 (Task 10): 完整權限隔離，進階 UX，Redis 快取結構最佳化
+    // 目標：降低風險的漸進式重構，提升用戶體驗和資料安全性
 
     // TODO(future): Redis Session 快取 [Phase 2 效能優化] [詳見 /docs/TODO.md]
     // 目前每次呼叫都會查詢資料庫，Phase 2 引入 Redis 後應加入快取機制
