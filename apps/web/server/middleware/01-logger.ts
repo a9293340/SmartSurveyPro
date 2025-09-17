@@ -146,10 +146,7 @@ export default defineEventHandler(async (event: H3Event) => {
       console.warn(`⚠️ [PERF] Slow API response: ${pathname} took ${responseTime}ms`);
     }
 
-    // TODO(future): 整合專業日誌系統
-    // - Pino 或 Winston
-    // - 結構化日誌
-    // - 日誌聚合服務（如 ELK Stack）
-    // - 整合 APM 工具（如 New Relic、DataDog）
+    // TODO(future): 專業日誌系統 [Phase 1 console 已足夠] [詳見 /docs/TODO.md]
+    // 升級：Pino/Winston、結構化日誌、ELK Stack、APM 工具
   });
 });

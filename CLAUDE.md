@@ -224,7 +224,8 @@ survey-builder/
 
 1. `/docs/` - 專案整體文件
 2. `/docs/design/` - **最新的設計決策（優先參考）**
-3. 特別注意環境變數使用必須遵循
+3. `/docs/TODO.md` - **統一待辦事項追蹤（必須參考）**
+4. 特別注意環境變數使用必須遵循
    `/docs/design/environment-variables-management.md`
 
 #### 管理流程
@@ -294,6 +295,31 @@ survey-builder/
     API_BASE,
   APP_NAME,
   FEATURE_FLAGS);
+```
+
+### TODO 管理規範 📋
+
+**必讀文件**：[統一待辦事項追蹤](/docs/TODO.md)
+
+**管理原則**：
+
+1. **集中管理**：所有 TODO 統一記錄在 `/docs/TODO.md`
+2. **分類清楚**：按 Phase 和優先級分類
+3. **即時更新**：新增或完成 TODO 立即更新文件
+4. **標記規範**：程式碼中使用 `TODO(future)` 而非 `TODO(human)`
+
+**工作流程**：
+
+```bash
+# 新增 TODO
+1. 在程式碼中標記：// TODO(future): 功能描述
+2. 在 /docs/TODO.md 中記錄項目
+3. commit 時提及 TODO 新增
+
+# 完成 TODO
+1. 移除程式碼中的 TODO 標記
+2. 在 /docs/TODO.md 中標記為已完成
+3. commit 時提及 TODO 完成
 ```
 
 ### 檔案命名規範
@@ -601,6 +627,7 @@ docs: 新增開發工作流程指引
 - 2025-01-13：初始版本建立，加入教學導向開發原則
 - 2025-01-16：加入版控前檢查流程與日誌系統規劃
 - 2025-01-17：新增環境變數管理設計文件與使用規範
+- 2025-01-17：建立統一 TODO 管理系統與開發規範
 
 ---
 
