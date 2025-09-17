@@ -4,10 +4,9 @@
  */
 
 import { z } from 'zod';
-import { connectToDatabase } from '~/../../packages/shared/src/db/connection';
-import { verifyPassword } from '../../../server/utils/password';
-import { generateTokenPair } from '../../../server/utils/jwt';
-import { type User, UserStatus, type AuthUser } from '~/../../packages/shared/src/types/user';
+import { connectToDatabase, type User, UserStatus, type AuthUser } from '@smartsurvey/shared';
+import { verifyPassword } from '../../utils/password';
+import { generateTokenPair } from '../../utils/jwt';
 
 // 登入請求驗證 schema
 const LoginRequestSchema = z.object({
