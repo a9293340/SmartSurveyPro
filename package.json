@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:clean": "pnpm clean && pnpm build",
     "preview": "turbo run preview",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
