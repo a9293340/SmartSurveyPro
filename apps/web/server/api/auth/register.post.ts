@@ -3,12 +3,12 @@
  * 處理新用戶註冊，包含資料驗證、密碼加密、預設群組建立
  */
 
-import { z } from 'zod';
-import { generateAccessToken, generateRefreshToken } from '../../utils/jwt';
-import { hashPassword } from '../../utils/password';
 import { connectToDatabase } from '@smartsurvey/shared';
 import type { Db } from 'mongodb';
 import { ObjectId } from 'mongodb';
+import { z } from 'zod';
+import { generateAccessToken, generateRefreshToken } from '../../utils/jwt';
+import { hashPassword } from '../../utils/password';
 
 // 註冊請求驗證 schema
 const RegisterRequestSchema = z.object({
@@ -33,9 +33,6 @@ export default defineEventHandler(async event => {
         data: validationResult.error.flatten(),
       });
     }
-
-    // TODO(human): 實作完整註冊邏輯
-    // 以下功能需要依序實作：
 
     // 2. Email 唯一性檢查
     const { email, name, password } = validationResult.data;
@@ -104,7 +101,6 @@ export default defineEventHandler(async event => {
       updatedAt: now,
     };
 
-    // TODO(human): Phase 2 將實作以下功能
     // 5. 建立預設個人群組
     // 6. 建立用戶-群組關聯
     // 7. Email 驗證機制
