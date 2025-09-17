@@ -3,8 +3,7 @@
  * 負責驗證 JWT Token 並將用戶資訊注入 context
  */
 import type { H3Event } from 'h3';
-import { verifyAccessToken, extractTokenFromHeader } from '../utils/jwt';
-import { env } from '../utils/env-manager';
+import { extractTokenFromHeader, verifyAccessToken } from '../utils/jwt';
 
 // 擴展 H3Event 的 context 類型
 declare module 'h3' {
@@ -33,26 +32,22 @@ const PUBLIC_PATHS = [
 
 /**
  * 判斷路徑是否需要認證
- * TODO(human): 實作路徑匹配邏輯
  */
 function isProtectedPath(path: string): boolean {
-  // TODO(human): 實作路徑匹配邏輯
-  // 學習重點：
-  // - 使用 startsWith 檢查路徑前綴
-  // - 處理動態路由（如 /api/surveys/:id）
-  // - 考慮正則表達式匹配
+  // 移除查詢參數，只檢查路徑本身
+  const [pathname] = path.split('?');
 
-  // 檢查是否為公開路徑
-  if (PUBLIC_PATHS.includes(path)) {
+  // 檢查是否為公開路徑（精確匹配）
+  if (PUBLIC_PATHS.includes(pathname)) {
     return false;
   }
 
   // 檢查是否為 API 路徑（需要保護）
-  if (path.startsWith('/api/')) {
+  if (pathname.startsWith('/api/')) {
     return true;
   }
 
-  // 其他路徑不需要認證（如靜態資源）
+  // 其他路徑不需要認證（如靜態資源、頁面路由）
   return false;
 }
 
@@ -69,12 +64,6 @@ export default defineEventHandler(async (event: H3Event) => {
   }
 
   try {
-    // TODO(human): 實作 token 提取和驗證
-    // 學習重點：
-    // - 從 header 提取 token
-    // - 使用 jwt.ts 的驗證函數
-    // - 處理驗證失敗的情況
-
     // 1. 從請求頭提取 token
     const authHeader = getHeader(event, 'authorization');
     const token = extractTokenFromHeader(authHeader);
@@ -87,7 +76,7 @@ export default defineEventHandler(async (event: H3Event) => {
       });
     }
 
-    // 2. 驗證 token
+    // 2. 驗證 token 並取得 payload
     const payload = verifyAccessToken(token);
 
     if (!payload) {
@@ -98,7 +87,18 @@ export default defineEventHandler(async (event: H3Event) => {
       });
     }
 
-    // 3. 將用戶資訊注入 context
+    // 3. 檢查 token 是否即將過期（剩餘不到 5 分鐘）
+    const currentTime = Math.floor(Date.now() / 1000);
+    const timeUntilExpiry = (payload.exp || 0) - currentTime;
+
+    if (timeUntilExpiry < 300) {
+      // 5 分鐘 = 300 秒
+      // 設定響應標頭提醒客戶端 token 即將過期
+      setHeader(event, 'X-Token-Expires-Soon', 'true');
+      setHeader(event, 'X-Token-Expires-In', timeUntilExpiry.toString());
+    }
+
+    // 4. 將用戶資訊注入 context
     event.context.user = {
       userId: payload.userId,
       email: payload.email,
@@ -106,11 +106,11 @@ export default defineEventHandler(async (event: H3Event) => {
       exp: payload.exp,
     };
 
-    // TODO(human): 實作額外的安全檢查
-    // 學習重點：
+    // Phase 2 將實作額外的安全檢查：
     // - 檢查用戶是否存在於資料庫
     // - 檢查用戶是否被禁用
-    // - 記錄訪問日誌
+    // - 檢查 token 是否在黑名單中（登出後的 token）
+    // - 記錄可疑的訪問行為
   } catch (error) {
     // 處理認證錯誤
     if (error instanceof Error && 'statusCode' in error) {
@@ -150,20 +150,36 @@ export function getUser(event: H3Event) {
 }
 
 /**
- * 輔助函數：檢查用戶權限
- * TODO(human): 實作權限檢查邏輯
+ * 輔助函數：檢查用戶權限（Phase 1 基礎版本）
+ * Phase 2 將實作完整的 RBAC 系統
  */
-export function hasPermission(event: H3Event, permission: string): boolean {
+export function hasPermission(event: H3Event, _permission: string): boolean {
   const user = getUser(event);
   if (!user) {
     return false;
   }
 
-  // TODO(human): 實作權限檢查
-  // 學習重點：
-  // - 從資料庫載入用戶權限
-  // - 實作角色-權限映射
-  // - 快取權限資料
+  // Phase 1: 所有已認證用戶都有基礎權限
+  // Phase 2 將實作：
+  // - 從資料庫載入用戶角色和權限
+  // - RBAC (Role-Based Access Control)
+  // - 權限繼承（Admin 包含 Editor 權限）
+  // - 權限快取以提升效能
+  // - 資源級權限（如特定問卷的編輯權限）
+  return true;
+}
 
-  return true; // 暫時返回 true
+/**
+ * 輔助函數：檢查管理員權限（Phase 1 基礎版本）
+ * Phase 2 將實作角色驗證
+ */
+export function requireAdmin(event: H3Event) {
+  const user = requireAuth(event);
+
+  // Phase 1: 暫時允許所有認證用戶
+  // Phase 2 將實作：
+  // - 檢查用戶角色是否為 admin 或 owner
+  // - 從資料庫載入用戶角色資訊
+  // - 支援組織層級的管理員權限
+  return user;
 }
