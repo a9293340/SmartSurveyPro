@@ -75,6 +75,96 @@
   - 日誌輪替和歸檔機制
   ```
 
+### 來自 Task 2.2 - 認證 API 系統 🔄
+
+#### 📈 me.get.ts Session 快取優化
+
+- **檔案位置**：`apps/web/server/api/auth/me.get.ts`
+- **當前狀態**：每次呼叫都查詢 MongoDB，功能完整可用
+- **延後原因**：Phase 1 單機部署直接查詢資料庫可接受
+- **預計實作**：Phase 2 引入 Redis 時
+- **影響程度**：高 - 這是最頻繁呼叫的 API
+- **實作內容**：
+  ```typescript
+  // TODO(future): Redis Session 快取
+  // 升級計劃：
+  - Session 快取 (TTL: 5分鐘)
+  - 用戶資訊 + 群組權限一起快取
+  - 快取失效策略（用戶資料更新時清除）
+  - 減少 90% 資料庫查詢
+  ```
+
+#### 📈 Token 黑名單機制
+
+- **檔案位置**：`apps/web/server/api/auth/logout.post.ts` & `refresh.post.ts`
+- **當前狀態**：Token 撤銷功能待實作
+- **延後原因**：Phase 1 無狀態 JWT 已足夠
+- **預計實作**：Phase 2 安全性強化時
+- **影響程度**：中 - 影響登出和 Token 刷新安全性
+- **實作內容**：
+  ```typescript
+  // TODO(future): Token 撤銷機制
+  // 升級計劃：
+  - Redis Set 儲存已撤銷的 Token ID
+  - Token Family 概念防止 Refresh Token 重用
+  - 登出時立即撤銷所有相關 Token
+  - 設定 TTL 自動清理過期項目
+  ```
+
+#### 📈 登入防護機制
+
+- **檔案位置**：`apps/web/server/api/auth/login.post.ts`
+- **當前狀態**：無登入失敗限制
+- **延後原因**：Phase 1 開發測試階段不需要
+- **預計實作**：Phase 2 生產環境準備時
+- **影響程度**：中 - 防止暴力破解攻擊
+- **實作內容**：
+  ```typescript
+  // TODO(future): 登入失敗計數與鎖定
+  // 升級計劃：
+  - Redis 計數器追蹤失敗次數
+  - IP 基礎的速率限制
+  - 帳號暫時鎖定機制（5次失敗鎖定15分鐘）
+  - 併發登入設備數限制
+  ```
+
+#### 📈 註冊防護機制
+
+- **檔案位置**：`apps/web/server/api/auth/register.post.ts`
+- **當前狀態**：無註冊頻率限制
+- **延後原因**：Phase 1 內部測試不需要
+- **預計實作**：Phase 2 開放註冊時
+- **影響程度**：低 - 防止惡意註冊
+- **實作內容**：
+  ```typescript
+  // TODO(future): 註冊頻率限制
+  // 升級計劃：
+  - IP 註冊頻率限制（每IP每小時最多3個帳號）
+  - Email 域名黑名單
+  - 臨時郵箱檢測
+  - CAPTCHA 整合（多次失敗後啟用）
+  ```
+
+#### 🏗️ Workspace 工作區架構重構
+
+- **檔案位置**：`apps/web/server/api/auth/me.get.ts` & 相關認證系統
+- **當前狀態**：全域權限模式，權限並集處理，容易造成用戶困惑
+- **延後原因**：Phase 1 MVP 功能優先，避免大幅架構變更
+- **預計實作**：Phase 2 用戶體驗優化時
+- **影響程度**：高 - 關係到整個產品的使用體驗和安全性
+- **實作內容**：
+  ```typescript
+  // TODO(future): Workspace 選擇模式重構 [Phase 2 架構重構] [詳見 roadmap 9.]
+  // 升級計劃：
+  - 登入後選擇工作區流程
+  - 工作區切換 API (POST /api/auth/switch-workspace)
+  - 權限從全域改為工作區隔離
+  - 資料存取邊界強化
+  - Redis 快取結構調整
+  - 前端 UX 重新設計（工作區選擇器、麵包屑）
+  // 目標：提升用戶體驗，強化資料安全性，符合用戶心理模型
+  ```
+
 ---
 
 ## ✅ 已完成項目
@@ -147,11 +237,16 @@ _目前沒有已取消的延後項目_
 
 ### 中優先級 (Phase 2 開始)
 
+- **Workspace 工作區架構重構** (用戶體驗和安全性重大提升)
+- **me.get.ts Session 快取** (最高頻率 API，優先優化)
+- Token 黑名單機制 (安全性考量)
 - 專業日誌系統 (生產環境需要)
+- 登入防護機制 (防止攻擊)
 
 ### 低優先級 (按需實作)
 
 - Rate Limit Redis 升級 (分散式部署時才需要)
+- 註冊防護機制 (開放註冊後才需要)
 
 ---
 
