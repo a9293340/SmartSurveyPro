@@ -37,6 +37,13 @@ export default defineEventHandler(async event => {
     // 2. Email 唯一性檢查
     const { email, name, password } = validationResult.data;
 
+    // TODO(future): 註冊頻率限制 [Phase 2 開放註冊時] [詳見 /docs/TODO.md]
+    // 目前無註冊頻率限制，Phase 2 開放註冊時應加入：
+    // - IP 註冊頻率限制 (key: `register_ip:${clientIP}`, 每IP每小時最多3個帳號)
+    // - Email 域名黑名單檢查
+    // - 臨時郵箱檢測 API 整合
+    // - CAPTCHA 整合（多次失敗後啟用）
+
     // 連接資料庫
     const db = (await connectToDatabase()) as Db;
     if (!db) {

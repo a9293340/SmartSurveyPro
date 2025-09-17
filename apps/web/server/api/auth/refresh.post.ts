@@ -34,6 +34,13 @@ export default defineEventHandler(async event => {
     // 學習重點：Token 撤銷機制設計
     // 提示：可使用 Redis 或資料庫維護黑名單
 
+    // TODO(future): Token 黑名單檢查 [Phase 2 安全性強化] [詳見 /docs/TODO.md]
+    // 目前 Token 撤銷檢查功能待實作，Phase 2 應加入：
+    // - 檢查 Redis 中是否存在已撤銷的 Token (key: `blacklist:${tokenId}`)
+    // - Token Family 驗證防止重用攻擊
+    // - 記錄 Refresh Token 使用歷史
+    // - 異常使用模式檢測
+
     // 3. 生成新的 Access Token
     // 學習重點：Token payload 設計、過期時間
     // 提示：使用原有的 userId 資訊

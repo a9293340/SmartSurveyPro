@@ -18,6 +18,13 @@ export default defineEventHandler(async event => {
     // 學習重點：安全登出機制
     // 提示：將 token 加入黑名單或從資料庫移除
 
+    // TODO(future): Token 黑名單機制 [Phase 2 安全性強化] [詳見 /docs/TODO.md]
+    // 目前 Token 撤銷功能待實作，Phase 2 應加入：
+    // - Redis Set 儲存已撤銷的 Token ID (key: `blacklist:${tokenId}`)
+    // - Token Family 概念防止 Refresh Token 重用
+    // - 登出時立即撤銷所有相關 Token
+    // - 設定 TTL 自動清理過期項目
+
     // 3. 清理 Session 資料
     // 學習重點：Session 管理策略
     // 提示：Redis cache、使用者狀態等

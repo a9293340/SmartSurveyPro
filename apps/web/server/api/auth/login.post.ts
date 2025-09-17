@@ -33,6 +33,13 @@ export default defineEventHandler(async event => {
 
     const { email, password } = validationResult.data;
 
+    // TODO(future): 登入失敗計數與鎖定 [Phase 2 安全性強化] [詳見 /docs/TODO.md]
+    // 目前無登入失敗限制，Phase 2 應加入：
+    // - Redis 計數器追蹤失敗次數 (key: `login_attempts:${email}`)
+    // - IP 基礎的速率限制
+    // - 帳號暫時鎖定機制（5次失敗鎖定15分鐘）
+    // - 併發登入設備數限制
+
     // 2. 查詢用戶記錄
     const db = await connectToDatabase();
     const usersCollection = db.collection<User>('users');
