@@ -13,7 +13,7 @@ export default defineNuxtConfig({
   },
 
   // CSS 配置
-  css: ['~/assets/css/main.css'],
+  css: ['@/assets/css/main.css'],
 
   // 運行時配置
   runtimeConfig: {
