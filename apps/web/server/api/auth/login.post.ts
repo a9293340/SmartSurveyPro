@@ -1,9 +1,13 @@
 /**
- * 用戶登入 API - 模板版本
+ * 用戶登入 API
  * 處理用戶登入驗證，生成 JWT tokens
  */
 
 import { z } from 'zod';
+import { connectToDatabase } from '~/../../packages/shared/src/db/connection';
+import { verifyPassword } from '../../../server/utils/password';
+import { generateTokenPair } from '../../../server/utils/jwt';
+import { type User, UserStatus, type AuthUser } from '~/../../packages/shared/src/types/user';
 
 // 登入請求驗證 schema
 const LoginRequestSchema = z.object({
@@ -28,41 +32,123 @@ export default defineEventHandler(async event => {
       });
     }
 
-    // TODO(human): 實作完整登入邏輯
-    // 以下功能需要依序實作：
+    const { email, password } = validationResult.data;
 
     // 2. 查詢用戶記錄
-    // 學習重點：MongoDB 條件查詢、索引優化
-    // 提示：檢查 email 和 isActive 狀態
+    const db = await connectToDatabase();
+    const usersCollection = db.collection<User>('users');
+
+    const user = await usersCollection.findOne(
+      { email: email.toLowerCase() },
+      {
+        projection: {
+          _id: 1,
+          email: 1,
+          name: 1,
+          passwordHash: 1,
+          avatar: 1,
+          status: 1,
+          systemRole: 1,
+          emailVerified: 1,
+          preferences: 1,
+          stats: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      }
+    );
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Email 或密碼錯誤',
+      });
+    }
 
     // 3. 密碼驗證
-    // 學習重點：bcrypt 比對原理
-    // 提示：使用 verifyPassword 工具函數
+    const isPasswordValid = await verifyPassword(password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Email 或密碼錯誤',
+      });
+    }
 
     // 4. 檢查用戶狀態
-    // 學習重點：用戶狀態管理（驗證、封鎖等）
-    // 提示：isVerified, isActive 檢查
+    if (user.status === UserStatus.SUSPENDED) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: '帳號已被暫停，請聯絡客服',
+      });
+    }
+
+    if (user.status === UserStatus.DELETED) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: '帳號已被刪除',
+      });
+    }
+
+    if (!user.emailVerified) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: '請先驗證您的 Email 地址',
+        data: { requireEmailVerification: true },
+      });
+    }
 
     // 5. 更新最後登入時間
-    // 學習重點：MongoDB updateOne 操作
-    // 提示：lastLoginAt, updatedAt 欄位
+    const now = new Date();
+    await usersCollection.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          'stats.lastLoginAt': now,
+          'stats.lastActivityAt': now,
+          updatedAt: now,
+        },
+        $inc: {
+          'stats.loginCount': 1,
+        },
+      }
+    );
 
     // 6. 生成 JWT tokens
-    // 學習重點：Payload 設計、過期時間設定
-    // 提示：rememberMe 影響 token 壽命
+    const tokens = generateTokenPair(user._id.toString(), user.email);
 
-    // 7. 查詢用戶群組資訊
-    // 學習重點：MongoDB aggregation pipeline
-    // 提示：用戶所屬的 active 群組
+    // 7. 建構安全的用戶資訊
+    const authUser: AuthUser = {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      avatar: user.avatar,
+      status: user.status,
+      systemRole: user.systemRole,
+      emailVerified: user.emailVerified,
+      preferences: user.preferences,
+      stats: {
+        ...user.stats,
+        lastLoginAt: now,
+        lastActivityAt: now,
+        loginCount: user.stats.loginCount + 1,
+      },
+      lastActivity: now,
+    };
 
-    // 8. 回傳安全的用戶資訊
-    // 學習重點：資料過濾、隱私保護
-    // 提示：排除敏感欄位
-
-    throw createError({
-      statusCode: 501,
-      statusMessage: '登入功能開發中 - 請按順序實作上述 TODO 項目',
-    });
+    // 8. 回傳成功結果
+    return {
+      success: true,
+      message: '登入成功',
+      data: {
+        user: authUser,
+        tokens: {
+          accessToken: tokens.accessToken,
+          refreshToken: tokens.refreshToken,
+          expiresIn: tokens.expiresIn,
+          tokenType: 'Bearer' as const,
+        },
+      },
+    };
   } catch (error: any) {
     console.error('登入 API 錯誤:', error);
 

@@ -1,4 +1,4 @@
-import { MongoClient, Db, MongoClientOptions } from 'mongodb';
+import { MongoClient, Db, type MongoClientOptions } from 'mongodb';
 
 // MongoDB 連接管理類
 class DatabaseConnection {

@@ -3,7 +3,13 @@
  * 包含用戶實體、認證、設定等相關介面
  */
 
-import { BaseEntity, EntityId, NotificationPreferences, ContactInfo, Settings } from './common';
+import {
+  type BaseEntity,
+  type EntityId,
+  type NotificationPreferences,
+  type ContactInfo,
+  type Settings,
+} from './common';
 
 // === 用戶狀態 ===
 export enum UserStatus {
