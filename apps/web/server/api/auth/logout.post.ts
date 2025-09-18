@@ -77,7 +77,7 @@ export default defineEventHandler(async event => {
     try {
       const db = await connectToDatabase();
       await db.collection('users').updateOne(
-        { _id: new ObjectId(payload.userId) },
+        { _id: ObjectId.createFromHexString(payload.userId) },
         {
           $set: {
             lastLogoutAt: new Date(),
