@@ -4,6 +4,8 @@
  */
 
 import { z } from 'zod';
+import { ObjectId } from 'mongodb';
+import { verifyRefreshToken, generateAccessToken } from '../../utils/jwt';
 
 const RefreshRequestSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token 不能為空'),
@@ -23,16 +25,16 @@ export default defineEventHandler(async event => {
       });
     }
 
-    // TODO(human): 實作 Token 刷新功能
-    // 以下功能需要實作：
+    const { refreshToken } = validation.data;
 
     // 1. 驗證 Refresh Token 有效性
-    // 學習重點：Refresh token 與 Access token 的差別
-    // 提示：使用 verifyRefreshToken 工具函數
-
-    // 2. 檢查 token 是否已被撤銷
-    // 學習重點：Token 撤銷機制設計
-    // 提示：可使用 Redis 或資料庫維護黑名單
+    const payload = verifyRefreshToken(refreshToken);
+    if (!payload) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Refresh token 無效或已過期',
+      });
+    }
 
     // TODO(future): Token 黑名單檢查 [Phase 2 安全性強化] [詳見 /docs/TODO.md]
     // 目前 Token 撤銷檢查功能待實作，Phase 2 應加入：
@@ -41,18 +43,59 @@ export default defineEventHandler(async event => {
     // - 記錄 Refresh Token 使用歷史
     // - 異常使用模式檢測
 
+    // 2. 驗證用戶是否仍然有效
+    const { connectToDatabase } = await import('@smartsurvey/shared');
+    const db = await connectToDatabase();
+    const usersCollection = db.collection('users');
+
+    const user = await usersCollection.findOne(
+      { _id: ObjectId.createFromHexString(payload.userId) },
+      { projection: { _id: 1, email: 1, status: 1 } }
+    );
+
+    if (!user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: '用戶不存在',
+      });
+    }
+
+    if (user.status !== 'active') {
+      throw createError({
+        statusCode: 403,
+        statusMessage: '用戶帳號已被停用',
+      });
+    }
+
     // 3. 生成新的 Access Token
-    // 學習重點：Token payload 設計、過期時間
-    // 提示：使用原有的 userId 資訊
+    const newAccessToken = generateAccessToken({
+      userId: payload.userId,
+      email: user.email,
+    });
 
     // 4. 更新 Refresh Token 使用記錄
-    // 學習重點：安全性考量、使用追蹤
-    // 提示：記錄 lastUsedAt 和 IP 位址
+    const now = new Date();
 
-    throw createError({
-      statusCode: 501,
-      statusMessage: 'Token 刷新功能開發中 - 請實作上述 TODO 項目',
-    });
+    await usersCollection.updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          'stats.lastActivityAt': now,
+          updatedAt: now,
+        },
+      }
+    );
+
+    // TODO(future): 記錄 Refresh Token 使用歷史到 Redis
+    // const clientIP = getClientIP(event);
+    // await recordRefreshTokenUsage(payload.tokenId, clientIP, now);
+
+    return {
+      success: true,
+      accessToken: newAccessToken,
+      expiresIn: 900, // 15 minutes in seconds
+      message: 'Token 刷新成功',
+    };
   } catch (error: any) {
     console.error('Token 刷新失敗:', error);
 
