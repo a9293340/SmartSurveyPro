@@ -4,25 +4,7 @@
  * 檔名前綴 01 確保在 CORS 後、認證前執行
  */
 import type { H3Event } from 'h3';
-
-/**
- * 取得客戶端 IP
- */
-function getClientIP(event: H3Event): string {
-  // 優先從代理標頭取得真實 IP
-  const forwarded = getHeader(event, 'x-forwarded-for');
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
-  }
-
-  const realIP = getHeader(event, 'x-real-ip');
-  if (realIP) {
-    return realIP;
-  }
-
-  // 回退到直接連接的 IP
-  return event.node.req.socket.remoteAddress || 'unknown';
-}
+import { getClientIP } from '../utils/client-ip';
 
 /**
  * 格式化請求資訊
