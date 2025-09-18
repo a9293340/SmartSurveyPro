@@ -95,8 +95,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   /** 插入指示器的位置（在題目列表中） */
   const insertIndicatorIndex = ref<number | null>(null);
 
-  // TODO(human): 思考以下狀態的設計
-  // 學習重點：如何設計流暢的拖放體驗？
+  // 拖放體驗優化設計
 
   /** 拖放操作設定 */
   const dragSettings = ref({
@@ -449,19 +448,42 @@ export const useDragDropStore = defineStore('dragDrop', () => {
    * 處理自動滾動
    */
   function handleAutoScroll(position: { x: number; y: number }): void {
-    // TODO(human): 實作自動滾動邏輯
-    // 學習重點：如何實現平滑的自動滾動？
-    // 提示：檢測鼠標是否接近視窗邊緣，觸發滾動
-
+    // 實作自動滾動邏輯
     const sensitivity = dragSettings.value.scrollSensitivity;
-    const { innerHeight } = window;
+    const scrollSpeed = 10;
+    const viewport = {
+      width: window.innerWidth,
+      height: window.innerHeight,
+      scrollY: window.scrollY,
+      scrollX: window.scrollX,
+    };
 
+    // 垂直滾動
     if (position.y < sensitivity) {
-      // 向上滾動
-      window.scrollBy(0, -10);
-    } else if (position.y > innerHeight - sensitivity) {
-      // 向下滾動
-      window.scrollBy(0, 10);
+      // 靠近頂部，向上滾動
+      const speed = Math.min(scrollSpeed, (sensitivity - position.y) / 5);
+      window.scrollBy(0, -speed);
+    } else if (position.y > viewport.height - sensitivity) {
+      // 靠近底部，向下滾動
+      const speed = Math.min(scrollSpeed, (position.y - (viewport.height - sensitivity)) / 5);
+      window.scrollBy(0, speed);
+    }
+
+    // 水平滾動（如果有水平滾動條）
+    if (position.x < sensitivity) {
+      // 靠近左邊，向左滾動
+      const speed = Math.min(scrollSpeed, (sensitivity - position.x) / 5);
+      window.scrollBy(-speed, 0);
+    } else if (position.x > viewport.width - sensitivity) {
+      // 靠近右邊，向右滾動
+      const speed = Math.min(scrollSpeed, (position.x - (viewport.width - sensitivity)) / 5);
+      window.scrollBy(speed, 0);
+    }
+
+    // 對於可滾動容器的處理（如果需要）
+    const scrollableContainer = findScrollableParent(position);
+    if (scrollableContainer) {
+      handleContainerAutoScroll(scrollableContainer, position);
     }
   }
 
@@ -543,41 +565,56 @@ export const useDragDropStore = defineStore('dragDrop', () => {
    * 檢測放置區域
    */
   function detectDropZone(element: Element): void {
-    // TODO(human): 實作放置區域檢測邏輯
-    // 學習重點：如何有效檢測拖放目標？
-    // 提示：使用 data 屬性或 class 名稱標記放置區域
-
+    // 實作放置區域檢測邏輯
     let current: Element | null = element;
+    let closestDropZone: DropZone | null = null;
+    let minDistance = Infinity;
 
     while (current) {
-      // 只處理 HTMLElement，因為只有它才有 dataset 屬性
       if (current instanceof HTMLElement) {
-        // 檢查是否為題目列表放置區域
-        if (current.dataset.dropZone === 'question-list') {
-          const index = parseInt(current.dataset.dropIndex || '0', 10);
-          setHoveredDropZone({
-            type: DropZoneType.QUESTION_LIST,
-            index,
-            element: current,
-          });
-          return;
-        }
+        const dropZoneType = current.dataset.dropZone;
 
-        // 檢查是否為垃圾桶區域
-        if (current.dataset.dropZone === 'trash') {
-          setHoveredDropZone({
-            type: DropZoneType.TRASH,
-            element: current,
-          });
-          return;
+        if (dropZoneType) {
+          // 計算鼠標與放置區域的距離（用於優先級判斷）
+          const rect = current.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          const distance = Math.sqrt(
+            Math.pow(centerX - previewPosition.value!.x, 2) +
+              Math.pow(centerY - previewPosition.value!.y, 2)
+          );
+
+          if (distance < minDistance) {
+            minDistance = distance;
+
+            switch (dropZoneType) {
+              case 'question-list': {
+                // 計算插入位置
+                const index = calculateInsertIndex(current, previewPosition.value!);
+                closestDropZone = {
+                  type: DropZoneType.QUESTION_LIST,
+                  index,
+                  element: current,
+                };
+                break;
+              }
+
+              case 'trash': {
+                closestDropZone = {
+                  type: DropZoneType.TRASH,
+                  element: current,
+                };
+                break;
+              }
+            }
+          }
         }
       }
 
       current = current.parentElement;
     }
 
-    // 沒有找到有效的放置區域
-    setHoveredDropZone(null);
+    setHoveredDropZone(closestDropZone);
   }
 
   /**
@@ -594,6 +631,96 @@ export const useDragDropStore = defineStore('dragDrop', () => {
 
     // 移除全局事件監聽
     removeGlobalEventListeners();
+  }
+
+  // ============================================================================
+  // 輔助函數（新增）
+  // ============================================================================
+
+  /**
+   * 查找可滾動的父元素
+   */
+  function findScrollableParent(position: { x: number; y: number }): HTMLElement | null {
+    const element = document.elementFromPoint(position.x, position.y);
+    if (!element) return null;
+
+    let parent = element.parentElement;
+    while (parent) {
+      if (parent instanceof HTMLElement) {
+        const style = window.getComputedStyle(parent);
+        const overflow = style.overflow + style.overflowY + style.overflowX;
+
+        if (overflow.includes('auto') || overflow.includes('scroll')) {
+          return parent;
+        }
+      }
+      parent = parent.parentElement;
+    }
+
+    return null;
+  }
+
+  /**
+   * 處理容器的自動滾動
+   */
+  function handleContainerAutoScroll(
+    container: HTMLElement,
+    position: { x: number; y: number }
+  ): void {
+    const rect = container.getBoundingClientRect();
+    const sensitivity = dragSettings.value.scrollSensitivity;
+    const scrollSpeed = 8;
+
+    // 容器內的相對位置
+    const relativeY = position.y - rect.top;
+    const relativeX = position.x - rect.left;
+
+    // 垂直滾動
+    if (relativeY < sensitivity && container.scrollTop > 0) {
+      container.scrollTop -= scrollSpeed;
+    } else if (
+      relativeY > rect.height - sensitivity &&
+      container.scrollTop < container.scrollHeight - rect.height
+    ) {
+      container.scrollTop += scrollSpeed;
+    }
+
+    // 水平滾動
+    if (relativeX < sensitivity && container.scrollLeft > 0) {
+      container.scrollLeft -= scrollSpeed;
+    } else if (
+      relativeX > rect.width - sensitivity &&
+      container.scrollLeft < container.scrollWidth - rect.width
+    ) {
+      container.scrollLeft += scrollSpeed;
+    }
+  }
+
+  /**
+   * 計算插入位置索引
+   */
+  function calculateInsertIndex(
+    container: HTMLElement,
+    position: { x: number; y: number }
+  ): number {
+    const questionElements = container.querySelectorAll('[data-question-index]');
+    if (questionElements.length === 0) return 0;
+
+    let insertIndex = questionElements.length;
+
+    for (let i = 0; i < questionElements.length; i++) {
+      const element = questionElements[i] as HTMLElement;
+      const rect = element.getBoundingClientRect();
+      const centerY = rect.top + rect.height / 2;
+
+      // 如果鼠標在題目中心之上，則插入在此題目之前
+      if (position.y < centerY) {
+        insertIndex = i;
+        break;
+      }
+    }
+
+    return insertIndex;
   }
 
   // ============================================================================

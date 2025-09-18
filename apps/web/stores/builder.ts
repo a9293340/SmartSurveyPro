@@ -93,8 +93,7 @@ export const useBuilderStore = defineStore('builder', () => {
   /** 最大歷史記錄數量 */
   const MAX_HISTORY_SIZE = 50;
 
-  // TODO(human): 思考以下狀態設計
-  // 學習重點：狀態管理的顆粒度如何掌握？
+  // 編輯器設定狀態設計
 
   /** 編輯器設定 */
   const editorSettings = ref({
@@ -263,14 +262,16 @@ export const useBuilderStore = defineStore('builder', () => {
 
     const insertIndex = position ?? currentSurvey.value.questions.length;
 
-    // TODO(human): 實作新增題目邏輯
-    // 學習重點：如何使用 createQuestion 工廠函數？
-
+    // 使用 createQuestion 工廠函數建立新題目
     const newQuestion = createQuestion({
       type,
       order: insertIndex,
       title: `新題目 ${insertIndex + 1}`,
     });
+
+    // 設定題目的預設屬性
+    newQuestion.description = '';
+    newQuestion.required = false;
 
     // 更新其他題目的順序
     currentSurvey.value.questions.forEach(q => {
@@ -531,9 +532,81 @@ export const useBuilderStore = defineStore('builder', () => {
     { deep: true }
   );
 
-  // TODO(human): 實作自動儲存功能
-  // 學習重點：如何設計自動儲存邏輯？
-  // 提示：可以使用 watch + debounce
+  // 自動儲存功能實作
+  let autoSaveTimer: ReturnType<typeof setTimeout> | null = null;
+
+  /**
+   * 執行自動儲存
+   */
+  async function performAutoSave(): Promise<void> {
+    if (!currentSurvey.value || !hasUnsavedChanges.value || isSaving.value) {
+      return;
+    }
+
+    try {
+      isSaving.value = true;
+
+      // 呼叫 API 儲存問卷
+      // TODO(future): 連接實際的 API
+      await new Promise<void>(resolve => {
+        setTimeout(() => resolve(), 1000);
+      }); // 模擬 API 呼叫
+
+      console.warn('[AutoSave] 問卷已自動儲存', {
+        surveyId: currentSurvey.value._id,
+        timestamp: new Date().toISOString(),
+      });
+
+      markAsSaved();
+    } catch (error) {
+      console.error('[AutoSave] 自動儲存失敗:', error);
+    } finally {
+      isSaving.value = false;
+    }
+  }
+
+  /**
+   * 排程自動儲存
+   */
+  function scheduleAutoSave(): void {
+    // 清除現有的計時器
+    if (autoSaveTimer) {
+      clearTimeout(autoSaveTimer);
+    }
+
+    // 如果啟用自動儲存，則排程新的儲存
+    if (editorSettings.value.autoSave && hasUnsavedChanges.value) {
+      autoSaveTimer = setTimeout(() => {
+        performAutoSave();
+      }, editorSettings.value.autoSaveInterval);
+    }
+  }
+
+  // 監聽問卷變更和自動儲存設定，觸發自動儲存
+  watch(
+    [
+      currentSurvey,
+      () => editorSettings.value.autoSave,
+      () => editorSettings.value.autoSaveInterval,
+    ],
+    () => {
+      if (currentSurvey.value && hasUnsavedChanges.value) {
+        scheduleAutoSave();
+      }
+    },
+    { deep: true }
+  );
+
+  // 監聽 hasUnsavedChanges 狀態變化
+  watch(hasUnsavedChanges, newValue => {
+    if (newValue) {
+      scheduleAutoSave();
+    } else if (autoSaveTimer) {
+      // 如果已儲存，清除計時器
+      clearTimeout(autoSaveTimer);
+      autoSaveTimer = null;
+    }
+  });
 
   // ============================================================================
   // 返回公開介面
@@ -573,5 +646,6 @@ export const useBuilderStore = defineStore('builder', () => {
     redo,
     markAsSaved,
     markAsUnsaved,
+    performAutoSave, // 暴露手動儲存功能
   };
 });

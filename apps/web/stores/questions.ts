@@ -64,8 +64,7 @@ export const useQuestionsStore = defineStore('questions', () => {
   /** 題目操作歷史記錄 */
   const operationHistory = ref<string[]>([]);
 
-  // TODO(human): 思考以下功能的實作
-  // 學習重點：如何設計高效的題目管理系統？
+  // 批量操作相關狀態
 
   /** 批量選擇的題目 ID 列表 */
   const selectedQuestionIds = ref<Set<string>>(new Set());
@@ -506,9 +505,131 @@ export const useQuestionsStore = defineStore('questions', () => {
     };
   }
 
-  // TODO(human): 實作批量更新功能
-  // 學習重點：如何設計高效的批量操作？
-  // 提示：考慮事務性操作和錯誤回滾
+  /**
+   * 批量更新選中題目的屬性
+   */
+  function batchUpdateSelectedQuestions(updates: {
+    required?: boolean;
+    visible?: boolean;
+  }): BatchOperationResult {
+    const questionIds = Array.from(selectedQuestionIds.value);
+    let successCount = 0;
+    let failureCount = 0;
+    const errors: string[] = [];
+
+    // 儲存原始狀態以便回滾
+    const originalStates = new Map<string, any>();
+
+    questionIds.forEach(questionId => {
+      const question = allQuestions.value.find(q => q.id === questionId);
+      if (question) {
+        originalStates.set(questionId, {
+          required: question.required,
+          visible: question.visible,
+        });
+      }
+    });
+
+    try {
+      // 執行批量更新
+      questionIds.forEach(questionId => {
+        const success = builderStore.updateQuestion(questionId, updates);
+        if (success) {
+          successCount++;
+        } else {
+          failureCount++;
+          errors.push(`更新題目 ${questionId} 失敗`);
+        }
+      });
+
+      // 如果有失敗，回滾所有變更
+      if (failureCount > 0) {
+        console.warn('[BatchUpdate] 部分更新失敗，正在回滾');
+        originalStates.forEach((state, questionId) => {
+          builderStore.updateQuestion(questionId, state);
+        });
+
+        return {
+          success: false,
+          successCount: 0,
+          failureCount: questionIds.length,
+          errors: ['批量更新失敗，已回滾所有變更'],
+        };
+      }
+
+      addToOperationHistory(`批量更新 ${successCount} 個題目`);
+
+      return {
+        success: true,
+        successCount,
+        failureCount: 0,
+        errors: [],
+      };
+    } catch (error) {
+      // 發生異常，回滾所有變更
+      console.error('[BatchUpdate] 批量更新異常:', error);
+      originalStates.forEach((state, questionId) => {
+        builderStore.updateQuestion(questionId, state);
+      });
+
+      return {
+        success: false,
+        successCount: 0,
+        failureCount: questionIds.length,
+        errors: [`批量更新異常: ${error instanceof Error ? error.message : '未知錯誤'}`],
+      };
+    }
+  }
+
+  /**
+   * 批量複製選中的題目
+   */
+  function batchDuplicateSelectedQuestions(): BatchOperationResult {
+    const questionIds = Array.from(selectedQuestionIds.value);
+    let successCount = 0;
+    let failureCount = 0;
+    const errors: string[] = [];
+    const newQuestionIds: string[] = [];
+
+    try {
+      questionIds.forEach(questionId => {
+        const result = duplicateQuestion(questionId);
+        if (result.success) {
+          successCount++;
+          if (result.question) {
+            newQuestionIds.push(result.question.id);
+          }
+        } else {
+          failureCount++;
+          errors.push(result.message);
+        }
+      });
+
+      // 如果成功，選中新複製的題目
+      if (successCount > 0) {
+        clearSelection();
+        newQuestionIds.forEach(id => {
+          selectedQuestionIds.value.add(id);
+        });
+      }
+
+      addToOperationHistory(`批量複製 ${successCount} 個題目`);
+
+      return {
+        success: failureCount === 0,
+        successCount,
+        failureCount,
+        errors,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        successCount,
+        failureCount: questionIds.length - successCount,
+        errors: [`批量複製異常: ${error instanceof Error ? error.message : '未知錯誤'}`],
+      };
+    }
+  }
 
   // ============================================================================
   // 搜尋和篩選
@@ -762,6 +883,8 @@ export const useQuestionsStore = defineStore('questions', () => {
     selectAllQuestions,
     clearSelection,
     deleteSelectedQuestions,
+    batchUpdateSelectedQuestions,
+    batchDuplicateSelectedQuestions,
 
     // 搜尋和篩選
     searchQuestions,
