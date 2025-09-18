@@ -138,6 +138,12 @@ module.exports = {
     },
     {
       files: ['*.vue'],
+      parser: 'vue-eslint-parser',
+      parserOptions: {
+        parser: '@typescript-eslint/parser',
+        ecmaVersion: 'latest',
+        sourceType: 'module',
+      },
       extends: [
         'plugin:vue/vue3-essential',
         'plugin:vue/vue3-strongly-recommended',
@@ -149,6 +155,8 @@ module.exports = {
         'vue/require-default-prop': 'off',
         'vue/require-explicit-emits': 'warn',
         'vue/singleline-html-element-content-newline': 'off', // 允許單行內容
+        'vue/max-attributes-per-line': 'off', // 關閉屬性換行限制
+        'vue/first-attribute-linebreak': 'off', // 關閉第一個屬性換行限制
         'comma-dangle': 'off', // 讓 Prettier 處理
         'semi': 'off', // 讓 Prettier 處理
       },

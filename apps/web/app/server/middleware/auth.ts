@@ -36,6 +36,7 @@ const PUBLIC_PATHS = [
 function isProtectedPath(path: string): boolean {
   // 移除查詢參數，只檢查路徑本身
   const [pathname] = path.split('?');
+  if (!pathname) return false; // 如果沒有路徑，視為不受保護
 
   // 檢查是否為公開路徑（精確匹配）
   if (PUBLIC_PATHS.includes(pathname)) {

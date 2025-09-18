@@ -96,10 +96,11 @@ export default defineEventHandler(async event => {
       expiresIn: 900, // 15 minutes in seconds
       message: 'Token 刷新成功',
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('Token 刷新失敗:', error);
 
-    if (error?.statusCode) {
+    // 檢查是否為 H3Error（Nuxt/Nitro 錯誤）
+    if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error;
     }
 

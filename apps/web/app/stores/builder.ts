@@ -314,7 +314,9 @@ export const useBuilderStore = defineStore('builder', () => {
       selectedQuestionId.value = null;
     }
 
-    addToHistory(`刪除${getQuestionTypeName(deletedQuestion.type)}`, ActionType.DELETE_QUESTION);
+    if (deletedQuestion) {
+      addToHistory(`刪除${getQuestionTypeName(deletedQuestion.type)}`, ActionType.DELETE_QUESTION);
+    }
     markAsUnsaved();
 
     return true;
@@ -361,7 +363,10 @@ export const useBuilderStore = defineStore('builder', () => {
 
     const previousIndex =
       currentIndex > 0 ? currentIndex - 1 : currentSurvey.value.questions.length - 1;
-    selectQuestion(currentSurvey.value.questions[previousIndex].id);
+    const previousQuestion = currentSurvey.value.questions[previousIndex];
+    if (previousQuestion) {
+      selectQuestion(previousQuestion.id);
+    }
   }
 
   /**
@@ -375,7 +380,10 @@ export const useBuilderStore = defineStore('builder', () => {
       : -1;
 
     const nextIndex = (currentIndex + 1) % currentSurvey.value.questions.length;
-    selectQuestion(currentSurvey.value.questions[nextIndex].id);
+    const nextQuestion = currentSurvey.value.questions[nextIndex];
+    if (nextQuestion) {
+      selectQuestion(nextQuestion.id);
+    }
   }
 
   // ============================================================================
@@ -439,7 +447,9 @@ export const useBuilderStore = defineStore('builder', () => {
 
     historyIndex.value -= 1;
     const record = historyStack.value[historyIndex.value];
-    currentSurvey.value = JSON.parse(JSON.stringify(record.surveySnapshot));
+    if (record) {
+      currentSurvey.value = JSON.parse(JSON.stringify(record.surveySnapshot));
+    }
     markAsUnsaved();
 
     return true;
@@ -453,7 +463,9 @@ export const useBuilderStore = defineStore('builder', () => {
 
     historyIndex.value += 1;
     const record = historyStack.value[historyIndex.value];
-    currentSurvey.value = JSON.parse(JSON.stringify(record.surveySnapshot));
+    if (record) {
+      currentSurvey.value = JSON.parse(JSON.stringify(record.surveySnapshot));
+    }
     markAsUnsaved();
 
     return true;

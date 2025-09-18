@@ -147,16 +147,23 @@ export function verifyRefreshToken(token: string): RefreshTokenPayload | null {
  * - 檢查 token 是否過期（在驗證前的快速檢查）
  * - 除錯和日誌記錄
  */
-export function decodeToken(token: string): any {
+export function decodeToken(token: string): JWTPayload | null {
   try {
     const decoded = jwt.decode(token, { complete: false });
 
-    if (!decoded) {
+    if (!decoded || typeof decoded !== 'object') {
       console.warn('無法解析 token，可能格式不正確');
       return null;
     }
 
-    return decoded;
+    // 確保 decoded 包含必要的 JWTPayload 屬性
+    const payload = decoded as JWTPayload;
+    if (!payload.userId || !payload.email) {
+      console.warn('Token payload 缺少必要的用戶資訊');
+      return null;
+    }
+
+    return payload;
   } catch (error) {
     console.error('解析 Token 失敗:', error);
     return null;

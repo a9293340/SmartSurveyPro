@@ -96,10 +96,11 @@ export default defineEventHandler(async event => {
       message: '登出成功',
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('登出失敗:', error);
 
-    if (error?.statusCode) {
+    // 檢查是否為 H3Error（Nuxt/Nitro 錯誤）
+    if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error;
     }
 

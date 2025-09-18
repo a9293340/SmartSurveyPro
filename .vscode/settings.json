@@ -45,6 +45,10 @@
   "typescript.inlayHints.parameterNames.enabled": "literals",
   "typescript.inlayHints.variableTypes.enabled": true,
   "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "typescript.suggest.autoImports": true,
+  "typescript.suggest.paths": true,
+  "typescript.workspaceSymbols.scope": "allOpenProjects",
 
   // === ESLint 配置 ===
   "eslint.validate": [
@@ -79,9 +83,8 @@
   "git.autofetch": true,
 
   // === Monorepo 配置 ===
-  "typescript.preferences.includePackageJsonAutoImports": "on",
-  "typescript.suggest.autoImports": true,
-  "typescript.suggest.paths": true,
+  "typescript.disableAutomaticTypeAcquisition": false,
+  "typescript.workspaceSymbols.scope": "currentProject",
 
   // === 效能優化 ===
   "extensions.ignoreRecommendations": false,

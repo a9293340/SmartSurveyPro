@@ -145,10 +145,11 @@ export default defineEventHandler(async event => {
         expiresIn: 3600, // 1小時
       },
     };
-  } catch (error: any) {
+  } catch (error) {
     console.error('註冊 API 錯誤:', error);
 
-    if (error?.statusCode) {
+    // 檢查是否為 H3Error（Nuxt/Nitro 錯誤）
+    if (error && typeof error === 'object' && 'statusCode' in error) {
       throw error;
     }
 

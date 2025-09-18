@@ -247,6 +247,13 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   }
 
   /**
+   * 清除懸停的放置區域
+   */
+  function clearHoveredDropZone(): void {
+    setHoveredDropZone(null);
+  }
+
+  /**
    * 驗證放置區域是否有效
    */
   function validateDropZone(dropZone: DropZone): boolean {
@@ -774,6 +781,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
     // 拖放過程
     updateDragPosition,
     setHoveredDropZone,
+    clearHoveredDropZone,
 
     // 拖放結束
     completeDragDrop,

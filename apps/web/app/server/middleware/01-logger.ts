@@ -7,6 +7,17 @@ import type { H3Event } from 'h3';
 import { getClientIP } from '../utils/client-ip';
 
 /**
+ * 日誌資料介面
+ */
+interface LogData {
+  method: string;
+  pathname: string | undefined;
+  statusCode: number;
+  responseTime: string;
+  userId: string;
+}
+
+/**
  * 格式化請求資訊
  */
 function formatRequest(event: H3Event, responseTime: number, statusCode: number) {
@@ -43,7 +54,7 @@ function formatRequest(event: H3Event, responseTime: number, statusCode: number)
 /**
  * 格式化日誌輸出
  */
-function formatLogMessage(logData: any): string {
+function formatLogMessage(logData: LogData): string {
   const { method, pathname, statusCode, responseTime, userId } = logData;
   return `${method} ${pathname} ${statusCode} ${responseTime} [${userId}]`;
 }
@@ -82,11 +93,11 @@ export default defineEventHandler(async (event: H3Event) => {
   event.context.requestId = requestId;
 
   // 記錄請求體（如果需要）
-  let requestBody: any = null;
+  let requestBody: Record<string, unknown> | null = null;
   const method = event.node.req.method || '';
   const [pathname] = path.split('?');
 
-  if (shouldLogRequestBody(method, pathname)) {
+  if (shouldLogRequestBody(method, pathname || '')) {
     try {
       requestBody = await readBody(event);
       // 遮蔽敏感欄位

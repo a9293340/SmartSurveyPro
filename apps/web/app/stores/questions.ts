@@ -310,20 +310,26 @@ export const useQuestionsStore = defineStore('questions', () => {
       };
     }
 
+    // 檢查題目是否存在
+    const currentQuestion = questions[currentIndex];
+    if (!currentQuestion) {
+      return { success: false, message: '找不到要移動的題目' };
+    }
+
     // 在新位置添加題目
-    const movedQuestion = builderStore.addQuestion(questions[currentIndex].type, newPosition);
+    const movedQuestion = builderStore.addQuestion(currentQuestion.type, newPosition);
 
     // 恢復題目內容
     builderStore.updateQuestion(movedQuestion.id, {
-      title: questions[currentIndex].title,
-      description: questions[currentIndex].description,
-      required: questions[currentIndex].required,
-      config: questions[currentIndex].config,
-      validation: questions[currentIndex].validation,
+      title: currentQuestion.title,
+      description: currentQuestion.description,
+      required: currentQuestion.required,
+      config: currentQuestion.config,
+      validation: currentQuestion.validation,
     });
 
     lastOperatedQuestionId.value = movedQuestion.id;
-    addToOperationHistory(`移動題目: ${questions[currentIndex].title}`);
+    addToOperationHistory(`移動題目: ${currentQuestion.title}`);
 
     return {
       success: true,
@@ -783,7 +789,9 @@ export const useQuestionsStore = defineStore('questions', () => {
     const removedOption = config.options[optionIndex];
     config.options.splice(optionIndex, 1);
     builderStore.updateQuestion(questionId, { config });
-    addToOperationHistory(`刪除選項: ${removedOption.label}`);
+    if (removedOption) {
+      addToOperationHistory(`刪除選項: ${removedOption.label}`);
+    }
 
     return {
       success: true,

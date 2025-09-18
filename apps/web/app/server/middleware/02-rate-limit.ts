@@ -39,9 +39,10 @@ function getClientIdentifier(event: H3Event): string {
 
   // 取得客戶端 IP
   const forwarded = getHeader(event, 'x-forwarded-for');
-  const ip = forwarded
-    ? forwarded.split(',')[0].trim()
-    : event.node.req.socket.remoteAddress || 'unknown';
+  const ip =
+    forwarded && typeof forwarded === 'string'
+      ? forwarded.split(',')[0]?.trim() || 'unknown'
+      : event.node.req.socket.remoteAddress || 'unknown';
 
   // 取得 User-Agent 作為輔助識別
   const userAgent = getHeader(event, 'user-agent') || 'unknown';
