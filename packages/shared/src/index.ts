@@ -17,6 +17,16 @@ export {
 
 export { RedisKeyBuilder, RedisKeys, RedisKeyUtils } from './db/redis-keys';
 
+// 問卷系統型別
+export * from './types/survey';
+export * from './types/question';
+
+// 問卷系統 Schema
+export * from './schemas/survey';
+
+// 問卷系統工具
+export * from './survey/question-registry';
+
 // 健康檢查系統
 export {
   performHealthCheck,
