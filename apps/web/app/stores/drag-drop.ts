@@ -26,7 +26,7 @@ export interface DragItem {
 
 /** 題型拖放資料 */
 export interface QuestionTypeDragData {
-  questionType: QuestionType;
+  questionType: (typeof QuestionType)[keyof typeof QuestionType];
   displayName: string;
   icon: string;
 }
@@ -64,12 +64,6 @@ export interface DragDropResult {
 // ============================================================================
 
 export const useDragDropStore = defineStore('dragDrop', () => {
-  // ============================================================================
-  // 依賴的 Store
-  // ============================================================================
-
-  const questionsStore = useQuestionsStore();
-
   // ============================================================================
   // 拖放狀態
   // ============================================================================
@@ -114,12 +108,14 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   // ============================================================================
 
   /** 當前拖放的題型（如果是題型拖放） */
-  const draggedQuestionType = computed((): QuestionType | null => {
-    if (!draggedItem.value || draggedItem.value.type !== DragItemType.QUESTION_TYPE) {
-      return null;
+  const draggedQuestionType = computed(
+    (): (typeof QuestionType)[keyof typeof QuestionType] | null => {
+      if (!draggedItem.value || draggedItem.value.type !== DragItemType.QUESTION_TYPE) {
+        return null;
+      }
+      return (draggedItem.value.data as QuestionTypeDragData).questionType;
     }
-    return (draggedItem.value.data as QuestionTypeDragData).questionType;
-  });
+  );
 
   /** 當前拖放的題目 ID（如果是題目重排） */
   const draggedQuestionId = computed((): string | null => {
@@ -154,7 +150,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
    * 開始拖放題型
    */
   function startDragQuestionType(
-    questionType: QuestionType,
+    questionType: (typeof QuestionType)[keyof typeof QuestionType],
     displayName: string,
     icon: string,
     startPosition: { x: number; y: number }
@@ -378,6 +374,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
   ): DragDropResult {
     switch (dropZone.type) {
       case DropZoneType.QUESTION_LIST: {
+        const questionsStore = useQuestionsStore();
         const result = questionsStore.addQuestionAt(
           dragData.questionType,
           dropZone.index ?? questionsStore.allQuestions.length
@@ -417,6 +414,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
           };
         }
 
+        const questionsStore = useQuestionsStore();
         const result = questionsStore.moveQuestion(dragData.questionId, dropZone.index);
 
         return {
@@ -428,6 +426,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
       }
 
       case DropZoneType.TRASH: {
+        const questionsStore = useQuestionsStore();
         const result = questionsStore.deleteQuestion(dragData.questionId);
 
         return {

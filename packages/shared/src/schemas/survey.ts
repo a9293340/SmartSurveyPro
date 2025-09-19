@@ -4,17 +4,12 @@
  */
 
 import { z } from 'zod';
-import { ObjectId } from 'mongodb';
 import { SurveyStatus, SurveyType, SurveyVisibility } from '../types/survey';
+import { EntityIdSchema } from './common';
 
 // ============================================================================
 // 基礎驗證 Schema
 // ============================================================================
-
-/** ObjectId 驗證 Schema */
-export const ObjectIdSchema = z
-  .string()
-  .refine(value => ObjectId.isValid(value), { message: '無效的 ObjectId 格式' });
 
 /** 問卷狀態驗證 */
 export const SurveyStatusSchema = z.nativeEnum(SurveyStatus, {
@@ -105,7 +100,7 @@ export const CreateSurveySchema = z.object({
 
   type: SurveyTypeSchema.default(SurveyType.STANDARD),
 
-  workspaceId: ObjectIdSchema,
+  workspaceId: EntityIdSchema,
 
   publishSettings: SurveyPublishSettingsSchema.optional(),
 
@@ -147,7 +142,7 @@ export const PublishSurveySchema = z
 
 /** 問卷查詢參數驗證 */
 export const SurveyQuerySchema = z.object({
-  workspaceId: ObjectIdSchema.optional(),
+  workspaceId: EntityIdSchema.optional(),
   status: SurveyStatusSchema.optional(),
   type: SurveyTypeSchema.optional(),
   page: z.coerce.number().int().min(1, '頁碼必須大於 0').default(1),

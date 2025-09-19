@@ -4,8 +4,11 @@
  */
 
 import { defineStore } from 'pinia';
-import { ref, computed, watch, readonly } from 'vue';
-import { ObjectId } from 'mongodb';
+import { ref, computed, watch } from 'vue';
+// 客戶端 ID 生成函數（用於臨時 ID）
+function generateTempId(): string {
+  return `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
 import type { Survey, SurveyBuilderState, Question } from '@smartsurvey/shared';
 import { SurveyStatus, SurveyType, QuestionType } from '@smartsurvey/shared';
 import { createQuestion, validateQuestion } from '@smartsurvey/shared';
@@ -116,7 +119,9 @@ export const useBuilderStore = defineStore('builder', () => {
     if (!currentSurvey.value || !selectedQuestionId.value) {
       return null;
     }
-    return currentSurvey.value.questions.find(q => q.id === selectedQuestionId.value) || null;
+    return (
+      currentSurvey.value.questions.find((q: Question) => q.id === selectedQuestionId.value) || null
+    );
   });
 
   /** 是否可以 Undo */
@@ -148,7 +153,7 @@ export const useBuilderStore = defineStore('builder', () => {
     }
 
     // 檢查每個題目的有效性
-    currentSurvey.value.questions.forEach((question, index) => {
+    currentSurvey.value.questions.forEach((question: Question, index: number) => {
       const validation = validateQuestion(question);
       if (!validation.isValid) {
         errors.push(`題目 ${index + 1}: ${validation.errors.join(', ')}`);
@@ -186,11 +191,11 @@ export const useBuilderStore = defineStore('builder', () => {
   function createNewSurvey(params: {
     title: string;
     description?: string;
-    type?: SurveyType;
+    type?: (typeof SurveyType)[keyof typeof SurveyType];
     workspaceId: string;
   }): Survey {
     const newSurvey: Survey = {
-      _id: new ObjectId() as any, // 暫時使用，實際會由後端生成
+      _id: generateTempId() as any, // 暫時使用，實際會由後端生成
       title: params.title,
       description: params.description,
       status: SurveyStatus.DRAFT,
@@ -255,7 +260,10 @@ export const useBuilderStore = defineStore('builder', () => {
   /**
    * 新增題目
    */
-  function addQuestion(type: QuestionType, position?: number): Question {
+  function addQuestion(
+    type: (typeof QuestionType)[keyof typeof QuestionType],
+    position?: number
+  ): Question {
     if (!currentSurvey.value) {
       throw new Error('沒有載入問卷');
     }
@@ -270,11 +278,11 @@ export const useBuilderStore = defineStore('builder', () => {
     });
 
     // 設定題目的預設屬性
-    newQuestion.description = '';
+    // newQuestion.description = '';
     newQuestion.required = false;
 
     // 更新其他題目的順序
-    currentSurvey.value.questions.forEach(q => {
+    currentSurvey.value.questions.forEach((q: Question) => {
       if (q.order >= insertIndex) {
         q.order += 1;
       }
@@ -296,14 +304,16 @@ export const useBuilderStore = defineStore('builder', () => {
   function deleteQuestion(questionId: string): boolean {
     if (!currentSurvey.value) return false;
 
-    const questionIndex = currentSurvey.value.questions.findIndex(q => q.id === questionId);
+    const questionIndex = currentSurvey.value.questions.findIndex(
+      (q: Question) => q.id === questionId
+    );
     if (questionIndex === -1) return false;
 
     const deletedQuestion = currentSurvey.value.questions[questionIndex];
     currentSurvey.value.questions.splice(questionIndex, 1);
 
     // 重新排序剩餘題目
-    currentSurvey.value.questions.forEach((q, index) => {
+    currentSurvey.value.questions.forEach((q: Question, index: number) => {
       q.order = index;
     });
 
@@ -328,7 +338,7 @@ export const useBuilderStore = defineStore('builder', () => {
   function updateQuestion(questionId: string, updates: QuestionUpdateData): boolean {
     if (!currentSurvey.value) return false;
 
-    const question = currentSurvey.value.questions.find(q => q.id === questionId);
+    const question = currentSurvey.value.questions.find((q: Question) => q.id === questionId);
     if (!question) return false;
 
     Object.assign(question, updates);
@@ -358,7 +368,7 @@ export const useBuilderStore = defineStore('builder', () => {
     if (!currentSurvey.value || currentSurvey.value.questions.length === 0) return;
 
     const currentIndex = selectedQuestionId.value
-      ? currentSurvey.value.questions.findIndex(q => q.id === selectedQuestionId.value)
+      ? currentSurvey.value.questions.findIndex((q: Question) => q.id === selectedQuestionId.value)
       : -1;
 
     const previousIndex =
@@ -376,7 +386,7 @@ export const useBuilderStore = defineStore('builder', () => {
     if (!currentSurvey.value || currentSurvey.value.questions.length === 0) return;
 
     const currentIndex = selectedQuestionId.value
-      ? currentSurvey.value.questions.findIndex(q => q.id === selectedQuestionId.value)
+      ? currentSurvey.value.questions.findIndex((q: Question) => q.id === selectedQuestionId.value)
       : -1;
 
     const nextIndex = (currentIndex + 1) % currentSurvey.value.questions.length;
@@ -505,8 +515,8 @@ export const useBuilderStore = defineStore('builder', () => {
   /**
    * 獲取題型顯示名稱
    */
-  function getQuestionTypeName(type: QuestionType): string {
-    const typeNames: Record<QuestionType, string> = {
+  function getQuestionTypeName(type: (typeof QuestionType)[keyof typeof QuestionType]): string {
+    const typeNames: Record<(typeof QuestionType)[keyof typeof QuestionType], string> = {
       [QuestionType.SINGLE_CHOICE]: '單選題',
       [QuestionType.MULTIPLE_CHOICE]: '多選題',
       [QuestionType.TEXT_SHORT]: '短文字',

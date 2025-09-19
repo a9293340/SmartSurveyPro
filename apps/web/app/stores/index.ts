@@ -8,11 +8,6 @@ export { useBuilderStore } from './builder';
 export { useQuestionsStore } from './questions';
 export { useDragDropStore } from './drag-drop';
 
-// 引入 stores 供內部使用
-import { useBuilderStore } from './builder';
-import { useQuestionsStore } from './questions';
-import { useDragDropStore } from './drag-drop';
-
 // 型別定義
 export type {
   DragItemType,
@@ -34,7 +29,12 @@ export interface SurveyBuilderStores {
 /**
  * 組合函數：獲取所有問卷建構器相關的 stores
  */
-export function useSurveyBuilderStores(): SurveyBuilderStores {
+export async function useSurveyBuilderStores(): Promise<SurveyBuilderStores> {
+  // 動態 import 避免循環引用
+  const { useBuilderStore } = await import('./builder');
+  const { useQuestionsStore } = await import('./questions');
+  const { useDragDropStore } = await import('./drag-drop');
+
   return {
     builder: useBuilderStore(),
     questions: useQuestionsStore(),

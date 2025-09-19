@@ -3,7 +3,8 @@
  * 定義問卷、題目、邏輯規則等基礎資料結構
  */
 
-import type { ObjectId } from 'mongodb';
+// 從 common.ts 匯入 EntityId 型別
+import type { EntityId } from './common';
 
 // ============================================================================
 // 基礎列舉類型
@@ -111,7 +112,7 @@ export interface SurveyStats {
 /** 問卷主要介面 */
 export interface Survey {
   /** 問卷唯一識別碼 */
-  _id: ObjectId;
+  _id: EntityId;
 
   /** 問卷標題 */
   title: string;
@@ -129,10 +130,10 @@ export interface Survey {
   type: SurveyType;
 
   /** 問卷擁有者 ID */
-  ownerId: ObjectId;
+  ownerId: EntityId;
 
   /** 所屬工作區 ID */
-  workspaceId: ObjectId;
+  workspaceId: EntityId;
 
   /** 問卷題目列表 */
   questions: Question[];

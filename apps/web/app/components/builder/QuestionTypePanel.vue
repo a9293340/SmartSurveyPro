@@ -3,7 +3,7 @@
     <!-- 搜尋框 -->
     <div class="search-section">
       <div class="search-input-wrapper">
-        <Icon name="magnifying-glass" class="search-icon" />
+        <Icon name="heroicons:magnifying-glass" class="search-icon" />
         <input v-model="searchQuery" type="text" placeholder="搜尋題型..." class="search-input" />
       </div>
     </div>
@@ -41,7 +41,7 @@
           <p class="question-type-description">{{ questionType.description }}</p>
         </div>
         <div class="drag-handle">
-          <Icon name="bars-3" class="w-4 h-4" />
+          <Icon name="heroicons:bars-3" class="w-4 h-4" />
         </div>
       </div>
     </div>
@@ -49,7 +49,7 @@
     <!-- Phase 1 說明 -->
     <div class="phase-info">
       <div class="info-card">
-        <Icon name="info-circle" class="w-4 h-4 text-blue-500" />
+        <Icon name="heroicons:information-circle" class="w-4 h-4 text-blue-500" />
         <p class="text-xs text-gray-600">Phase 1 支援 5 種基礎題型，更多題型將在 Phase 2 加入</p>
       </div>
     </div>
@@ -78,13 +78,23 @@ const categories = [
   { id: 'advanced', name: '進階' },
 ];
 
+// 題型定義介面
+interface QuestionTypeDefinition {
+  type: (typeof QuestionType)[keyof typeof QuestionType];
+  displayName: string;
+  description: string;
+  icon: string;
+  category: string;
+  phase: number;
+}
+
 // Phase 1 支援的題型定義
-const questionTypeDefinitions = [
+const questionTypeDefinitions: QuestionTypeDefinition[] = [
   {
     type: QuestionType.SINGLE_CHOICE,
     displayName: '單選題',
     description: '從多個選項中選擇一個',
-    icon: 'radio-button',
+    icon: 'heroicons:radio',
     category: 'choice',
     phase: 1,
   },
@@ -92,7 +102,7 @@ const questionTypeDefinitions = [
     type: QuestionType.MULTIPLE_CHOICE,
     displayName: '多選題',
     description: '可以選擇多個選項',
-    icon: 'checkbox',
+    icon: 'heroicons:squares-2x2',
     category: 'choice',
     phase: 1,
   },
@@ -100,7 +110,7 @@ const questionTypeDefinitions = [
     type: QuestionType.TEXT_SHORT,
     displayName: '短文字',
     description: '單行文字輸入',
-    icon: 'text-short',
+    icon: 'heroicons:pencil-square',
     category: 'input',
     phase: 1,
   },
@@ -108,7 +118,7 @@ const questionTypeDefinitions = [
     type: QuestionType.TEXT_LONG,
     displayName: '長文字',
     description: '多行文字輸入',
-    icon: 'text-long',
+    icon: 'heroicons:document-text',
     category: 'input',
     phase: 1,
   },
@@ -116,7 +126,7 @@ const questionTypeDefinitions = [
     type: QuestionType.RATING,
     displayName: '評分題',
     description: '星級評分或數字評分',
-    icon: 'star',
+    icon: 'heroicons:star',
     category: 'basic',
     phase: 1,
   },
@@ -125,7 +135,7 @@ const questionTypeDefinitions = [
     type: QuestionType.EMAIL,
     displayName: '電子郵件',
     description: '電子郵件格式驗證',
-    icon: 'envelope',
+    icon: 'heroicons:envelope',
     category: 'input',
     phase: 2,
   },
@@ -133,7 +143,7 @@ const questionTypeDefinitions = [
     type: QuestionType.NUMBER,
     displayName: '數字',
     description: '數字輸入與驗證',
-    icon: 'number-symbol',
+    icon: 'heroicons:hashtag',
     category: 'input',
     phase: 2,
   },
@@ -141,7 +151,7 @@ const questionTypeDefinitions = [
     type: QuestionType.DROPDOWN,
     displayName: '下拉選單',
     description: '下拉式選擇',
-    icon: 'chevron-down',
+    icon: 'heroicons:chevron-down',
     category: 'choice',
     phase: 2,
   },
@@ -149,7 +159,7 @@ const questionTypeDefinitions = [
     type: QuestionType.SCALE,
     displayName: '量表',
     description: '線性量表評分',
-    icon: 'scale',
+    icon: 'heroicons:chart-bar-square',
     category: 'advanced',
     phase: 2,
   },
@@ -157,7 +167,7 @@ const questionTypeDefinitions = [
     type: QuestionType.DATE,
     displayName: '日期',
     description: '日期選擇器',
-    icon: 'calendar',
+    icon: 'heroicons:calendar',
     category: 'input',
     phase: 2,
   },
@@ -188,22 +198,17 @@ const filteredQuestionTypes = computed(() => {
 });
 
 // 方法
-function handleQuestionTypeMouseDown(
-  event: MouseEvent,
-  questionType: {
-    type: QuestionType;
-    displayName: string;
-    description: string;
-    icon: string;
-    category: string;
-    phase: number;
-  }
-) {
+function handleQuestionTypeMouseDown(event: MouseEvent, questionType: QuestionTypeDefinition) {
+  console.warn('🖱️ Mouse down on question type:', questionType.displayName, questionType.type);
+
   // 檢查是否為 Phase 1 支援的題型
   if (questionType.phase > 1) {
+    console.warn('⚠️ Phase 2 question type, skipping:', questionType.displayName);
     // TODO: 顯示 "即將推出" 提示
     return;
   }
+
+  console.warn('✅ Phase 1 question type, starting drag:', questionType.displayName);
 
   // 防止預設的拖放行為
   event.preventDefault();
@@ -214,12 +219,24 @@ function handleQuestionTypeMouseDown(
     y: event.clientY,
   };
 
+  console.warn('🚀 Calling dragDropStore.startDragQuestionType with:', {
+    type: questionType.type,
+    name: questionType.displayName,
+    icon: questionType.icon,
+    position: startPosition,
+  });
+
   dragDropStore.startDragQuestionType(
     questionType.type,
     questionType.displayName,
     questionType.icon,
     startPosition
   );
+
+  console.warn('📦 DragDropStore state after start:', {
+    isDragging: dragDropStore.isDragging,
+    draggedQuestionType: dragDropStore.draggedQuestionType,
+  });
 
   // 添加視覺反饋
   const target = event.currentTarget as HTMLElement;
@@ -313,7 +330,7 @@ function handleQuestionTypeMouseDown(
 /* Phase 2 題型樣式 */
 .question-type-item[data-phase='2'] {
   @apply opacity-60 cursor-not-allowed;
-  @apply border-gray-150 hover:border-gray-150 hover:shadow-none;
+  @apply border-gray-200 hover:border-gray-200 hover:shadow-none;
 }
 
 .question-type-item[data-phase='2'] .question-type-info {

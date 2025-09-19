@@ -35,7 +35,7 @@ interface BatchOperationResult {
 
 /** 題目搜尋條件 */
 interface QuestionSearchCriteria {
-  type?: QuestionType;
+  type?: (typeof QuestionType)[keyof typeof QuestionType];
   required?: boolean;
   titleContains?: string;
 }
@@ -89,7 +89,7 @@ export const useQuestionsStore = defineStore('questions', () => {
   /** 題目統計資訊 */
   const questionStats = computed(() => {
     const questions = allQuestions.value;
-    const typeCount = new Map<QuestionType, number>();
+    const typeCount = new Map<(typeof QuestionType)[keyof typeof QuestionType], number>();
     let requiredCount = 0;
 
     questions.forEach(question => {
@@ -148,7 +148,10 @@ export const useQuestionsStore = defineStore('questions', () => {
   /**
    * 新增題目到指定位置
    */
-  function addQuestionAt(type: QuestionType, position: number): QuestionOperationResult {
+  function addQuestionAt(
+    type: (typeof QuestionType)[keyof typeof QuestionType],
+    position: number
+  ): QuestionOperationResult {
     try {
       const question = builderStore.addQuestion(type, position);
       lastOperatedQuestionId.value = question.id;
@@ -170,14 +173,18 @@ export const useQuestionsStore = defineStore('questions', () => {
   /**
    * 在末尾新增題目
    */
-  function addQuestion(type: QuestionType): QuestionOperationResult {
+  function addQuestion(
+    type: (typeof QuestionType)[keyof typeof QuestionType]
+  ): QuestionOperationResult {
     return addQuestionAt(type, allQuestions.value.length);
   }
 
   /**
    * 在選中題目後新增題目
    */
-  function addQuestionAfterSelected(type: QuestionType): QuestionOperationResult {
+  function addQuestionAfterSelected(
+    type: (typeof QuestionType)[keyof typeof QuestionType]
+  ): QuestionOperationResult {
     const selectedId = builderStore.selectedQuestionId;
     if (!selectedId) {
       return addQuestion(type);
@@ -278,7 +285,7 @@ export const useQuestionsStore = defineStore('questions', () => {
     }
 
     const questions = builderStore.currentSurvey.questions;
-    const currentIndex = questions.findIndex(q => q.id === questionId);
+    const currentIndex = questions.findIndex((q: Question) => q.id === questionId);
 
     if (currentIndex === -1) {
       return {
@@ -672,7 +679,7 @@ export const useQuestionsStore = defineStore('questions', () => {
   /**
    * 獲取特定題型的題目
    */
-  function getQuestionsByType(type: QuestionType): Question[] {
+  function getQuestionsByType(type: (typeof QuestionType)[keyof typeof QuestionType]): Question[] {
     return allQuestions.value.filter(question => question.type === type);
   }
 
@@ -806,8 +813,8 @@ export const useQuestionsStore = defineStore('questions', () => {
   /**
    * 獲取題型顯示名稱
    */
-  function getQuestionTypeName(type: QuestionType): string {
-    const typeNames: Record<QuestionType, string> = {
+  function getQuestionTypeName(type: (typeof QuestionType)[keyof typeof QuestionType]): string {
+    const typeNames: Record<(typeof QuestionType)[keyof typeof QuestionType], string> = {
       [QuestionType.SINGLE_CHOICE]: '單選題',
       [QuestionType.MULTIPLE_CHOICE]: '多選題',
       [QuestionType.TEXT_SHORT]: '短文字',

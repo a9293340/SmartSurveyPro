@@ -25,23 +25,23 @@
       <div class="card-actions">
         <!-- 拖動手柄 -->
         <div class="drag-handle">
-          <Icon name="bars-3" class="w-4 h-4" />
+          <Icon name="heroicons:bars-3" class="w-4 h-4" />
         </div>
 
         <!-- 更多選項 -->
         <div class="dropdown-wrapper">
           <button type="button" class="action-button" @click.stop="toggleDropdown">
-            <Icon name="ellipsis-horizontal" class="w-4 h-4" />
+            <Icon name="heroicons:ellipsis-horizontal" class="w-4 h-4" />
           </button>
 
           <!-- 下拉選單 -->
           <div v-show="showDropdown" class="dropdown-menu">
             <button type="button" class="dropdown-item" @click="handleDuplicate">
-              <Icon name="document-duplicate" class="w-4 h-4" />
+              <Icon name="heroicons:document-duplicate" class="w-4 h-4" />
               複製題目
             </button>
             <button type="button" class="dropdown-item" @click="handleCopy">
-              <Icon name="clipboard" class="w-4 h-4" />
+              <Icon name="heroicons:clipboard" class="w-4 h-4" />
               複製到剪貼簿
             </button>
             <div class="dropdown-divider" />
@@ -50,7 +50,7 @@
               class="dropdown-item text-red-600 hover:bg-red-50"
               @click="handleDelete"
             >
-              <Icon name="trash" class="w-4 h-4" />
+              <Icon name="heroicons:trash" class="w-4 h-4" />
               刪除題目
             </button>
           </div>
@@ -83,7 +83,7 @@
           class="edit-title-button"
           @click.stop="startTitleEdit"
         >
-          <Icon name="pencil" class="w-3 h-3" />
+          <Icon name="heroicons:pencil" class="w-3 h-3" />
         </button>
       </div>
 
@@ -102,11 +102,11 @@
     <div class="card-footer">
       <div class="question-stats">
         <span class="stat-item">
-          <Icon name="eye" class="w-3 h-3" />
+          <Icon name="heroicons:eye" class="w-3 h-3" />
           {{ question.visible ? '顯示' : '隱藏' }}
         </span>
         <span v-if="hasValidation" class="stat-item">
-          <Icon name="shield-check" class="w-3 h-3" />
+          <Icon name="heroicons:shield-check" class="w-3 h-3" />
           有驗證
         </span>
       </div>
@@ -118,7 +118,7 @@
           :class="{ active: question.required }"
           @click.stop="toggleRequired"
         >
-          <Icon name="exclamation-triangle" class="w-3 h-3" />
+          <Icon name="heroicons:exclamation-triangle" class="w-3 h-3" />
           必填
         </button>
         <button
@@ -127,7 +127,10 @@
           :class="{ active: question.visible }"
           @click.stop="toggleVisible"
         >
-          <Icon :name="question.visible ? 'eye' : 'eye-slash'" class="w-3 h-3" />
+          <Icon
+            :name="question.visible ? 'heroicons:eye' : 'heroicons:eye-slash'"
+            class="w-3 h-3"
+          />
           {{ question.visible ? '顯示' : '隱藏' }}
         </button>
       </div>
@@ -137,8 +140,10 @@
 
 <script setup lang="ts">
 import { computed, ref, nextTick, onMounted, onUnmounted } from 'vue';
-import type { Question } from '@smartsurvey/shared';
 import { QuestionType } from '@smartsurvey/shared';
+import type { Question } from '@smartsurvey/shared';
+
+// 使用共享的 Question 類型
 import { useDragDropStore } from '~/stores/drag-drop';
 import { useBuilderStore } from '~/stores/builder';
 import { useQuestionsStore } from '~/stores/questions';
@@ -178,28 +183,28 @@ const questionTypeName = computed(() => {
 });
 
 const questionTypeIcon = computed(() => {
-  const iconMap: Record<QuestionType, string> = {
-    [QuestionType.SINGLE_CHOICE]: 'radio-button',
-    [QuestionType.MULTIPLE_CHOICE]: 'checkbox',
-    [QuestionType.TEXT_SHORT]: 'text-short',
-    [QuestionType.TEXT_LONG]: 'text-long',
-    [QuestionType.RATING]: 'star',
-    [QuestionType.EMAIL]: 'envelope',
-    [QuestionType.NUMBER]: 'number-symbol',
-    [QuestionType.URL]: 'link',
-    [QuestionType.DROPDOWN]: 'chevron-down',
-    [QuestionType.SCALE]: 'scale',
-    [QuestionType.NET_PROMOTER_SCORE]: 'chart-bar',
-    [QuestionType.DATE]: 'calendar',
-    [QuestionType.TIME]: 'clock',
-    [QuestionType.DATETIME]: 'calendar-clock',
-    [QuestionType.FILE_UPLOAD]: 'upload',
-    [QuestionType.IMAGE_CHOICE]: 'image',
-    [QuestionType.MATRIX]: 'table',
-    [QuestionType.RANKING]: 'list-ordered',
+  const iconMap: Record<string, string> = {
+    [QuestionType.SINGLE_CHOICE]: 'heroicons:radio',
+    [QuestionType.MULTIPLE_CHOICE]: 'heroicons:squares-2x2',
+    [QuestionType.TEXT_SHORT]: 'heroicons:pencil-square',
+    [QuestionType.TEXT_LONG]: 'heroicons:document-text',
+    [QuestionType.RATING]: 'heroicons:star',
+    [QuestionType.EMAIL]: 'heroicons:envelope',
+    [QuestionType.NUMBER]: 'heroicons:hashtag',
+    [QuestionType.URL]: 'heroicons:link',
+    [QuestionType.DROPDOWN]: 'heroicons:chevron-down',
+    [QuestionType.SCALE]: 'heroicons:chart-bar-square',
+    [QuestionType.NET_PROMOTER_SCORE]: 'heroicons:chart-bar-square',
+    [QuestionType.DATE]: 'heroicons:calendar',
+    [QuestionType.TIME]: 'heroicons:clock',
+    [QuestionType.DATETIME]: 'heroicons:calendar',
+    [QuestionType.FILE_UPLOAD]: 'heroicons:arrow-up-tray',
+    [QuestionType.IMAGE_CHOICE]: 'heroicons:photo',
+    [QuestionType.MATRIX]: 'heroicons:table-cells',
+    [QuestionType.RANKING]: 'heroicons:list-bullet',
   };
 
-  return iconMap[props.question.type] || 'question-mark';
+  return iconMap[props.question.type] || 'heroicons:question-mark-circle';
 });
 
 const displayTitle = computed(() => {
