@@ -31,7 +31,7 @@
     <!-- 空狀態提示（僅在沒有題目時顯示） -->
     <div v-if="showEmptyHint" class="empty-hint">
       <div class="empty-hint-content">
-        <Icon name="plus-circle" class="w-5 h-5 text-gray-400" />
+        <Icon name="heroicons:plus-circle" class="w-5 h-5 text-gray-400" />
         <span class="empty-hint-text">拖入題型或點擊新增題目</span>
       </div>
     </div>

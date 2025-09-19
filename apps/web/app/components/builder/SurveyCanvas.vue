@@ -7,7 +7,10 @@
         <div class="sidebar-header">
           <h3 v-show="!isSidebarCollapsed" class="sidebar-title">題型庫</h3>
           <button type="button" class="sidebar-toggle" @click="toggleSidebar">
-            <Icon :name="isSidebarCollapsed ? 'chevron-right' : 'chevron-left'" class="w-4 h-4" />
+            <Icon
+              :name="isSidebarCollapsed ? 'heroicons:chevron-right' : 'heroicons:chevron-left'"
+              class="w-4 h-4"
+            />
           </button>
         </div>
 
@@ -26,17 +29,24 @@
 
           <div class="canvas-actions">
             <button type="button" class="btn-secondary" @click="togglePreview">
-              <Icon name="eye" class="w-4 h-4" />
+              <Icon name="heroicons:eye" class="w-4 h-4" />
               {{ isPreviewMode ? '退出預覽' : '預覽' }}
             </button>
           </div>
         </div>
 
         <!-- 問卷題目列表 -->
-        <div class="question-list" data-drop-zone="question-list">
+        <div
+          class="question-list"
+          data-drop-zone="question-list"
+          @drop="onDrop"
+          @dragover="onDragOver"
+          @dragenter="onDragEnter"
+          @dragleave="onDragLeave"
+        >
           <!-- 空狀態 -->
           <div v-if="questions.length === 0" class="empty-state">
-            <Icon name="document-plus" class="empty-icon" />
+            <Icon name="heroicons:document-plus" class="empty-icon" />
             <h3>開始建立您的問卷</h3>
             <p>從左側拖入題型，或點擊下方按鈕新增題目</p>
             <button type="button" class="btn-primary" @click="addFirstQuestion">
@@ -79,7 +89,7 @@
         <div class="sidebar-header">
           <button type="button" class="sidebar-toggle" @click="toggleProperties">
             <Icon
-              :name="isPropertiesCollapsed ? 'chevron-left' : 'chevron-right'"
+              :name="isPropertiesCollapsed ? 'heroicons:chevron-left' : 'heroicons:chevron-right'"
               class="w-4 h-4"
             />
           </button>
@@ -110,6 +120,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { QuestionType } from '@smartsurvey/shared';
+import {
+  DragItemType,
+  DropZoneType,
+  type QuestionTypeDragData,
+  type ExistingQuestionDragData,
+} from '~/stores/drag-drop';
 import { useBuilderStore } from '~/stores/builder';
 import { useDragDropStore } from '~/stores/drag-drop';
 import { useQuestionsStore } from '~/stores/questions';
@@ -161,28 +177,30 @@ const draggedQuestionName = computed(() => {
 
 const draggedQuestionIcon = computed(() => {
   // 根據題型返回對應圖標名稱
-  const iconMap: Record<QuestionType, string> = {
-    [QuestionType.SINGLE_CHOICE]: 'radio-button',
-    [QuestionType.MULTIPLE_CHOICE]: 'checkbox',
-    [QuestionType.TEXT_SHORT]: 'text-short',
-    [QuestionType.TEXT_LONG]: 'text-long',
-    [QuestionType.RATING]: 'star',
-    [QuestionType.EMAIL]: 'envelope',
-    [QuestionType.NUMBER]: 'number',
-    [QuestionType.URL]: 'link',
-    [QuestionType.DROPDOWN]: 'chevron-down',
-    [QuestionType.SCALE]: 'scale',
-    [QuestionType.NET_PROMOTER_SCORE]: 'chart-bar',
-    [QuestionType.DATE]: 'calendar',
-    [QuestionType.TIME]: 'clock',
-    [QuestionType.DATETIME]: 'calendar-clock',
-    [QuestionType.FILE_UPLOAD]: 'upload',
-    [QuestionType.IMAGE_CHOICE]: 'image',
-    [QuestionType.MATRIX]: 'table',
-    [QuestionType.RANKING]: 'list-ordered',
+  const iconMap: Record<string, string> = {
+    [QuestionType.SINGLE_CHOICE]: 'heroicons:radio-button',
+    [QuestionType.MULTIPLE_CHOICE]: 'heroicons:check',
+    [QuestionType.TEXT_SHORT]: 'heroicons:pencil',
+    [QuestionType.TEXT_LONG]: 'heroicons:document-text',
+    [QuestionType.RATING]: 'heroicons:star',
+    [QuestionType.EMAIL]: 'heroicons:envelope',
+    [QuestionType.NUMBER]: 'heroicons:hashtag',
+    [QuestionType.URL]: 'heroicons:link',
+    [QuestionType.DROPDOWN]: 'heroicons:chevron-down',
+    [QuestionType.SCALE]: 'heroicons:chart-bar',
+    [QuestionType.NET_PROMOTER_SCORE]: 'heroicons:chart-bar',
+    [QuestionType.DATE]: 'heroicons:calendar',
+    [QuestionType.TIME]: 'heroicons:clock',
+    [QuestionType.DATETIME]: 'heroicons:calendar',
+    [QuestionType.FILE_UPLOAD]: 'heroicons:arrow-up-tray',
+    [QuestionType.IMAGE_CHOICE]: 'heroicons:photo',
+    [QuestionType.MATRIX]: 'heroicons:table-cells',
+    [QuestionType.RANKING]: 'heroicons:list-bullet',
   };
 
-  return iconMap[draggedQuestionType.value!] || 'question-mark';
+  return draggedQuestionType.value
+    ? iconMap[draggedQuestionType.value] || 'heroicons:question-mark-circle'
+    : 'heroicons:question-mark-circle';
 });
 
 // 方法
@@ -209,6 +227,207 @@ function deleteQuestion(questionId: string) {
 function addFirstQuestion() {
   // 新增一個預設的單選題
   questionsStore.addQuestion(QuestionType.SINGLE_CHOICE);
+}
+
+// ============================================================================
+// 拖拽事件處理
+// ============================================================================
+
+/**
+ * 處理拖拽懸停事件
+ * 允許放置並提供視覺反饋
+ */
+function onDragOver(event: DragEvent) {
+  // 防止預設行為以允許 drop
+  event.preventDefault();
+
+  if (!dragDropStore.isDragging) return;
+
+  // 計算滑鼠位置並更新拖拽狀態
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const y = event.clientY - rect.top;
+
+  // 更新拖拽位置（用於預覽和指示器）
+  dragDropStore.updateDragPosition({
+    x: event.clientX,
+    y: event.clientY,
+  });
+
+  // 計算最佳插入位置並更新懸停狀態
+  const insertIndex = calculateInsertIndex(y);
+
+  // 更新懸停的放置區域和插入指示器
+  dragDropStore.setHoveredDropZone({
+    type: DropZoneType.QUESTION_LIST,
+    index: insertIndex,
+    element: event.currentTarget as HTMLElement,
+  });
+}
+
+/**
+ * 處理拖拽進入事件
+ */
+function onDragEnter(event: DragEvent) {
+  event.preventDefault();
+
+  if (!dragDropStore.isDragging) return;
+
+  // 標記為有效的放置區域
+  (event.currentTarget as HTMLElement).classList.add('drag-over');
+
+  console.warn('拖拽進入畫布區域');
+}
+
+/**
+ * 處理拖拽離開事件
+ */
+function onDragLeave(event: DragEvent) {
+  // 移除放置區域標記
+  (event.currentTarget as HTMLElement).classList.remove('drag-over');
+
+  console.warn('拖拽離開畫布區域');
+}
+
+/**
+ * 處理放置事件
+ * 根據拖拽的內容執行相應操作
+ */
+function onDrop(event: DragEvent) {
+  event.preventDefault();
+
+  // 移除視覺標記
+  (event.currentTarget as HTMLElement).classList.remove('drag-over');
+
+  if (!dragDropStore.isDragging) return;
+
+  const draggedItem = dragDropStore.draggedItem;
+  if (!draggedItem) return;
+
+  // TODO(human): 實作不同類型的放置邏輯
+  // 根據 draggedItem.type 決定如何處理：
+  // 1. DragItemType.QUESTION_TYPE - 建立新題目
+  // 2. DragItemType.EXISTING_QUESTION - 重新排序題目
+
+  try {
+    if (draggedItem.type === DragItemType.QUESTION_TYPE) {
+      handleQuestionTypeDropped(draggedItem.data as QuestionTypeDragData, event);
+    } else if (draggedItem.type === DragItemType.EXISTING_QUESTION) {
+      handleExistingQuestionDropped(draggedItem.data as ExistingQuestionDragData, event);
+    }
+
+    // 拖拽成功，清理狀態
+    dragDropStore.completeDragDrop();
+  } catch (error) {
+    console.error('拖拽處理失敗:', error);
+    // 拖拽失敗，取消狀態
+    dragDropStore.cancelDragDrop();
+  }
+}
+
+/**
+ * 計算拖拽的插入位置
+ */
+function calculateInsertIndex(mouseY: number): number {
+  // 如果沒有題目，直接返回 0（插入到第一個位置）
+  if (questions.value.length === 0) {
+    return 0;
+  }
+
+  // 獲取所有題目卡片元素
+  const questionCards = document.querySelectorAll('.question-card');
+
+  // 遍歷每個題目卡片，找出滑鼠位置應該插入的 index
+  for (let i = 0; i < questionCards.length; i++) {
+    const card = questionCards[i] as HTMLElement;
+    const rect = card.getBoundingClientRect();
+    const cardMiddle = rect.top + rect.height / 2;
+
+    // 相對於畫布容器的位置
+    const canvasRect = card.closest('.question-list')?.getBoundingClientRect();
+    if (!canvasRect) continue;
+
+    const relativeMiddle = cardMiddle - canvasRect.top;
+
+    // 如果滑鼠在此題目的中點之上，就插入在此題目之前
+    if (mouseY < relativeMiddle) {
+      return i;
+    }
+  }
+
+  // 如果滑鼠位置在所有題目之下，插入到最後
+  return questions.value.length;
+}
+
+/**
+ * 處理題型拖入（建立新題目）
+ */
+function handleQuestionTypeDropped(data: QuestionTypeDragData, event: DragEvent) {
+  // 從 data 中取得題型資訊（QuestionTypeDragData 格式）
+  const questionType = data.questionType;
+  const displayName = data.displayName;
+
+  // 計算插入位置
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const y = event.clientY - rect.top;
+  const insertIndex = calculateInsertIndex(y);
+
+  console.warn('建立新題目:', {
+    type: questionType,
+    name: displayName,
+    insertAt: insertIndex,
+  });
+
+  // 使用 questionsStore.addQuestionAt() 建立題目在指定位置
+  const result = questionsStore.addQuestionAt(questionType, insertIndex);
+
+  // 選中新建立的題目，提供即時反饋
+  if (result.success && result.question) {
+    const questionId = result.question.id;
+    // 稍微延遲以確保 DOM 更新
+    setTimeout(() => {
+      builderStore.selectQuestion(questionId);
+    }, 100);
+  } else {
+    console.error('建立題目失敗:', result.message);
+  }
+}
+
+/**
+ * 處理現有題目拖拽重排
+ */
+function handleExistingQuestionDropped(data: ExistingQuestionDragData, event: DragEvent) {
+  // 從 data 中取得題目資訊（ExistingQuestionDragData 格式）
+  const questionId = data.questionId;
+  const currentIndex = data.currentIndex;
+
+  // 計算新的插入位置
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  const y = event.clientY - rect.top;
+  let targetIndex = calculateInsertIndex(y);
+
+  // 如果是向下移動，需要調整 targetIndex
+  // 因為移除當前項目會影響後面項目的索引
+  if (currentIndex < targetIndex) {
+    targetIndex--;
+  }
+
+  // 如果位置沒有改變，不需要移動
+  if (currentIndex === targetIndex) {
+    console.warn('題目位置未改變');
+    return;
+  }
+
+  console.warn('移動題目:', {
+    questionId,
+    from: currentIndex,
+    to: targetIndex,
+  });
+
+  // 使用 questionsStore.moveQuestion() 移動題目
+  questionsStore.moveQuestion(questionId, targetIndex);
+
+  // 保持選中狀態
+  builderStore.selectQuestion(questionId);
 }
 </script>
 
@@ -323,6 +542,18 @@ function addFirstQuestion() {
   @apply bg-white border-2 border-blue-500 rounded-lg px-3 py-2;
   @apply shadow-lg flex items-center gap-2 text-sm font-medium;
   @apply text-blue-700;
+}
+
+/* 拖拽反饋效果 */
+.question-list.drag-over {
+  @apply bg-blue-50 border-2 border-blue-300 border-dashed;
+  @apply transition-all duration-200;
+}
+
+.question-list {
+  @apply border-2 border-transparent rounded-lg p-4;
+  @apply transition-all duration-200;
+  min-height: 400px;
 }
 
 /* 佔位內容 */
