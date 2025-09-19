@@ -4,7 +4,7 @@
  */
 
 import { defineStore } from 'pinia';
-import { ref, computed, readonly, nextTick } from 'vue';
+import { ref, computed, nextTick } from 'vue';
 import { QuestionType } from '@smartsurvey/shared';
 import { useQuestionsStore } from './questions';
 
@@ -758,12 +758,12 @@ export const useDragDropStore = defineStore('dragDrop', () => {
 
   return {
     // 狀態
-    isDragging: readonly(isDragging),
-    draggedItem: readonly(draggedItem),
-    hoveredDropZone: readonly(hoveredDropZone),
-    canDropToCurrent: readonly(canDropToCurrent),
-    previewPosition: readonly(previewPosition),
-    insertIndicatorIndex: readonly(insertIndicatorIndex),
+    isDragging,
+    draggedItem,
+    hoveredDropZone,
+    canDropToCurrent,
+    previewPosition,
+    insertIndicatorIndex,
     dragSettings,
 
     // 計算屬性

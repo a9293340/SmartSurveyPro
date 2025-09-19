@@ -635,14 +635,14 @@ export const useBuilderStore = defineStore('builder', () => {
   // ============================================================================
 
   return {
-    // 狀態 - 這些需要提供給其他 store 修改，所以不用 readonly
+    // 狀態
     currentSurvey,
-    selectedQuestionId: readonly(selectedQuestionId),
-    isPreviewMode: readonly(isPreviewMode),
-    hasUnsavedChanges: readonly(hasUnsavedChanges),
-    isLoading: readonly(isLoading),
-    isSaving: readonly(isSaving),
-    lastSavedAt: readonly(lastSavedAt),
+    selectedQuestionId,
+    isPreviewMode,
+    hasUnsavedChanges,
+    isLoading,
+    isSaving,
+    lastSavedAt,
     editorSettings,
 
     // 計算屬性

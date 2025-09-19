@@ -11,7 +11,7 @@ import {
   validateQuestion,
 } from '@smartsurvey/shared';
 import { defineStore } from 'pinia';
-import { computed, readonly, ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useBuilderStore } from './builder';
 
 // ============================================================================
@@ -862,11 +862,11 @@ export const useQuestionsStore = defineStore('questions', () => {
 
   return {
     // 狀態
-    clipboard: readonly(clipboard),
-    lastOperatedQuestionId: readonly(lastOperatedQuestionId),
-    operationHistory: readonly(operationHistory),
-    selectedQuestionIds: readonly(selectedQuestionIds),
-    isBatchMode: readonly(isBatchMode),
+    clipboard,
+    lastOperatedQuestionId,
+    operationHistory,
+    selectedQuestionIds,
+    isBatchMode,
 
     // 計算屬性
     allQuestions,
