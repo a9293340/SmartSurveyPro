@@ -178,7 +178,7 @@ const draggedQuestionName = computed(() => {
 const draggedQuestionIcon = computed(() => {
   // 根據題型返回對應圖標名稱
   const iconMap: Record<string, string> = {
-    [QuestionType.SINGLE_CHOICE]: 'heroicons:radio-button',
+    [QuestionType.SINGLE_CHOICE]: 'heroicons:radio',
     [QuestionType.MULTIPLE_CHOICE]: 'heroicons:check',
     [QuestionType.TEXT_SHORT]: 'heroicons:pencil',
     [QuestionType.TEXT_LONG]: 'heroicons:document-text',
