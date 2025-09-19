@@ -4,7 +4,9 @@
  */
 
 import { z } from 'zod';
-import { connectToDatabase, type User, UserStatus, type AuthUser } from '@smartsurvey/shared';
+import { connectToDatabase } from '../../../../server/lib/database';
+import type { User, AuthUser } from '../../types/temp-types';
+import { UserStatus } from '../../types/temp-types';
 import { verifyPassword } from '../../utils/password';
 import { generateTokenPair } from '../../utils/jwt';
 
@@ -42,6 +44,12 @@ export default defineEventHandler(async event => {
 
     // 2. 查詢用戶記錄
     const db = await connectToDatabase();
+    if (!db) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: '資料庫連接失敗',
+      });
+    }
     const usersCollection = db.collection<User>('users');
 
     const user = await usersCollection.findOne(

@@ -15,7 +15,7 @@
 
 import { extractTokenFromHeader, verifyAccessToken } from '../../utils/jwt';
 import { getClientIP } from '../../utils/client-ip';
-import { connectToDatabase } from '@smartsurvey/shared';
+import { connectToDatabase } from '../../../../server/lib/database';
 import { ObjectId } from 'mongodb';
 
 export default defineEventHandler(async event => {

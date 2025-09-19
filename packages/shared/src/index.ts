@@ -3,39 +3,11 @@
 // 基礎版本資訊
 export const VERSION = '0.0.1';
 
-// 資料庫連接
-export { connectToDatabase, getDatabase, dbConnection } from './db/connection';
-
-// Redis 連接和 Key 管理
-export {
-  connectToRedis,
-  getRedisClient,
-  redisConnection,
-  RedisHelper,
-  getRedisHelper,
-} from './db/redis';
-
-export { RedisKeyBuilder, RedisKeys, RedisKeyUtils } from './db/redis-keys';
-
-// 問卷系統型別
+// === 問卷系統 ===
 export * from './types/survey';
 export * from './types/question';
-
-// 問卷系統 Schema
 export * from './schemas/survey';
-
-// 問卷系統工具
 export * from './survey/question-registry';
-
-// 健康檢查系統
-export {
-  performHealthCheck,
-  quickHealthCheck,
-  detailedHealthCheck,
-  type HealthCheckResult,
-  type ServiceHealth,
-  type HealthCheckConfig,
-} from './health/database-health';
 
 // === 類型定義 ===
 // 共用類型

@@ -1,4 +1,4 @@
-import { connectToDatabase, connectToRedis } from '@smartsurvey/shared';
+import { connectToDatabase, connectToRedis } from '../../../server/lib/database';
 import type { Db } from 'mongodb';
 import type { RedisClientType } from 'redis';
 

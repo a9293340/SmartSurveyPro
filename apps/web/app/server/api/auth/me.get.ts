@@ -9,16 +9,9 @@
  * 4. Token 有效性驗證
  */
 
-import {
-  connectToDatabase,
-  type User,
-  UserStatus,
-  type AuthUser,
-  type Group,
-  type UserGroupRole,
-  UserGroupStatus,
-  type Role,
-} from '@smartsurvey/shared';
+import { connectToDatabase } from '../../../../server/lib/database';
+import type { User, AuthUser, Group, UserGroupRole, Role } from '../../types/temp-types';
+import { UserStatus, UserGroupStatus } from '../../types/temp-types';
 import { extractTokenFromHeader, verifyAccessToken } from '../../utils/jwt';
 import { ObjectId } from 'mongodb';
 
@@ -112,11 +105,11 @@ export default defineEventHandler(async event => {
 
     // 2. 收集所有群組 ID 和角色 ID
     // 注意：在 MongoDB 中，ID 可能儲存為 string 或 ObjectId
-    const groupIds = userGroupRoles.map(ugr => {
+    const groupIds = userGroupRoles.map((ugr: UserGroupRole) => {
       // 如果已經是 ObjectId 就直接使用，否則轉換
       return typeof ugr.groupId === 'string' ? new ObjectId(ugr.groupId) : ugr.groupId;
     });
-    const roleIds = userGroupRoles.map(ugr => {
+    const roleIds = userGroupRoles.map((ugr: UserGroupRole) => {
       return typeof ugr.roleId === 'string' ? new ObjectId(ugr.roleId) : ugr.roleId;
     });
 
@@ -152,8 +145,8 @@ export default defineEventHandler(async event => {
     ]);
 
     // 4. 建立快速查詢 Map
-    const groupMap = new Map(groups.map(g => [g._id.toString(), g]));
-    const roleMap = new Map(roles.map(r => [r._id.toString(), r]));
+    const groupMap = new Map(groups.map((g: Group) => [g._id.toString(), g]));
+    const roleMap = new Map(roles.map((r: Role) => [r._id.toString(), r]));
 
     // 5. 組合用戶群組資訊
     const userGroups = userGroupRoles
