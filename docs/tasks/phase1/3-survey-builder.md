@@ -141,34 +141,41 @@
 
 #### 3.2.2 題型元件庫
 
-- **預估**: 6h | **實際**: -
-- **狀態**: ⬜
+- **預估**: 6h | **實際**: 4h
+- **狀態**: ✅
 - **負責**: Claude + Human
+- **完成日期**: 2025-01-20
 
 **任務說明**: 實作 5 種基礎題型組件
 
 **題型清單**:
 
-- [ ] 單選題 (SingleChoice)
-- [ ] 多選題 (MultipleChoice)
-- [ ] 短文字 (TextShort)
-- [ ] 長文字 (TextLong)
-- [ ] 評分題 (Rating)
+- [x] 單選題 (SingleChoice) - QuestionSingleChoicePreview.vue
+- [x] 多選題 (MultipleChoice) - QuestionMultipleChoicePreview.vue
+- [x] 短文字 (TextShort) - QuestionTextShortPreview.vue
+- [x] 長文字 (TextLong) - QuestionTextLongPreview.vue
+- [x] 評分題 (Rating) - QuestionRatingPreview.vue
 
-**TODO(human)**:
+**已完成內容**:
 
-```vue
-<!-- 以單選題為例 -->
-<template>
-  <div class="question-single-choice">
-    <!-- TODO(human): 設計單選題的 UI -->
-    <!-- 1. 題目標題如何顯示？ -->
-    <!-- 2. 選項如何動態新增/刪除？ -->
-    <!-- 3. 必填標記如何處理？ -->
-    <!-- 4. 驗證錯誤如何顯示？ -->
-  </div>
-</template>
-```
+- ✅ apps/web/app/components/builder/previews/ - 5個題型預覽組件
+  - 統一的 Props 介面設計（question, previewMode）
+  - 事件驅動的配置更新系統（updateQuestion）
+  - 響應式設計和無障礙支援
+  - TypeScript 類型安全實作
+
+- ✅ apps/web/app/components/builder/QuestionCard.vue - 動態組件載入
+  - componentMap 題型組件映射系統
+  - 自動 fallback 機制
+  - 配置更新事件整合
+
+- ✅ apps/web/app/utils/question-type-helpers.ts - 工具函數
+  - 題型圖示映射
+  - 預設配置產生器
+
+- ✅ packages/shared/src/types/question.ts - 類型系統強化
+  - 驗證規則繼承 Record<string, unknown>
+  - 配置介面擴展支援
 
 #### 3.2.3 屬性面板
 
