@@ -84,6 +84,11 @@ export default defineEventHandler(async event => {
       }
     }
 
+    // TODO(feature): Redis 快取支援 - 常用篩選結果快取 (Phase 2)
+    // TODO(feature): 全文搜尋功能 - 支援問卷標題、描述搜尋 (Phase 2)
+    // TODO(feature): 標籤系統 - 問卷分類標籤篩選 (Phase 2)
+    // TODO(feature): 工作區篩選 - 支援多工作區問卷管理 (Phase 3)
+
     // 6. 連接資料庫
     const db = await connectToDatabase();
     const surveysCollection = db.collection<Survey>('surveys');

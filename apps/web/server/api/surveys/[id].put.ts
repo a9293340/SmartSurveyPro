@@ -92,6 +92,12 @@ export default defineEventHandler(async event => {
       });
     }
 
+    // TODO(feature): Redis 快取支援 - 問卷更新時自動清除相關快取 (Phase 2)
+    // TODO(feature): 協作權限檢查 - 支援 workspace 成員編輯權限 (Phase 3)
+    // TODO(feature): 版本控制系統 - 保存問卷修改歷史記錄 (Phase 2)
+    // TODO(feature): 即時協作同步 - WebSocket 廣播問卷變更 (Phase 3)
+    // TODO(feature): 高級狀態機 - 支援自訂狀態轉換和審核流程 (Phase 3)
+
     // 5. 連接資料庫
     const db = await connectToDatabase();
     const surveysCollection = db.collection<Survey>('surveys');

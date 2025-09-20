@@ -67,6 +67,13 @@ export default defineEventHandler(async event => {
       });
     }
 
+    // TODO(feature): Redis 快取支援 - 問卷刪除時清除相關快取 (Phase 2)
+    // TODO(feature): 真實硬刪除選項 - 提供完全刪除功能（管理員權限） (Phase 3)
+    // TODO(feature): 批量刪除支援 - 支援一次刪除多個問卷 (Phase 2)
+    // TODO(feature): 刪除確認機制 - 要求二次確認防止誤刪 (Phase 2)
+    // TODO(feature): 垃圾桶功能 - 支援已刪除問卷恢復 (Phase 2)
+    // TODO(feature): 協作權限檢查 - workspace 管理員可刪除成員問卷 (Phase 3)
+
     // 4. 連接資料庫
     const db = await connectToDatabase();
     const surveysCollection = db.collection<Survey>('surveys');

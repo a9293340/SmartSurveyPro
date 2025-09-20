@@ -35,6 +35,11 @@ export default defineEventHandler(async event => {
     const body = await readBody(event);
     const validatedData = createSurveyRequestSchema.parse(body);
 
+    // TODO(feature): 真實訂閱限制檢查 - 整合付費方案限制 (Phase 3)
+    // TODO(feature): 問卷範本系統 - 從範本建立問卷 (Phase 2)
+    // TODO(feature): 工作區驗證 - 檢查工作區權限和存在性 (Phase 3)
+    // TODO(feature): 問卷標籤支援 - 建立時設置分類標籤 (Phase 2)
+
     // 3. 連接資料庫（提前連接以進行檢查）
     const db = await connectToDatabase();
     const surveysCollection = db.collection<Survey>('surveys');

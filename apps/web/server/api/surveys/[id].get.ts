@@ -28,6 +28,10 @@ export default defineEventHandler(async event => {
     const surveyId = getRouterParam(event, 'id');
     const validatedParams = paramsSchema.parse({ id: surveyId });
 
+    // TODO(feature): Redis 快取支援 - 問卷內容版本化快取 (Phase 2)
+    // TODO(feature): 協作權限檢查 - 支援 workspace 成員讀取權限 (Phase 3)
+    // TODO(feature): 問卷版本歷史 - 查詢特定版本的問卷 (Phase 2)
+
     // 3. 連接資料庫並查詢問卷資料
     const db = await connectToDatabase();
     const surveysCollection = db.collection<Survey>('surveys');
