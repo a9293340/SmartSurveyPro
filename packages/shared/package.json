@@ -20,8 +20,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
+    "build": "tsup && tsc --emitDeclarationOnly --declaration --outDir dist",
+    "dev": "tsup --watch & tsc --emitDeclarationOnly --declaration --outDir dist --watch & wait",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist *.tsbuildinfo",
     "lint": "eslint src --ext .ts --fix",
