@@ -53,7 +53,7 @@ class DatabaseConnection {
       await this.client.connect();
       this.db = this.client.db(dbName);
 
-      console.warn(`✅ MongoDB 連接成功：${dbName}`);
+      console.log(`✅ MongoDB 連接成功：${dbName}`);
       return this.db;
     } catch (error) {
       console.error('❌ MongoDB 連接失敗:', error);
@@ -172,15 +172,15 @@ class RedisConnection {
       });
 
       this.client.on('connect', () => {
-        console.warn('⏳ Redis 連接中...');
+        console.log('⏳ Redis 連接中...');
       });
 
       this.client.on('ready', () => {
-        console.warn('✅ Redis 連接成功');
+        console.log('✅ Redis 連接成功');
       });
 
       this.client.on('end', () => {
-        console.warn('🔌 Redis 連接已關閉');
+        console.log('🔌 Redis 連接已關閉');
       });
 
       await this.client.connect();

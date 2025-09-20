@@ -53,7 +53,7 @@ export default defineEventHandler(async event => {
     };
 
     // 在開發階段暫時使用 console，Phase 2 改用專業日誌系統
-    console.warn('[登出活動]', {
+    console.log('[登出活動]', {
       userId: logoutInfo.userId,
       email: logoutInfo.email,
       timestamp: logoutInfo.timestamp.toISOString(),

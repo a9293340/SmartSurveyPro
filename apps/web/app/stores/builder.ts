@@ -574,7 +574,7 @@ export const useBuilderStore = defineStore('builder', () => {
         setTimeout(() => resolve(), 1000);
       }); // 模擬 API 呼叫
 
-      console.warn('[AutoSave] 問卷已自動儲存', {
+      console.log('[AutoSave] 問卷已自動儲存', {
         surveyId: currentSurvey.value._id,
         timestamp: new Date().toISOString(),
       });

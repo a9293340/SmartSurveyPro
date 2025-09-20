@@ -278,7 +278,7 @@ function onDragEnter(event: DragEvent) {
   // 標記為有效的放置區域
   (event.currentTarget as HTMLElement).classList.add('drag-over');
 
-  console.warn('拖拽進入畫布區域');
+  console.log('拖拽進入畫布區域');
 }
 
 /**
@@ -288,7 +288,7 @@ function onDragLeave(event: DragEvent) {
   // 移除放置區域標記
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 
-  console.warn('拖拽離開畫布區域');
+  console.log('拖拽離開畫布區域');
 }
 
 /**
@@ -296,14 +296,14 @@ function onDragLeave(event: DragEvent) {
  * 根據拖拽的內容執行相應操作
  */
 function onDrop(event: DragEvent) {
-  console.warn('🎯 onDrop triggered');
+  console.log('🎯 onDrop triggered');
   event.preventDefault();
 
   // 移除視覺標記
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 
   if (!dragDropStore.isDragging) {
-    console.warn('❌ Not dragging, onDrop ignored');
+    console.log('❌ Not dragging, onDrop ignored');
     return;
   }
 
@@ -378,7 +378,7 @@ function handleQuestionTypeDropped(data: QuestionTypeDragData, event: DragEvent)
   const y = event.clientY - rect.top;
   const insertIndex = calculateInsertIndex(y);
 
-  console.warn('建立新題目:', {
+  console.log('建立新題目:', {
     type: questionType,
     name: displayName,
     insertAt: insertIndex,
@@ -420,11 +420,11 @@ function handleExistingQuestionDropped(data: ExistingQuestionDragData, event: Dr
 
   // 如果位置沒有改變，不需要移動
   if (currentIndex === targetIndex) {
-    console.warn('題目位置未改變');
+    console.log('題目位置未改變');
     return;
   }
 
-  console.warn('移動題目:', {
+  console.log('移動題目:', {
     questionId,
     from: currentIndex,
     to: targetIndex,

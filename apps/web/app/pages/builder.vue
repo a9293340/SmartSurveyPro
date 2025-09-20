@@ -53,13 +53,13 @@ useHead({
 onMounted(() => {
   // 如果沒有載入問卷，創建一個新的
   if (!builderStore.currentSurvey) {
-    console.warn('📋 Creating new survey for builder');
+    console.log('📋 Creating new survey for builder');
     const newSurvey = builderStore.createNewSurvey({
       title: '未命名問卷',
       description: '',
       workspaceId: 'temp-workspace', // 開發階段使用臨時 ID
     });
-    console.warn('✅ New survey created:', newSurvey.title);
+    console.log('✅ New survey created:', newSurvey.title);
   }
 });
 

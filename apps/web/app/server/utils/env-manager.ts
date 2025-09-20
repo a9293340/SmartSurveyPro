@@ -101,7 +101,7 @@ export class EnvManager {
     }
 
     this.validated = true;
-    console.warn('✅ 環境變數驗證完成');
+    console.log('✅ 環境變數驗證完成');
   }
 
   /**

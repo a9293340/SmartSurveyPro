@@ -199,7 +199,7 @@ const filteredQuestionTypes = computed(() => {
 
 // 方法
 function handleQuestionTypeMouseDown(event: MouseEvent, questionType: QuestionTypeDefinition) {
-  console.warn('🚀 Starting drag:', questionType.displayName);
+  console.log('🚀 Starting drag:', questionType.displayName);
 
   // 檢查是否為 Phase 1 支援的題型
   if (questionType.phase > 1) {

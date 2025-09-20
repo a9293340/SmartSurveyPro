@@ -231,11 +231,11 @@ export const useDragDropStore = defineStore('dragDrop', () => {
    * 設置懸浮的放置區域
    */
   function setHoveredDropZone(dropZone: DropZone | null): void {
-    console.warn('🎯 setHoveredDropZone:', dropZone);
+    console.log('🎯 setHoveredDropZone:', dropZone);
     hoveredDropZone.value = dropZone;
     canDropToCurrent.value = dropZone ? validateDropZone(dropZone) : false;
 
-    console.warn('📊 Drop zone validation:', {
+    console.log('📊 Drop zone validation:', {
       canDrop: canDropToCurrent.value,
       dropZoneType: dropZone?.type,
       dropZoneIndex: dropZone?.index,
@@ -388,7 +388,7 @@ export const useDragDropStore = defineStore('dragDrop', () => {
         );
 
         if (result.success) {
-          console.warn('✅ Question created:', dragData.questionType);
+          console.log('✅ Question created:', dragData.questionType);
         } else {
           console.warn('❌ Failed to create question:', result.message);
         }

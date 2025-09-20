@@ -317,7 +317,7 @@ export const useQuestionsStore = defineStore('questions', () => {
       };
     }
 
-    console.warn('🔄 Moving question:', {
+    console.log('🔄 Moving question:', {
       questionId,
       from: currentIndex,
       to: newPosition,
