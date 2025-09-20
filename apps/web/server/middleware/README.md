@@ -47,7 +47,7 @@ Nuxt 3 的中間件按照檔名字母順序執行，我們使用數字前綴來�
 
 ```typescript
 // server/api/protected/profile.get.ts
-import { requireAuth } from '~/server/middleware/auth';
+import { requireAuth } from '../middleware/auth';
 
 export default defineEventHandler(async event => {
   // 要求必須認證
@@ -65,7 +65,7 @@ export default defineEventHandler(async event => {
 
 ```typescript
 // server/api/surveys/[id].get.ts
-import { getUser } from '~/server/middleware/auth';
+import { getUser } from '../middleware/auth';
 
 export default defineEventHandler(async event => {
   const user = getUser(event); // 可能為 null

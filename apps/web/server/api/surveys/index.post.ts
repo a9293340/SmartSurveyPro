@@ -13,7 +13,7 @@
 import { z } from 'zod';
 import type { Survey, Question } from '@smartsurvey/shared';
 import { SurveyStatus, SurveyType, SurveyVisibility } from '@smartsurvey/shared';
-import { requireAuth } from '~/server/middleware/auth';
+import { requireAuth } from '../../middleware/auth';
 import { connectToDatabase } from '@smartsurvey/shared/server';
 import { ObjectId } from 'mongodb';
 

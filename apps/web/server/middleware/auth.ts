@@ -38,8 +38,13 @@ function isProtectedPath(path: string): boolean {
   const [pathname] = path.split('?');
   if (!pathname) return false; // 如果沒有路徑，視為不受保護
 
-  // 檢查是否為公開路徑（精確匹配）
+  // 檢查是否為公開路徑（精確匹配或前綴匹配）
   if (PUBLIC_PATHS.includes(pathname)) {
+    return false;
+  }
+
+  // 檢查是否匹配帶有子路徑的公開路徑
+  if (PUBLIC_PATHS.some(path => pathname.startsWith(`${path}/`))) {
     return false;
   }
 

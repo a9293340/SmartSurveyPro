@@ -1,0 +1,75 @@
+/**
+ * 取得單一問卷 API
+ * GET /api/surveys/[id]
+ *
+ * 功能：
+ * 1. 查詢特定問卷的完整資訊
+ * 2. 驗證用戶權限（只能查詢自己的問卷）
+ * 3. 回傳完整的問卷物件（包含所有題目）
+ * 4. 用於問卷編輯器的資料載入
+ */
+
+import { z } from 'zod';
+import type { Survey } from '@smartsurvey/shared';
+import { requireAuth } from '../../middleware/auth';
+import { connectToDatabase } from '@smartsurvey/shared/server';
+
+// 路徑參數驗證 Schema
+const paramsSchema = z.object({
+  id: z.string().min(1, '問卷ID不能為空'),
+});
+
+export default defineEventHandler(async event => {
+  try {
+    // 1. 驗證用戶身份
+    const user = requireAuth(event);
+
+    // 2. 驗證路徑參數
+    const surveyId = getRouterParam(event, 'id');
+    const validatedParams = paramsSchema.parse({ id: surveyId });
+
+    // 3. 連接資料庫並查詢問卷資料
+    const db = await connectToDatabase();
+    const surveysCollection = db.collection<Survey>('surveys');
+
+    const survey = await surveysCollection.findOne({
+      _id: validatedParams.id,
+      ownerId: user.userId, // 確保用戶只能查詢自己的問卷
+    });
+
+    // 4. 檢查問卷是否存在
+    if (!survey) {
+      throw createError({
+        statusCode: 404,
+        statusMessage: '問卷不存在或無權限查詢',
+      });
+    }
+
+    // 5. 返回完整問卷資料
+    return {
+      success: true,
+      data: survey,
+    };
+  } catch (error) {
+    // Zod 驗證錯誤
+    if (error instanceof z.ZodError) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: '請求參數格式錯誤',
+        data: error.errors[0],
+      });
+    }
+
+    // 其他已知錯誤
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+      throw error;
+    }
+
+    // 未知錯誤
+    console.error('查詢問卷失敗:', error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: '伺服器內部錯誤',
+    });
+  }
+});
