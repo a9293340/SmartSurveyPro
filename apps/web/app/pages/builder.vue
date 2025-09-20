@@ -32,6 +32,11 @@
 <script setup lang="ts">
 // 組件引入
 import SurveyCanvas from '~/components/builder/SurveyCanvas.vue';
+import { useBuilderStore } from '~/stores/builder';
+import { onMounted } from 'vue';
+
+// Stores
+const builderStore = useBuilderStore();
 
 // 頁面設定
 useHead({
@@ -42,6 +47,20 @@ useHead({
       content: '使用拖放式編輯器建立專業問卷',
     },
   ],
+});
+
+// 初始化問卷
+onMounted(() => {
+  // 如果沒有載入問卷，創建一個新的
+  if (!builderStore.currentSurvey) {
+    console.warn('📋 Creating new survey for builder');
+    const newSurvey = builderStore.createNewSurvey({
+      title: '未命名問卷',
+      description: '',
+      workspaceId: 'temp-workspace', // 開發階段使用臨時 ID
+    });
+    console.warn('✅ New survey created:', newSurvey.title);
+  }
 });
 
 // 阻止頁面離開時的警告（開發階段暫時關閉）

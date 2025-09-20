@@ -231,8 +231,15 @@ export const useDragDropStore = defineStore('dragDrop', () => {
    * 設置懸浮的放置區域
    */
   function setHoveredDropZone(dropZone: DropZone | null): void {
+    console.warn('🎯 setHoveredDropZone:', dropZone);
     hoveredDropZone.value = dropZone;
     canDropToCurrent.value = dropZone ? validateDropZone(dropZone) : false;
+
+    console.warn('📊 Drop zone validation:', {
+      canDrop: canDropToCurrent.value,
+      dropZoneType: dropZone?.type,
+      dropZoneIndex: dropZone?.index,
+    });
 
     // 更新插入指示器
     if (dropZone?.type === DropZoneType.QUESTION_LIST && dropZone.index !== undefined) {
@@ -379,6 +386,12 @@ export const useDragDropStore = defineStore('dragDrop', () => {
           dragData.questionType,
           dropZone.index ?? questionsStore.allQuestions.length
         );
+
+        if (result.success) {
+          console.warn('✅ Question created:', dragData.questionType);
+        } else {
+          console.warn('❌ Failed to create question:', result.message);
+        }
 
         return {
           success: result.success,
@@ -541,9 +554,10 @@ export const useDragDropStore = defineStore('dragDrop', () => {
     event.preventDefault();
     event.stopPropagation();
 
-    nextTick(() => {
+    // 給更多時間讓 DropZone mouseenter 事件觸發
+    setTimeout(() => {
       completeDragDrop();
-    });
+    }, 50);
   }
 
   /**

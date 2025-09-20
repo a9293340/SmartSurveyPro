@@ -36,22 +36,25 @@
         </div>
 
         <!-- 問卷題目列表 -->
-        <div
-          class="question-list"
-          data-drop-zone="question-list"
-          @drop="onDrop"
-          @dragover="onDragOver"
-          @dragenter="onDragEnter"
-          @dragleave="onDragLeave"
-        >
+        <div class="question-list" data-drop-zone="question-list">
           <!-- 空狀態 -->
           <div v-if="questions.length === 0" class="empty-state">
-            <Icon name="heroicons:document-plus" class="empty-icon" />
-            <h3>開始建立您的問卷</h3>
-            <p>從左側拖入題型，或點擊下方按鈕新增題目</p>
-            <button type="button" class="btn-primary" @click="addFirstQuestion">
-              新增第一個題目
-            </button>
+            <!-- 空狀態的放置區 -->
+            <DropZone
+              :index="0"
+              :is-active="hoveredDropIndex === 0"
+              drop-zone-type="question-list"
+              show-empty-hint
+            />
+
+            <div class="empty-state-content">
+              <Icon name="heroicons:document-plus" class="empty-icon" />
+              <h3>開始建立您的問卷</h3>
+              <p>從左側拖入題型，或點擊下方按鈕新增題目</p>
+              <button type="button" class="btn-primary" @click="addFirstQuestion">
+                新增第一個題目
+              </button>
+            </div>
           </div>
 
           <!-- 題目列表 -->
@@ -293,12 +296,16 @@ function onDragLeave(event: DragEvent) {
  * 根據拖拽的內容執行相應操作
  */
 function onDrop(event: DragEvent) {
+  console.warn('🎯 onDrop triggered');
   event.preventDefault();
 
   // 移除視覺標記
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 
-  if (!dragDropStore.isDragging) return;
+  if (!dragDropStore.isDragging) {
+    console.warn('❌ Not dragging, onDrop ignored');
+    return;
+  }
 
   const draggedItem = dragDropStore.draggedItem;
   if (!draggedItem) return;

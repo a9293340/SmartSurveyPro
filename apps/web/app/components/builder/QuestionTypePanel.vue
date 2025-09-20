@@ -199,7 +199,7 @@ const filteredQuestionTypes = computed(() => {
 
 // 方法
 function handleQuestionTypeMouseDown(event: MouseEvent, questionType: QuestionTypeDefinition) {
-  console.warn('🖱️ Mouse down on question type:', questionType.displayName, questionType.type);
+  console.warn('🚀 Starting drag:', questionType.displayName);
 
   // 檢查是否為 Phase 1 支援的題型
   if (questionType.phase > 1) {
@@ -207,8 +207,6 @@ function handleQuestionTypeMouseDown(event: MouseEvent, questionType: QuestionTy
     // TODO: 顯示 "即將推出" 提示
     return;
   }
-
-  console.warn('✅ Phase 1 question type, starting drag:', questionType.displayName);
 
   // 防止預設的拖放行為
   event.preventDefault();
@@ -219,24 +217,12 @@ function handleQuestionTypeMouseDown(event: MouseEvent, questionType: QuestionTy
     y: event.clientY,
   };
 
-  console.warn('🚀 Calling dragDropStore.startDragQuestionType with:', {
-    type: questionType.type,
-    name: questionType.displayName,
-    icon: questionType.icon,
-    position: startPosition,
-  });
-
   dragDropStore.startDragQuestionType(
     questionType.type,
     questionType.displayName,
     questionType.icon,
     startPosition
   );
-
-  console.warn('📦 DragDropStore state after start:', {
-    isDragging: dragDropStore.isDragging,
-    draggedQuestionType: dragDropStore.draggedQuestionType,
-  });
 
   // 添加視覺反饋
   const target = event.currentTarget as HTMLElement;
