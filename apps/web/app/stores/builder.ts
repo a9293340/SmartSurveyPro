@@ -186,6 +186,14 @@ export const useBuilderStore = defineStore('builder', () => {
   // ============================================================================
 
   /**
+   * 根據 ID 獲取題目
+   */
+  function getQuestionById(questionId: string): Question | null {
+    if (!currentSurvey.value) return null;
+    return currentSurvey.value.questions.find((q: Question) => q.id === questionId) || null;
+  }
+
+  /**
    * 建立新問卷
    */
   function createNewSurvey(params: {
@@ -242,7 +250,9 @@ export const useBuilderStore = defineStore('builder', () => {
    * 更新問卷基本資訊
    */
   function updateSurveyInfo(
-    updates: Partial<Pick<Survey, 'title' | 'description' | 'type'>>
+    updates: Partial<
+      Pick<Survey, 'title' | 'description' | 'type' | 'completionMessage' | 'settings'>
+    >
   ): void {
     if (!currentSurvey.value) return;
 
@@ -653,6 +663,7 @@ export const useBuilderStore = defineStore('builder', () => {
     builderState,
 
     // 方法
+    getQuestionById,
     createNewSurvey,
     loadSurvey,
     updateSurveyInfo,

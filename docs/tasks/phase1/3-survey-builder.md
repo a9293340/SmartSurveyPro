@@ -6,8 +6,8 @@
 - **優先級**: 🔴 Critical
 - **狀態**: 🟨 進行中
 - **預估工時**: 32h
-- **實際工時**: 8h
-- **進度**: 25% █████░░░░░░░░░░░░░░░
+- **實際工時**: 20h
+- **進度**: 63% ████████████░░░░░░░░
 - **開始日期**: 2025-01-18
 - **完成日期**: -
 
@@ -109,35 +109,30 @@
 
 ### 3.2 拖拽編輯器核心 [12h]
 
-**狀態**: ⬜ **優先級**: 🔴
+**狀態**: ✅ **優先級**: 🔴
 
 #### 3.2.1 拖拽容器組件
 
-- **預估**: 4h | **實際**: -
-- **狀態**: ⬜
+- **預估**: 4h | **實際**: 4h
+- **狀態**: ✅
 - **負責**: Claude + Human
+- **完成日期**: 2025-01-19
 
 **任務說明**: 建立支援拖拽的問卷畫布組件
 
-**學習重點**: Vue3 拖拽事件處理、組件間通訊、動畫效果
+**已完成內容**:
 
-**TODO(human)**:
+- ✅ apps/web/app/components/builder/SurveyCanvas.vue - 完整拖放畫布
+  - 整合拖放容器（DropZone）和題型面板（QuestionTypePanel）
+  - 響應式三欄布局設計（題型庫 | 畫布 | 屬性面板）
+  - 動態屬性面板寬度控制
+  - 題目選擇狀態管理
 
-```vue
-<!-- apps/web/components/builder/SurveyCanvas.vue -->
-<template>
-  <div class="survey-canvas" @drop="onDrop" @dragover="onDragOver">
-    <!-- TODO(human): 實作拖拽邏輯 -->
-    <!-- 1. 如何處理題目的拖入？ -->
-    <!-- 2. 拖拽時的視覺反饋？ -->
-    <!-- 3. 題目順序如何調整？ -->
-  </div>
-</template>
-
-<script setup>
-// 你來實作拖拽核心邏輯
-</script>
-```
+- ✅ apps/web/app/components/builder/DropZone.vue - 拖放核心邏輯
+  - HTML5 拖拽 API 完整實作
+  - 動態插入位置計算和視覺提示
+  - 題目新增、重排、刪除功能
+  - 空狀態和載入狀態處理
 
 #### 3.2.2 題型元件庫
 
@@ -179,11 +174,36 @@
 
 #### 3.2.3 屬性面板
 
-- **預估**: 2h | **實際**: -
-- **狀態**: ⬜
-- **負責**: Human
+- **預估**: 2h | **實際**: 4h
+- **狀態**: ✅
+- **負責**: Claude + Human
+- **完成日期**: 2025-01-20
 
 **任務說明**: 建立題目屬性編輯面板
+
+**已完成內容**:
+
+- ✅ apps/web/app/components/builder/PropertyPanel.vue - 動態屬性面板主容器
+  - 智能標題切換（問卷設定 ↔ 題目設定）
+  - 響應式面板寬度控制 (400px)
+  - 條件渲染系統
+
+- ✅
+  apps/web/app/components/builder/properties/SurveyProperties.vue - 問卷層級屬性
+  - 問卷標題、描述編輯
+  - 基礎設定選項
+
+- ✅
+  apps/web/app/components/builder/properties/QuestionProperties.vue - 題目層級屬性
+  - 支援 5 種基礎題型的專屬設定
+  - 選項動態新增/編輯/刪除功能
+  - 驗證規則設定介面
+  - 實時狀態同步機制
+  - 資料格式相容性處理 (text/label 格式統一)
+
+- ✅ apps/web/app/stores/builder.ts - Store 整合擴展
+  - 新增 getQuestionById 查詢方法
+  - 保持單一資料來源原則
 
 ### 3.3 問卷 CRUD API [8h]
 

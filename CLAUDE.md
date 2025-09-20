@@ -159,8 +159,27 @@ pnpm format        # 自動格式化代碼
 
 **當前狀態：**
 
-- 開發階段使用 console.warn/error 進行除錯
+- 開發階段使用適當的 console 級別進行除錯
 - 已限制 console.log 使用，避免生產環境洩漏
+
+**Log 級別使用規範：**
+
+```typescript
+// 🟢 console.log - 一般資訊
+console.log('[Component] 初始化完成');
+console.log('[Store] 載入預設配置');
+
+// 🟡 console.warn - 警告，潛在問題但不中斷執行
+console.warn('[API] 使用舊版 API，建議升級');
+console.warn('[Validation] 欄位格式可能有誤');
+
+// 🔴 console.error - 錯誤狀況，需要開發者注意
+console.error('[Component] 必要參數缺失');
+console.error('[Store] 資料更新失敗');
+
+// ❌ 禁止除錯 log 提交到版控
+// console.log('[Debug] 臨時除錯訊息'); // 應在問題解決後移除
+```
 
 **Phase 2 規劃（第3-4月）：**
 

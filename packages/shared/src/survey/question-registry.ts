@@ -27,8 +27,8 @@ const PHASE1_QUESTION_TYPES: QuestionTypeDefinition[] = [
     category: 'choice',
     defaultConfig: {
       options: [
-        { id: '1', label: '選項 1', value: 'option1' },
-        { id: '2', label: '選項 2', value: 'option2' },
+        { id: '1', text: '選項 1' },
+        { id: '2', text: '選項 2' },
       ],
       randomizeOptions: false,
     },
@@ -45,9 +45,9 @@ const PHASE1_QUESTION_TYPES: QuestionTypeDefinition[] = [
     category: 'choice',
     defaultConfig: {
       options: [
-        { id: '1', label: '選項 1', value: 'option1' },
-        { id: '2', label: '選項 2', value: 'option2' },
-        { id: '3', label: '選項 3', value: 'option3' },
+        { id: '1', text: '選項 1' },
+        { id: '2', text: '選項 2' },
+        { id: '3', text: '選項 3' },
       ],
       randomizeOptions: false,
     },

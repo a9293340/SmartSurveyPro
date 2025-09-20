@@ -100,10 +100,7 @@
         </div>
 
         <div v-show="!isPropertiesCollapsed" class="sidebar-content">
-          <!-- TODO: Task 3.2.3 屬性面板內容 -->
-          <div class="placeholder-content">
-            <p class="text-gray-500 text-sm">屬性面板將在 Task 3.2.3 實作</p>
-          </div>
+          <PropertyPanel />
         </div>
       </aside>
     </div>
@@ -137,6 +134,7 @@ import { useQuestionsStore } from '~/stores/questions';
 import QuestionTypePanel from './QuestionTypePanel.vue';
 import QuestionCard from './QuestionCard.vue';
 import DropZone from './DropZone.vue';
+import PropertyPanel from './PropertyPanel.vue';
 
 // Stores
 const builderStore = useBuilderStore();
@@ -461,11 +459,16 @@ function handleExistingQuestionDropped(data: ExistingQuestionDragData, event: Dr
 }
 
 /* 側邊欄樣式 */
-.question-types-sidebar,
-.properties-sidebar {
+.question-types-sidebar {
   @apply bg-white border-gray-200 transition-all duration-300 ease-in-out;
   @apply flex flex-col;
   width: 280px;
+}
+
+.properties-sidebar {
+  @apply bg-white border-gray-200 transition-all duration-300 ease-in-out;
+  @apply flex flex-col;
+  width: 400px;
 }
 
 .question-types-sidebar {
@@ -585,7 +588,7 @@ function handleExistingQuestionDropped(data: ExistingQuestionDragData, event: Dr
 @media (max-width: 1024px) {
   .question-types-sidebar,
   .properties-sidebar {
-    width: 240px;
+    width: 320px;
   }
 
   .sidebar-collapsed {

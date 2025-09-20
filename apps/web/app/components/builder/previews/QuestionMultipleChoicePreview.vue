@@ -20,7 +20,7 @@
             <span class="checkbox-indicator">
               <Icon name="heroicons:check" class="check-icon w-3 h-3" />
             </span>
-            <span class="option-text">{{ option.label || `選項 ${index + 1}` }}</span>
+            <span class="option-text">{{ option.text || `選項 ${index + 1}` }}</span>
           </label>
         </div>
       </div>
@@ -95,14 +95,12 @@ const config = computed(() => props.question.config || {});
 
 const displayOptions = computed(() => {
   const options = (config.value as any)?.options || [];
-  // 確保至少有 2 個選項
-  if (options.length < 2) {
-    return [
-      { id: '1', label: '選項 1', value: '1' },
-      { id: '2', label: '選項 2', value: '2' },
-    ];
-  }
-  return options;
+  // 統一格式：支援 text 和 label 屬性
+  return options.map((option: any, index: number) => ({
+    id: option.id || String(index + 1),
+    text: option.text || option.label || `選項 ${index + 1}`,
+    value: option.value || option.id || String(index + 1),
+  }));
 });
 
 // 方法
@@ -110,8 +108,7 @@ function addOption() {
   const currentOptions = (config.value as any)?.options || [];
   const newOption = {
     id: `option-${Date.now()}`,
-    label: `選項 ${currentOptions.length + 1}`,
-    value: `${currentOptions.length + 1}`,
+    text: `選項 ${currentOptions.length + 1}`,
   };
 
   const updatedOptions = [...currentOptions, newOption];

@@ -114,9 +114,9 @@
           <Icon name="heroicons:eye" class="w-3 h-3" />
           {{ question.visible ? '顯示' : '隱藏' }}
         </span>
-        <span v-if="hasValidation" class="stat-item">
+        <span class="stat-item validation-info">
           <Icon name="heroicons:shield-check" class="w-3 h-3" />
-          有驗證
+          {{ validationLabel }}
         </span>
       </div>
 
@@ -229,6 +229,10 @@ const displayTitle = computed(() => {
 
 const hasValidation = computed(() => {
   return props.question.validation && Object.keys(props.question.validation).length > 0;
+});
+
+const validationLabel = computed(() => {
+  return hasValidation.value ? '有驗證' : '無驗證';
 });
 
 const previewComponent = computed(() => {
@@ -547,6 +551,10 @@ onUnmounted(() => {
 
 .stat-item {
   @apply flex items-center gap-1;
+}
+
+.validation-info {
+  @apply text-blue-600 cursor-help;
 }
 
 .quick-actions {

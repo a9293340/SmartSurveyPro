@@ -147,6 +147,16 @@ export interface Survey {
   /** 統計資料 */
   stats: SurveyStats;
 
+  /** 完成訊息（便利屬性，對應 publishSettings.thankYouMessage） */
+  completionMessage?: string;
+
+  /** 基礎設定（便利屬性，對應 publishSettings 部分內容） */
+  settings?: {
+    allowAnonymous?: boolean;
+    collectIP?: boolean;
+    allowMultipleSubmissions?: boolean;
+  };
+
   // TODO(future): Phase 2 進階功能
   // - 邏輯跳轉規則：logicRules: LogicRule[]
   // - 分頁設定：pageSettings: PageSettings
