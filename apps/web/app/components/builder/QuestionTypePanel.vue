@@ -59,8 +59,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { QuestionType } from '@smartsurvey/shared';
-import { useDragDropStore } from '~/stores/drag-drop';
-import { useQuestionsStore } from '~/stores/questions';
+import { useDragDropStore, useQuestionsStore } from '~/stores';
 
 // Stores
 const dragDropStore = useDragDropStore();

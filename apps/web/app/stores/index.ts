@@ -8,13 +8,14 @@ export { useBuilderStore } from './builder';
 export { useQuestionsStore } from './questions';
 export { useDragDropStore } from './drag-drop';
 
+// Enum 值導出
+export { DragItemType, DropZoneType } from './drag-drop';
+
 // 型別定義
 export type {
-  DragItemType,
   DragItem,
   QuestionTypeDragData,
   ExistingQuestionDragData,
-  DropZoneType,
   DropZone,
   DragDropResult,
 } from './drag-drop';

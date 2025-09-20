@@ -32,7 +32,7 @@
 <script setup lang="ts">
 // 組件引入
 import SurveyCanvas from '~/components/builder/SurveyCanvas.vue';
-import { useBuilderStore } from '~/stores/builder';
+import { useBuilderStore } from '~/stores';
 import { onMounted } from 'vue';
 
 // Stores

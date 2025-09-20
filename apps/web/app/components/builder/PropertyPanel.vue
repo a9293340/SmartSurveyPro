@@ -20,7 +20,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { useBuilderStore } from '~/stores/builder';
+import { useBuilderStore } from '~/stores';
 import SurveyProperties from './properties/SurveyProperties.vue';
 import QuestionProperties from './properties/QuestionProperties.vue';
 

@@ -9,7 +9,7 @@
  * 4. Token 有效性驗證
  */
 
-import { connectToDatabase } from '../../../../server/lib/database';
+import { connectToDatabase } from '@smartsurvey/shared/server';
 import type { User, AuthUser, Group, UserGroupRole, Role } from '../../types/temp-types';
 import { UserStatus, UserGroupStatus } from '../../types/temp-types';
 import { extractTokenFromHeader, verifyAccessToken } from '../../utils/jwt';

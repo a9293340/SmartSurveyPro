@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { connectToDatabase } from '../../../../server/lib/database';
+import { connectToDatabase } from '@smartsurvey/shared/server';
 import type { User, AuthUser } from '../../types/temp-types';
 import { UserStatus } from '../../types/temp-types';
 import { verifyPassword } from '../../utils/password';

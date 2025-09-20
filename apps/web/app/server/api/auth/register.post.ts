@@ -3,7 +3,7 @@
  * 處理新用戶註冊，包含資料驗證、密碼加密、預設群組建立
  */
 
-import { connectToDatabase } from '../../../../server/lib/database';
+import { connectToDatabase } from '@smartsurvey/shared/server';
 import type { Db } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import { z } from 'zod';

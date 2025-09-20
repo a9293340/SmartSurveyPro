@@ -44,7 +44,7 @@ export default defineEventHandler(async event => {
     // - 異常使用模式檢測
 
     // 2. 驗證用戶是否仍然有效
-    const { connectToDatabase } = await import('../../../../server/lib/database');
+    const { connectToDatabase } = await import('@smartsurvey/shared/server');
     const db = await connectToDatabase();
     const usersCollection = db.collection('users');
 

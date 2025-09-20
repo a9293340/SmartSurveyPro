@@ -41,13 +41,13 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import {
+  useDragDropStore,
+  useQuestionsStore,
   DragItemType,
   DropZoneType,
   type QuestionTypeDragData,
   type ExistingQuestionDragData,
-} from '~/stores/drag-drop';
-import { useDragDropStore } from '~/stores/drag-drop';
-import { useQuestionsStore } from '~/stores/questions';
+} from '~/stores';
 
 // Props
 interface Props {

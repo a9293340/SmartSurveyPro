@@ -121,14 +121,14 @@
 import { computed, ref } from 'vue';
 import { QuestionType, type Question } from '@smartsurvey/shared';
 import {
+  useBuilderStore,
+  useDragDropStore,
+  useQuestionsStore,
   DragItemType,
   DropZoneType,
   type QuestionTypeDragData,
   type ExistingQuestionDragData,
-} from '~/stores/drag-drop';
-import { useBuilderStore } from '~/stores/builder';
-import { useDragDropStore } from '~/stores/drag-drop';
-import { useQuestionsStore } from '~/stores/questions';
+} from '~/stores';
 
 // 組件引入
 import QuestionTypePanel from './QuestionTypePanel.vue';

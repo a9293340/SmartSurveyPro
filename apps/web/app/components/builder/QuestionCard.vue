@@ -153,9 +153,7 @@ import { QuestionType } from '@smartsurvey/shared';
 import type { Question } from '@smartsurvey/shared';
 
 // 使用共享的 Question 類型
-import { useDragDropStore } from '~/stores/drag-drop';
-import { useBuilderStore } from '~/stores/builder';
-import { useQuestionsStore } from '~/stores/questions';
+import { useDragDropStore, useBuilderStore, useQuestionsStore } from '~/stores';
 
 // 動態引入預覽組件
 import QuestionSingleChoicePreview from './previews/QuestionSingleChoicePreview.vue';

@@ -253,7 +253,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { useBuilderStore } from '~/stores/builder';
+import { useBuilderStore } from '~/stores';
 import { QuestionType } from '@smartsurvey/shared';
 import type { Question } from '@smartsurvey/shared';
 

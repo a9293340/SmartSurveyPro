@@ -108,7 +108,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { useBuilderStore } from '~/stores/builder';
+import { useBuilderStore } from '~/stores';
 
 // Stores
 const builderStore = useBuilderStore();
