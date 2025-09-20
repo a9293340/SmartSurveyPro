@@ -3,8 +3,9 @@
  * 定義問卷、題目、邏輯規則等基礎資料結構
  */
 
-// 從 common.ts 匯入 EntityId 型別
+// 從相關型別檔案匯入必要的型別
 import type { EntityId } from './common';
+import type { Question } from './question';
 
 // ============================================================================
 // 基礎列舉類型
@@ -203,4 +204,4 @@ export interface SurveyBuilderState {
 // 匯入相關型別
 // ============================================================================
 
-import type { Question } from './question';
+// Question 類型已在檔案開頭匯入
