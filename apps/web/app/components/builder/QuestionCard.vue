@@ -73,17 +73,21 @@
           @keydown.escape="cancelTitleEdit"
           @click.stop
         />
-        <h3 v-else class="question-title" @dblclick="startTitleEdit">
-          {{ displayTitle }}
-        </h3>
+        <div v-else class="title-container" @dblclick="startTitleEdit">
+          <h3 class="question-title">
+            {{ displayTitle }}
+          </h3>
+          <span class="edit-hint">雙擊編輯</span>
+        </div>
 
         <button
           v-if="!isEditingTitle"
           type="button"
           class="edit-title-button"
+          title="編輯題目標題"
           @click.stop="startTitleEdit"
         >
-          <Icon name="heroicons:pencil" class="w-3 h-3" />
+          <Icon name="heroicons:pencil" class="w-4 h-4" />
         </button>
       </div>
 
@@ -94,7 +98,12 @@
 
       <!-- 題目預覽內容 -->
       <div class="question-preview">
-        <component :is="previewComponent" :question="question" :preview-mode="true" />
+        <component
+          :is="previewComponent"
+          :question="question"
+          :preview-mode="true"
+          @update-question="handleUpdateQuestion"
+        />
       </div>
     </div>
 
@@ -148,6 +157,13 @@ import { useDragDropStore } from '~/stores/drag-drop';
 import { useBuilderStore } from '~/stores/builder';
 import { useQuestionsStore } from '~/stores/questions';
 
+// 動態引入預覽組件
+import QuestionSingleChoicePreview from './previews/QuestionSingleChoicePreview.vue';
+import QuestionMultipleChoicePreview from './previews/QuestionMultipleChoicePreview.vue';
+import QuestionTextShortPreview from './previews/QuestionTextShortPreview.vue';
+import QuestionTextLongPreview from './previews/QuestionTextLongPreview.vue';
+import QuestionRatingPreview from './previews/QuestionRatingPreview.vue';
+
 // Props
 interface Props {
   question: Question;
@@ -184,7 +200,7 @@ const questionTypeName = computed(() => {
 
 const questionTypeIcon = computed(() => {
   const iconMap: Record<string, string> = {
-    [QuestionType.SINGLE_CHOICE]: 'heroicons:radio',
+    [QuestionType.SINGLE_CHOICE]: 'heroicons:stop',
     [QuestionType.MULTIPLE_CHOICE]: 'heroicons:squares-2x2',
     [QuestionType.TEXT_SHORT]: 'heroicons:pencil-square',
     [QuestionType.TEXT_LONG]: 'heroicons:document-text',
@@ -204,7 +220,7 @@ const questionTypeIcon = computed(() => {
     [QuestionType.RANKING]: 'heroicons:list-bullet',
   };
 
-  return iconMap[props.question.type] || 'heroicons:question-mark-circle';
+  return iconMap[props.question.type] || 'heroicons:document-text';
 });
 
 const displayTitle = computed(() => {
@@ -217,8 +233,27 @@ const hasValidation = computed(() => {
 
 const previewComponent = computed(() => {
   // 根據題型返回對應的預覽組件
-  // 這些組件將在 Task 3.2.2 建立
-  return `Question${props.question.type}Preview`;
+  const componentMap: Record<string, any> = {
+    [QuestionType.SINGLE_CHOICE]: QuestionSingleChoicePreview,
+    [QuestionType.MULTIPLE_CHOICE]: QuestionMultipleChoicePreview,
+    [QuestionType.TEXT_SHORT]: QuestionTextShortPreview,
+    [QuestionType.TEXT_LONG]: QuestionTextLongPreview,
+    [QuestionType.RATING]: QuestionRatingPreview,
+    // Phase 2 題型暫時使用空組件
+    [QuestionType.EMAIL]: QuestionTextShortPreview,
+    [QuestionType.NUMBER]: QuestionTextShortPreview,
+    [QuestionType.URL]: QuestionTextShortPreview,
+    [QuestionType.DROPDOWN]: QuestionSingleChoicePreview,
+    [QuestionType.SCALE]: QuestionRatingPreview,
+    [QuestionType.NET_PROMOTER_SCORE]: QuestionRatingPreview,
+    [QuestionType.DATE]: QuestionTextShortPreview,
+    [QuestionType.TIME]: QuestionTextShortPreview,
+    [QuestionType.FILE_UPLOAD]: QuestionTextShortPreview,
+    [QuestionType.MATRIX]: QuestionMultipleChoicePreview,
+    [QuestionType.RANKING]: QuestionMultipleChoicePreview,
+  };
+
+  return componentMap[props.question.type] || QuestionTextShortPreview;
 });
 
 // 方法
@@ -342,6 +377,10 @@ function toggleVisible() {
   });
 }
 
+function handleUpdateQuestion(questionId: string, updates: Partial<Question>) {
+  builderStore.updateQuestion(questionId, updates);
+}
+
 // 點擊外部關閉下拉選單
 function handleClickOutside(event: Event) {
   const target = event.target as HTMLElement;
@@ -452,9 +491,24 @@ onUnmounted(() => {
   @apply flex items-center gap-2 mb-3;
 }
 
+.title-container {
+  @apply flex-1 flex items-center gap-2 cursor-pointer;
+  @apply hover:bg-gray-50 rounded px-2 py-1 transition-colors;
+  @apply relative;
+}
+
 .question-title {
-  @apply flex-1 text-lg font-medium text-gray-900;
+  @apply text-lg font-medium text-gray-900;
   @apply hover:text-gray-700 transition-colors;
+}
+
+.edit-hint {
+  @apply text-xs text-gray-400 opacity-0 transition-opacity;
+  @apply select-none pointer-events-none;
+}
+
+.title-container:hover .edit-hint {
+  @apply opacity-100;
 }
 
 .title-input {
@@ -463,8 +517,9 @@ onUnmounted(() => {
 }
 
 .edit-title-button {
-  @apply p-1 rounded text-gray-400 opacity-0 hover:bg-gray-100 hover:text-gray-600;
-  @apply transition-all;
+  @apply p-2 rounded-lg text-gray-400 opacity-0 hover:bg-blue-50 hover:text-blue-600;
+  @apply transition-all border border-transparent hover:border-blue-200;
+  @apply shadow-sm hover:shadow;
 }
 
 .question-title-section:hover .edit-title-button {

@@ -45,7 +45,7 @@ export enum QuestionType {
 // ============================================================================
 
 /** 基礎驗證規則 */
-export interface BaseValidationRule {
+export interface BaseValidationRule extends Record<string, unknown> {
   /** 是否必填 */
   required: boolean;
 
@@ -127,12 +127,27 @@ export interface QuestionOption {
 }
 
 /** 評分題配置 */
-export interface RatingConfig {
+export interface RatingConfig extends Record<string, unknown> {
   /** 最小分數 */
-  min: number;
+  min?: number;
 
   /** 最大分數 */
-  max: number;
+  max?: number;
+
+  /** 最高評分 */
+  maxRating?: number;
+
+  /** 評分類型 */
+  ratingType?: 'star' | 'number' | 'scale';
+
+  /** 是否顯示標籤 */
+  showLabels?: boolean;
+
+  /** 最低分標籤 */
+  minLabel?: string;
+
+  /** 最高分標籤 */
+  maxLabel?: string;
 
   /** 分數標籤（可選） */
   labels?: {
@@ -145,7 +160,7 @@ export interface RatingConfig {
 }
 
 /** 量表題配置 */
-export interface ScaleConfig {
+export interface ScaleConfig extends Record<string, unknown> {
   /** 最小值 */
   min: number;
 
@@ -196,7 +211,7 @@ export interface BaseQuestion {
   validation: BaseValidationRule;
 
   /** 題目設定（根據題型不同會有不同的配置） */
-  config: Record<string, any>;
+  config: Record<string, unknown>;
 
   // TODO(future): Phase 2 進階功能
   // - 條件邏輯：conditions: QuestionCondition[]
@@ -213,6 +228,16 @@ export interface TextQuestion extends BaseQuestion {
     placeholder?: string;
     /** 預設值 */
     defaultValue?: string;
+    /** 輸入類型（短文字題用） */
+    inputType?: 'text' | 'email' | 'url' | 'tel';
+    /** 字數限制 */
+    maxLength?: number;
+    /** 顯示行數（長文字題用） */
+    rows?: number;
+    /** 是否顯示字數統計 */
+    showWordCount?: boolean;
+    /** 幫助文字 */
+    helpText?: string;
   };
 }
 
@@ -239,6 +264,12 @@ export interface ChoiceQuestion extends BaseQuestion {
     randomizeOptions?: boolean;
     /** 其他選項的佔位符 */
     otherPlaceholder?: string;
+    /** 是否允許其他選項 */
+    allowOther?: boolean;
+    /** 最少選擇數（多選題用） */
+    minChoices?: number;
+    /** 最多選擇數（多選題用） */
+    maxChoices?: number;
   };
 }
 
@@ -339,4 +370,37 @@ export interface QuestionBuilder {
 
   /** 驗證題目資料 */
   validateQuestion(question: Question): { isValid: boolean; errors: string[] };
+}
+
+// ============================================================================
+// 類型守衛和輔助函數
+// ============================================================================
+
+/** 安全訪問配置屬性的工具函數 */
+export function getConfigValue<T = unknown>(
+  config: Record<string, unknown>,
+  key: string,
+  defaultValue?: T
+): T {
+  const value = config[key];
+  return value !== undefined ? (value as T) : (defaultValue as T);
+}
+
+/** 檢查是否為文字題配置 */
+export function isTextConfig(config: Record<string, unknown>): config is TextQuestion['config'] {
+  return typeof config === 'object' && config !== null;
+}
+
+/** 檢查是否為選擇題配置 */
+export function isChoiceConfig(
+  config: Record<string, unknown>
+): config is ChoiceQuestion['config'] {
+  return typeof config === 'object' && config !== null && Array.isArray(config.options);
+}
+
+/** 檢查是否為評分題配置 */
+export function isRatingConfig(
+  config: Record<string, unknown>
+): config is RatingConfig | ScaleConfig {
+  return typeof config === 'object' && config !== null;
 }

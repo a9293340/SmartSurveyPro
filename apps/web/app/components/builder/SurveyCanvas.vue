@@ -122,7 +122,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import { QuestionType } from '@smartsurvey/shared';
+import { QuestionType, type Question } from '@smartsurvey/shared';
 import {
   DragItemType,
   DropZoneType,
@@ -181,7 +181,7 @@ const draggedQuestionName = computed(() => {
 const draggedQuestionIcon = computed(() => {
   // 根據題型返回對應圖標名稱
   const iconMap: Record<string, string> = {
-    [QuestionType.SINGLE_CHOICE]: 'heroicons:radio',
+    [QuestionType.SINGLE_CHOICE]: 'heroicons:stop',
     [QuestionType.MULTIPLE_CHOICE]: 'heroicons:check',
     [QuestionType.TEXT_SHORT]: 'heroicons:pencil',
     [QuestionType.TEXT_LONG]: 'heroicons:document-text',
@@ -201,9 +201,22 @@ const draggedQuestionIcon = computed(() => {
     [QuestionType.RANKING]: 'heroicons:list-bullet',
   };
 
-  return draggedQuestionType.value
-    ? iconMap[draggedQuestionType.value] || 'heroicons:question-mark-circle'
-    : 'heroicons:question-mark-circle';
+  // 如果是拖曳題型，使用題型圖示
+  if (draggedQuestionType.value) {
+    return iconMap[draggedQuestionType.value] || 'heroicons:document-text';
+  }
+
+  // 如果是拖曳現有題目，根據題目ID找到題目類型
+  if (dragDropStore.draggedQuestionId && builderStore.currentSurvey) {
+    const question = builderStore.currentSurvey.questions.find(
+      (q: Question) => q.id === dragDropStore.draggedQuestionId
+    );
+    if (question) {
+      return iconMap[question.type] || 'heroicons:document-text';
+    }
+  }
+
+  return 'heroicons:document-text';
 });
 
 // 方法
