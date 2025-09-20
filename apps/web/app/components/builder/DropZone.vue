@@ -96,7 +96,7 @@ const draggedItemInfo = computed(() => {
     return {
       type: 'existing-question',
       name: data.title,
-      icon: 'bars-3',
+      icon: 'heroicons:bars-3',
     };
   }
 

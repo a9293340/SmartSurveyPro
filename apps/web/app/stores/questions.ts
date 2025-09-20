@@ -308,7 +308,34 @@ export const useQuestionsStore = defineStore('questions', () => {
       };
     }
 
-    // 直接使用 builder store 的方法，它會處理所有的狀態更新
+    // 先保存題目資料，避免刪除後遺失
+    const currentQuestion = questions[currentIndex];
+    if (!currentQuestion) {
+      return {
+        success: false,
+        message: '找不到要移動的題目',
+      };
+    }
+
+    console.warn('🔄 Moving question:', {
+      questionId,
+      from: currentIndex,
+      to: newPosition,
+      totalQuestions: questions.length,
+      questionTitle: currentQuestion.title,
+    });
+
+    // 創建題目的完整副本
+    const questionData = {
+      type: currentQuestion.type,
+      title: currentQuestion.title,
+      description: currentQuestion.description,
+      required: currentQuestion.required,
+      config: currentQuestion.config,
+      validation: currentQuestion.validation,
+    };
+
+    // 刪除原題目
     const success = builderStore.deleteQuestion(questionId);
     if (!success) {
       return {
@@ -317,26 +344,23 @@ export const useQuestionsStore = defineStore('questions', () => {
       };
     }
 
-    // 檢查題目是否存在
-    const currentQuestion = questions[currentIndex];
-    if (!currentQuestion) {
-      return { success: false, message: '找不到要移動的題目' };
-    }
+    // 計算實際插入位置（因為前面的題目被刪除了）
+    const actualInsertPosition = newPosition > currentIndex ? newPosition - 1 : newPosition;
 
     // 在新位置添加題目
-    const movedQuestion = builderStore.addQuestion(currentQuestion.type, newPosition);
+    const movedQuestion = builderStore.addQuestion(questionData.type, actualInsertPosition);
 
     // 恢復題目內容
     builderStore.updateQuestion(movedQuestion.id, {
-      title: currentQuestion.title,
-      description: currentQuestion.description,
-      required: currentQuestion.required,
-      config: currentQuestion.config,
-      validation: currentQuestion.validation,
+      title: questionData.title,
+      description: questionData.description,
+      required: questionData.required,
+      config: questionData.config,
+      validation: questionData.validation,
     });
 
     lastOperatedQuestionId.value = movedQuestion.id;
-    addToOperationHistory(`移動題目: ${currentQuestion.title}`);
+    addToOperationHistory(`移動題目: ${questionData.title}`);
 
     return {
       success: true,
