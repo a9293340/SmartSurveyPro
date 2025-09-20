@@ -10,6 +10,16 @@ export default defineNuxtConfig({
   typescript: {
     strict: true,
     typeCheck: true,
+    // 加入 monorepo 路徑映射
+    tsConfig: {
+      compilerOptions: {
+        paths: {
+          '@smartsurvey/shared': ['../../packages/shared/dist/index.d.ts'],
+          '@smartsurvey/shared/*': ['../../packages/shared/dist/*'],
+          '@smartsurvey/shared/server': ['../../packages/shared/dist/server.d.ts'],
+        },
+      },
+    },
   },
 
   // CSS 配置
