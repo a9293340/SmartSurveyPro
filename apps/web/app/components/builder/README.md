@@ -17,6 +17,7 @@
 | `DropZone.vue`          | 拖放區域組件，處理題目插入邏輯         | DragDrop Store  |
 | `QuestionTypePanel.vue` | 題型選擇面板，提供可拖拽的題型列表     | Questions Store |
 | `PropertyPanel.vue`     | 屬性編輯面板，根據選擇顯示對應屬性     | 切換子組件      |
+| `SurveyPreview.vue`     | 問卷預覽組件，提供即時預覽和測試功能   | Builder Store   |
 
 ### 🔧 工具組件
 

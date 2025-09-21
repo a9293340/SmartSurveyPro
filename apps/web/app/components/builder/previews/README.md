@@ -2,25 +2,24 @@
 
 > 📁 **目錄作用**：各種題型的預覽顯示組件
 >
-> 📅 **最後更新**：2025-01-20
+> 📅 **最後更新**：2025-01-21
 >
 > 🎯 **負責功能**：在問卷建構器中提供題目的即時預覽效果
 
 ## 📋 目錄規劃
 
-### 🚧 計劃實作的預覽組件
+### ✅ 已完成的預覽組件
 
-| 題型     | 組件檔名                    | 狀態      | 優先級 |
-| -------- | --------------------------- | --------- | ------ |
-| 單選題   | `MultipleChoicePreview.vue` | 🔄 計劃中 | P0     |
-| 多選題   | `CheckboxPreview.vue`       | 🔄 計劃中 | P0     |
-| 文字題   | `TextInputPreview.vue`      | 🔄 計劃中 | P0     |
-| 長文字   | `TextareaPreview.vue`       | 🔄 計劃中 | P1     |
-| 數字題   | `NumberInputPreview.vue`    | 🔄 計劃中 | P1     |
-| 評分題   | `RatingPreview.vue`         | 🔄 計劃中 | P2     |
-| 日期題   | `DatePickerPreview.vue`     | 🔄 計劃中 | P2     |
-| 檔案上傳 | `FileUploadPreview.vue`     | 🔄 計劃中 | P3     |
-| 矩陣題   | `MatrixPreview.vue`         | 🔄 計劃中 | P3     |
+| 題型     | 組件檔名                            | 狀態      | 優先級 | 設計特色                         |
+| -------- | ----------------------------------- | --------- | ------ | -------------------------------- |
+| 單選題   | `QuestionSingleChoicePreview.vue`   | ✅ 完成   | P0     | 單選按鈕、圖片支援、其他選項     |
+| 多選題   | `QuestionMultipleChoicePreview.vue` | ✅ 完成   | P0     | 複選框、數量限制、智能驗證       |
+| 短文字   | `QuestionTextShortPreview.vue`      | ✅ 完成   | P0     | 格式驗證、字數限制、多種輸入類型 |
+| 長文字   | `QuestionTextLongPreview.vue`       | ✅ 完成   | P1     | 多行文字框、動態高度、字數統計   |
+| 評分題   | `QuestionRatingPreview.vue`         | ✅ 完成   | P2     | 星級評分、數字、等級多種模式     |
+| 日期題   | -                                   | 🔄 計劃中 | P2     | 待開發                           |
+| 檔案上傳 | -                                   | 🔄 計劃中 | P3     | 待開發                           |
+| 矩陣題   | -                                   | 🔄 計劃中 | P3     | 待開發                           |
 
 ## 🎯 設計原則
 
@@ -30,12 +29,17 @@
 - 包含相同的樣式、布局和交互效果
 - 支援響應式設計預覽
 
-### 2. 只讀展示
+### 2. 可交互預覽
 
 ```typescript
-// 所有預覽組件的通用原則
-const isPreviewMode = true; // 永遠為 true
-const disabled = true; // 禁用所有交互
+// 新的設計：支援互動預覽，但有不同模式
+interface PreviewProps {
+  question: Question;
+  value?: any; // 當前值
+  error?: string; // 驗證錯誤
+  readonly?: boolean; // 只讀模式
+  previewMode?: boolean; // 預覽模式（隱藏編輯工具）
+}
 ```
 
 ### 3. 即時更新
@@ -51,16 +55,21 @@ const disabled = true; // 禁用所有交互
 ```typescript
 interface PreviewProps {
   question: Question; // 題目完整資料
-  showValidation?: boolean; // 顯示驗證提示
-  compact?: boolean; // 緊湊模式
+  value?: any; // 當前輸入值
+  error?: string; // 驗證錯誤訊息
+  readonly?: boolean; // 是否只讀
+  previewMode?: boolean; // 是否預覽模式（控制 UI 元素顯示）
 }
 ```
 
 ### 統一事件系統
 
 ```typescript
-// 預覽組件不觸發任何變更事件
-// 只用於顯示，不處理用戶輸入
+// 預覽組件支援互動事件
+const emit = defineEmits<{
+  updateQuestion: [questionId: string, updates: Partial<Question>]; // 更新題目配置
+  update: [value: any]; // 更新輸入值
+}>();
 ```
 
 ### 共用樣式系統
@@ -88,7 +97,9 @@ interface PreviewProps {
 
 ## 📝 各題型預覽規格
 
-### MultipleChoicePreview.vue
+### QuestionSingleChoicePreview.vue
+
+**實際檔案位置**：`QuestionSingleChoicePreview.vue`
 
 **顯示內容：**
 
@@ -103,7 +114,9 @@ interface PreviewProps {
 - 圖片選項的預覽顯示
 - 其他選項的輸入框展示
 
-### CheckboxPreview.vue
+### QuestionMultipleChoicePreview.vue
+
+**實際檔案位置**：`QuestionMultipleChoicePreview.vue`
 
 **顯示內容：**
 
@@ -117,7 +130,9 @@ interface PreviewProps {
 - 選項限制的視覺提示
 - 分組選項的層級顯示
 
-### TextInputPreview.vue
+### QuestionTextShortPreview.vue
+
+**實際檔案位置**：`QuestionTextShortPreview.vue`
 
 **顯示內容：**
 
@@ -199,42 +214,54 @@ function getPreviewComponent(questionType: QuestionType) {
 
 ## 🚀 開發優先級和時程
 
-### Phase 1: 基礎題型 (當前)
+### Phase 1: 基礎題型 (已完成)
 
 - [x] 架構設計完成
-- [ ] MultipleChoicePreview
-- [ ] CheckboxPreview
-- [ ] TextInputPreview
+- [x] QuestionSingleChoicePreview - 單選題
+- [x] QuestionMultipleChoicePreview - 多選題
+- [x] QuestionTextShortPreview - 短文字
+- [x] QuestionTextLongPreview - 長文字
+- [x] QuestionRatingPreview - 評分題
 
-### Phase 2: 進階題型
+### Phase 2: 進階題型 (待開發)
 
-- [ ] TextareaPreview
-- [ ] NumberInputPreview
-- [ ] RatingPreview
+- [ ] QuestionDatePreview - 日期選擇題
+- [ ] QuestionFileUploadPreview - 檔案上傳題
+- [ ] QuestionNumberPreview - 數字輸入題
 
-### Phase 3: 複雜題型
+### Phase 3: 複雜題型 (待開發)
 
-- [ ] DatePickerPreview
-- [ ] FileUploadPreview
-- [ ] MatrixPreview
+- [ ] QuestionMatrixPreview - 矩陣題
+- [ ] QuestionRankingPreview - 排序題
+- [ ] QuestionSliderPreview - 滑桿題
 
 ## 📝 實作檢查清單
 
 ### 新增預覽組件時
 
-- [ ] 實作對應的 Vue 組件
-- [ ] 新增到動態組件對應表
-- [ ] 測試各種屬性配置的預覽效果
-- [ ] 確保響應式設計正確
-- [ ] 更新此 README 的狀態
+- [x] 實作對應的 Vue 組件
+- [x] 新增到動態組件對應表 (SurveyPreview.vue)
+- [x] 測試各種屬性配置的預覽效果
+- [x] 確保響應式設計正確
+- [x] 更新此 README 的狀態
 
 ### 測試要點
 
-- [ ] 屬性變更的即時反映
-- [ ] 不同螢幕尺寸的顯示效果
-- [ ] 極端資料的處理（長文字、大量選項）
-- [ ] 無障礙功能的支援
+- [x] 屬性變更的即時反映
+- [x] 不同螢幕尺寸的顯示效果
+- [x] 極端資料的處理（長文字、大量選項）
+- [x] 表單驗證和互動效果
+- [x] 多題分頁導航功能
 
 ---
 
-**最後更新者**：Claude AI Assistant **下次檢查**：實作第一個預覽組件時
+## 🎆 完成成果
+
+目前已完成了完整的問卷預覽系統，包括：
+
+- **SurveyPreview.vue** - 主預覽組件，支援多題分頁、驗證、進度顯示
+- **5 種題型預覽組件** - 完整的題型支援和互動驗證
+- **完整的表單驗證系統** - 支援必填、字數限制、選擇數量限制等
+- **響應式設計** - 支援手機、平板、桌面各種螢幕
+
+**最後更新者**：Claude AI Assistant **更新日期**：2025-01-21

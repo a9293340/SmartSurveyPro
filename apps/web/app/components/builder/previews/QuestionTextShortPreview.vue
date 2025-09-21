@@ -1,17 +1,24 @@
 <template>
   <div class="text-short-preview">
+    <!-- 錯誤訊息顯示 -->
+    <div v-if="error" class="error-message">
+      {{ error }}
+    </div>
+
     <!-- 文字輸入框 -->
     <div class="input-wrapper">
       <input
         type="text"
         :placeholder="placeholder"
         :maxlength="maxLength"
-        :disabled="previewMode"
+        :value="value || ''"
+        :disabled="readonly"
         class="text-input"
         :class="{
           'input-error': showValidationError,
-          'input-disabled': previewMode,
+          'input-disabled': readonly,
         }"
+        @input="handleInput"
       />
 
       <!-- 字數限制提示 -->
@@ -81,6 +88,9 @@ import type { Question } from '@smartsurvey/shared';
 // Props
 interface Props {
   question: Question;
+  value?: string;
+  error?: string;
+  readonly?: boolean;
   previewMode?: boolean;
 }
 
@@ -91,6 +101,7 @@ const props = withDefaults(defineProps<Props>(), {
 // Emits
 const emit = defineEmits<{
   updateQuestion: [questionId: string, updates: Partial<Question>];
+  update: [value: string];
 }>();
 
 // 響應式狀態
@@ -154,6 +165,11 @@ function updateInputType(event: Event) {
   });
 }
 
+function handleInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  emit('update', target.value);
+}
+
 function updateMaxLength(event: Event) {
   const target = event.target as HTMLInputElement;
   const value = parseInt(target.value) || undefined;
@@ -170,6 +186,12 @@ function updateMaxLength(event: Event) {
 <style scoped>
 .text-short-preview {
   @apply space-y-3;
+}
+
+/* 錯誤訊息樣式 */
+.error-message {
+  @apply text-sm text-red-600 mb-2 px-2 py-1;
+  @apply bg-red-50 border border-red-200 rounded;
 }
 
 .input-wrapper {

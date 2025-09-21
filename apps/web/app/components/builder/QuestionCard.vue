@@ -121,15 +121,15 @@
       </div>
 
       <div class="quick-actions">
-        <button
-          type="button"
-          class="quick-action"
+        <!-- 必填狀態顯示（只讀） -->
+        <div
+          class="quick-action readonly"
           :class="{ active: question.required }"
-          @click.stop="toggleRequired"
+          title="必填狀態由屬性設定控制"
         >
           <Icon name="heroicons:exclamation-triangle" class="w-3 h-3" />
           必填
-        </button>
+        </div>
         <button
           type="button"
           class="quick-action"
@@ -367,11 +367,7 @@ function cancelTitleEdit() {
   isEditingTitle.value = false;
 }
 
-function toggleRequired() {
-  builderStore.updateQuestion(props.question.id, {
-    required: !props.question.required,
-  });
-}
+// toggleRequired 函數已移除，必填狀態只能透過屬性設定面板修改
 
 function toggleVisible() {
   builderStore.updateQuestion(props.question.id, {
@@ -566,6 +562,14 @@ onUnmounted(() => {
 
 .quick-action.active {
   @apply bg-blue-100 text-blue-700 hover:bg-blue-200;
+}
+
+.quick-action.readonly {
+  @apply cursor-default pointer-events-none opacity-60;
+}
+
+.quick-action.readonly.active {
+  @apply bg-blue-100 text-blue-700 opacity-80;
 }
 
 /* 響應式設計 */

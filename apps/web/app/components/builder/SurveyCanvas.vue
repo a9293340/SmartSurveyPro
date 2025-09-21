@@ -19,7 +19,7 @@
         </div>
       </aside>
 
-      <!-- 中間：問卷編輯畫布 -->
+      <!-- 中間：問卷編輯畫布 / 預覽區域 -->
       <main class="canvas-area">
         <div class="canvas-header">
           <div class="canvas-title">
@@ -35,8 +35,13 @@
           </div>
         </div>
 
-        <!-- 問卷題目列表 -->
-        <div class="question-list" data-drop-zone="question-list">
+        <!-- 預覽模式 -->
+        <div v-if="isPreviewMode" class="preview-wrapper">
+          <SurveyPreview />
+        </div>
+
+        <!-- 編輯模式：問卷題目列表 -->
+        <div v-else class="question-list" data-drop-zone="question-list">
           <!-- 空狀態 -->
           <div v-if="questions.length === 0" class="empty-state">
             <!-- 空狀態的放置區 -->
@@ -135,6 +140,7 @@ import QuestionTypePanel from './QuestionTypePanel.vue';
 import QuestionCard from './QuestionCard.vue';
 import DropZone from './DropZone.vue';
 import PropertyPanel from './PropertyPanel.vue';
+import SurveyPreview from './SurveyPreview.vue';
 
 // Stores
 const builderStore = useBuilderStore();
@@ -289,7 +295,7 @@ function onDragEnter(event: DragEvent) {
   // 標記為有效的放置區域
   (event.currentTarget as HTMLElement).classList.add('drag-over');
 
-  console.log('拖拽進入畫布區域');
+  // 拖拽進入畫布區域
 }
 
 /**
@@ -299,7 +305,7 @@ function onDragLeave(event: DragEvent) {
   // 移除放置區域標記
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 
-  console.log('拖拽離開畫布區域');
+  // 拖拽離開畫布區域
 }
 
 /**
@@ -307,14 +313,14 @@ function onDragLeave(event: DragEvent) {
  * 根據拖拽的內容執行相應操作
  */
 function onDrop(event: DragEvent) {
-  console.log('🎯 onDrop triggered');
+  // onDrop 觸發
   event.preventDefault();
 
   // 移除視覺標記
   (event.currentTarget as HTMLElement).classList.remove('drag-over');
 
   if (!dragDropStore.isDragging) {
-    console.log('❌ Not dragging, onDrop ignored');
+    // 非拖拽狀態，忽略 onDrop
     return;
   }
 
@@ -389,11 +395,7 @@ function handleQuestionTypeDropped(data: QuestionTypeDragData, event: DragEvent)
   const y = event.clientY - rect.top;
   const insertIndex = calculateInsertIndex(y);
 
-  console.log('建立新題目:', {
-    type: questionType,
-    name: displayName,
-    insertAt: insertIndex,
-  });
+  // 建立新題目
 
   // 使用 questionsStore.addQuestionAt() 建立題目在指定位置
   const result = questionsStore.addQuestionAt(questionType, insertIndex);
@@ -431,15 +433,11 @@ function handleExistingQuestionDropped(data: ExistingQuestionDragData, event: Dr
 
   // 如果位置沒有改變，不需要移動
   if (currentIndex === targetIndex) {
-    console.log('題目位置未改變');
+    // 題目位置未改變
     return;
   }
 
-  console.log('移動題目:', {
-    questionId,
-    from: currentIndex,
-    to: targetIndex,
-  });
+  // 移動題目
 
   // 使用 questionsStore.moveQuestion() 移動題目
   questionsStore.moveQuestion(questionId, targetIndex);
@@ -525,6 +523,12 @@ function handleExistingQuestionDropped(data: ExistingQuestionDragData, event: Dr
 /* 題目列表 */
 .question-list {
   @apply flex-1 overflow-y-auto p-6;
+}
+
+/* 預覽區域 */
+.preview-wrapper {
+  @apply flex-1 overflow-hidden;
+  @apply bg-gray-50;
 }
 
 /* 空狀態 */

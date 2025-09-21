@@ -1,17 +1,24 @@
 <template>
   <div class="text-long-preview">
+    <!-- 錯誤訊息顯示 -->
+    <div v-if="error" class="error-message">
+      {{ error }}
+    </div>
+
     <!-- 文字區域 -->
     <div class="textarea-wrapper">
       <textarea
         :placeholder="(config as any)?.placeholder || '請詳細描述您的想法...'"
         :maxlength="(config as any)?.maxLength"
         :rows="(config as any)?.rows || 4"
-        :disabled="previewMode"
+        :value="value || ''"
+        :disabled="readonly"
         class="textarea-input"
         :class="{
           'input-error': showValidationError,
-          'input-disabled': previewMode,
+          'input-disabled': readonly,
         }"
+        @input="handleInput"
       />
 
       <!-- 字數統計 -->
@@ -112,6 +119,9 @@ import type { Question } from '@smartsurvey/shared';
 // Props
 interface Props {
   question: Question;
+  value?: string;
+  error?: string;
+  readonly?: boolean;
   previewMode?: boolean;
 }
 
@@ -122,6 +132,7 @@ const props = withDefaults(defineProps<Props>(), {
 // Emits
 const emit = defineEmits<{
   updateQuestion: [questionId: string, updates: Partial<Question>];
+  update: [value: string];
 }>();
 
 // 響應式狀態
@@ -166,6 +177,11 @@ function updateShowWordCount(event: Event) {
   });
 }
 
+function handleInput(event: Event) {
+  const target = event.target as HTMLTextAreaElement;
+  emit('update', target.value);
+}
+
 function updateHelpText(event: Event) {
   const target = event.target as HTMLInputElement;
 
@@ -181,6 +197,12 @@ function updateHelpText(event: Event) {
 <style scoped>
 .text-long-preview {
   @apply space-y-3;
+}
+
+/* 錯誤訊息樣式 */
+.error-message {
+  @apply text-sm text-red-600 mb-2 px-2 py-1;
+  @apply bg-red-50 border border-red-200 rounded;
 }
 
 .textarea-wrapper {

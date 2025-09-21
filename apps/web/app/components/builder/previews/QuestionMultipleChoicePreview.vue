@@ -1,43 +1,47 @@
 <template>
   <div class="multiple-choice-preview">
+    <!-- 錯誤訊息顯示 -->
+    <div v-if="error" class="error-message">
+      {{ error }}
+    </div>
+
     <!-- 選項列表 -->
     <div class="options-list">
       <div
         v-for="(option, index) in displayOptions"
         :key="option.id"
         class="option-item"
-        :class="{ 'option-disabled': previewMode }"
+        :class="{ 'option-disabled': readonly }"
       >
         <div class="option-input">
           <input
             :id="`option-${question.id}-${index}`"
             type="checkbox"
+            :name="`question-${question.id}`"
             :value="option.value"
-            :disabled="previewMode"
+            :checked="selectedValues.includes(option.value)"
+            :disabled="readonly"
             class="checkbox-input"
+            @change="handleOptionChange"
           />
           <label :for="`option-${question.id}-${index}`" class="checkbox-label">
             <span class="checkbox-indicator">
               <Icon name="heroicons:check" class="check-icon w-3 h-3" />
             </span>
-            <span class="option-text">{{ option.text || `選項 ${index + 1}` }}</span>
+            <span class="option-text">{{ option.label }}</span>
           </label>
         </div>
       </div>
     </div>
 
     <!-- 選項限制提示 -->
-    <div v-if="(config as any).minChoices || (config as any).maxChoices" class="constraints-hint">
+    <div v-if="config.minChoices || config.maxChoices" class="constraints-hint">
       <span class="hint-text">
-        <template v-if="(config as any).minChoices && (config as any).maxChoices">
-          請選擇 {{ (config as any).minChoices }}-{{ (config as any).maxChoices }} 個選項
+        <template v-if="config.minChoices && config.maxChoices">
+          請選擇 {{ config.minChoices }}-{{ config.maxChoices }} 個選項
         </template>
-        <template v-else-if="(config as any).minChoices">
-          至少選擇 {{ (config as any).minChoices }} 個選項
-        </template>
-        <template v-else-if="(config as any).maxChoices">
-          最多選擇 {{ (config as any).maxChoices }} 個選項
-        </template>
+        <template v-else-if="config.minChoices"> 至少選擇 {{ config.minChoices }} 個選項 </template>
+        <template v-else-if="config.maxChoices"> 最多選擇 {{ config.maxChoices }} 個選項 </template>
       </span>
     </div>
 
@@ -50,14 +54,17 @@
     </div>
 
     <!-- 其他選項（如果啟用） -->
-    <div v-if="(config as any).allowOther" class="other-option">
+    <div v-if="config.allowOther" class="other-option">
       <div class="option-input">
         <input
           :id="`other-${question.id}`"
           type="checkbox"
+          :name="`question-${question.id}`"
           value="__other__"
-          :disabled="previewMode"
+          :checked="selectedValues.includes('__other__')"
+          :disabled="readonly"
           class="checkbox-input"
+          @change="handleOptionChange"
         />
         <label :for="`other-${question.id}`" class="checkbox-label">
           <span class="checkbox-indicator">
@@ -66,49 +73,155 @@
           <span class="option-text">其他</span>
         </label>
       </div>
-      <input type="text" placeholder="請說明..." class="other-input" :disabled="previewMode" />
+      <input
+        v-if="selectedValues.includes('__other__')"
+        type="text"
+        :placeholder="config.otherPlaceholder || '請說明...'"
+        class="other-input"
+        :disabled="readonly"
+        @input="handleOtherInput"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { Question } from '@smartsurvey/shared';
+import type { Question, QuestionOption, ChoiceQuestion } from '@smartsurvey/shared';
 
 // Props
 interface Props {
   question: Question;
+  value?: string[] | string;
+  error?: string;
+  readonly?: boolean;
   previewMode?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   previewMode: false,
+  readonly: false,
 });
 
 // Emits
 const emit = defineEmits<{
   updateQuestion: [questionId: string, updates: Partial<Question>];
+  update: [value: string[]];
 }>();
 
-// 計算屬性
-const config = computed(() => props.question.config || {});
+// 類型守衛函數
+function isChoiceQuestion(question: Question): question is ChoiceQuestion {
+  return ['single_choice', 'multiple_choice', 'dropdown'].includes(question.type);
+}
 
-const displayOptions = computed(() => {
-  const options = (config.value as any)?.options || [];
-  // 統一格式：支援 text 和 label 屬性
-  return options.map((option: any, index: number) => ({
-    id: option.id || String(index + 1),
-    text: option.text || option.label || `選項 ${index + 1}`,
-    value: option.value || option.id || String(index + 1),
+// 計算屬性
+const config = computed(() => {
+  if (isChoiceQuestion(props.question)) {
+    return props.question.config;
+  }
+  return {
+    options: [],
+    allowOther: false,
+    otherPlaceholder: '請說明...',
+    randomizeOptions: false,
+    minChoices: undefined,
+    maxChoices: undefined,
+  };
+});
+
+const displayOptions = computed((): QuestionOption[] => {
+  const options = config.value.options || [];
+
+  // 統一格式：確保選項有所有必要屬性
+  const normalizedOptions = options.map((option, index) => ({
+    id: option.id || `option-${index + 1}`,
+    label: option.label || `選項 ${index + 1}`,
+    value: option.value || option.id || `option-${index + 1}`,
+    isDefault: option.isDefault || false,
+    imageUrl: option.imageUrl,
+    isOther: option.isOther || false,
   }));
+
+  // 如果需要隨機排序選項
+  if (config.value.randomizeOptions && !props.previewMode) {
+    return [...normalizedOptions].sort(() => Math.random() - 0.5);
+  }
+
+  return normalizedOptions;
+});
+
+const selectedValues = computed((): string[] => {
+  if (!props.value) return [];
+
+  // 支援字串陣列或逗號分隔的字串
+  if (Array.isArray(props.value)) {
+    return props.value;
+  }
+
+  if (typeof props.value === 'string') {
+    return props.value.split(',').filter(v => v.trim());
+  }
+
+  return [];
 });
 
 // 方法
+function handleOptionChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (!target) return;
+
+  const value = target.value;
+  let newValues = [...selectedValues.value];
+
+  if (target.checked) {
+    // 檢查最大選擇數限制（在添加前檢查）
+    if (config.value.maxChoices && selectedValues.value.length >= config.value.maxChoices) {
+      // 阻止添加新選項，恢復複選框狀態
+      target.checked = false;
+      // 已達到最大選擇數限制，阻止添加
+      return;
+    }
+
+    // 添加選項
+    if (!newValues.includes(value)) {
+      newValues.push(value);
+    }
+  } else {
+    // 移除選項
+    newValues = newValues.filter(v => v !== value);
+  }
+
+  emit('update', newValues);
+}
+
+function handleOtherInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (!target) return;
+
+  let newValues = [...selectedValues.value];
+
+  // 移除舊的其他選項值
+  newValues = newValues.filter(v => !v.startsWith('__other__'));
+
+  // 添加新的其他選項值
+  if (target.value.trim()) {
+    newValues.push(`__other__:${target.value}`);
+  } else if (newValues.includes('__other__')) {
+    newValues.push('__other__');
+  }
+
+  emit('update', newValues);
+}
+
 function addOption() {
-  const currentOptions = (config.value as any)?.options || [];
-  const newOption = {
+  if (!isChoiceQuestion(props.question)) return;
+
+  const currentOptions = config.value.options || [];
+  const newOption: QuestionOption = {
     id: `option-${Date.now()}`,
-    text: `選項 ${currentOptions.length + 1}`,
+    label: `選項 ${currentOptions.length + 1}`,
+    value: `option-${currentOptions.length + 1}`,
+    isDefault: false,
   };
 
   const updatedOptions = [...currentOptions, newOption];
@@ -117,7 +230,7 @@ function addOption() {
     config: {
       ...config.value,
       options: updatedOptions,
-    } as any,
+    },
   });
 }
 </script>
@@ -125,6 +238,10 @@ function addOption() {
 <style scoped>
 .multiple-choice-preview {
   @apply space-y-3;
+}
+
+.error-message {
+  @apply text-sm text-red-600 mb-2 px-2 py-1 bg-red-50 border border-red-200 rounded;
 }
 
 .options-list {

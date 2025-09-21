@@ -1,12 +1,17 @@
 <template>
   <div class="single-choice-preview">
+    <!-- 錯誤訊息顯示 -->
+    <div v-if="error" class="error-message">
+      {{ error }}
+    </div>
+
     <!-- 選項列表 -->
     <div class="options-list">
       <div
         v-for="(option, index) in displayOptions"
         :key="option.id"
         class="option-item"
-        :class="{ 'option-disabled': previewMode }"
+        :class="{ 'option-disabled': readonly }"
       >
         <div class="option-input">
           <input
@@ -14,12 +19,14 @@
             type="radio"
             :name="`question-${question.id}`"
             :value="option.value"
-            :disabled="previewMode"
+            :checked="props.value === option.value"
+            :disabled="readonly"
             class="radio-input"
+            @change="handleOptionChange"
           />
           <label :for="`option-${question.id}-${index}`" class="radio-label">
             <span class="radio-indicator" />
-            <span class="option-text">{{ option.text || `選項 ${index + 1}` }}</span>
+            <span class="option-text">{{ option.label }}</span>
           </label>
         </div>
       </div>
@@ -34,64 +41,121 @@
     </div>
 
     <!-- 其他選項（如果啟用） -->
-    <div v-if="(config as any).allowOther" class="other-option">
+    <div v-if="config.allowOther" class="other-option">
       <div class="option-input">
         <input
           :id="`other-${question.id}`"
           type="radio"
           :name="`question-${question.id}`"
           value="__other__"
-          :disabled="previewMode"
+          :checked="props.value === '__other__'"
+          :disabled="readonly"
           class="radio-input"
+          @change="handleOptionChange"
         />
         <label :for="`other-${question.id}`" class="radio-label">
           <span class="radio-indicator" />
           <span class="option-text">其他</span>
         </label>
       </div>
-      <input type="text" placeholder="請說明..." class="other-input" :disabled="previewMode" />
+      <input
+        v-if="props.value === '__other__'"
+        type="text"
+        :placeholder="config.otherPlaceholder || '請說明...'"
+        class="other-input"
+        :disabled="readonly"
+        @input="handleOtherInput"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive } from 'vue';
-import type { Question } from '@smartsurvey/shared';
+import { computed } from 'vue';
+import type { Question, QuestionOption, ChoiceQuestion } from '@smartsurvey/shared';
 
 // Props
 interface Props {
   question: Question;
+  value?: string;
+  error?: string;
+  readonly?: boolean;
   previewMode?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   previewMode: false,
+  readonly: false,
 });
 
 // Emits
 const emit = defineEmits<{
   updateQuestion: [questionId: string, updates: Partial<Question>];
+  update: [value: string];
 }>();
 
-// 計算屬性
-const config = computed(() => props.question.config || {});
+// 類型守衛函數
+function isChoiceQuestion(question: Question): question is ChoiceQuestion {
+  return ['single_choice', 'multiple_choice', 'dropdown'].includes(question.type);
+}
 
-const displayOptions = computed(() => {
-  const options = (config.value as any)?.options || [];
-  // 統一格式：支援 text 和 label 屬性
-  return options.map((option: any, index: number) => ({
-    id: option.id || String(index + 1),
-    text: option.text || option.label || `選項 ${index + 1}`,
-    value: option.value || option.id || String(index + 1),
+// 計算屬性
+const config = computed(() => {
+  if (isChoiceQuestion(props.question)) {
+    return props.question.config;
+  }
+  return {
+    options: [],
+    allowOther: false,
+    otherPlaceholder: '請說明...',
+    randomizeOptions: false,
+  };
+});
+
+const displayOptions = computed((): QuestionOption[] => {
+  const options = config.value.options || [];
+
+  // 統一格式：確保選項有所有必要屬性
+  const normalizedOptions = options.map((option, index) => ({
+    id: option.id || `option-${index + 1}`,
+    label: option.label || `選項 ${index + 1}`,
+    value: option.value || option.id || `option-${index + 1}`,
+    isDefault: option.isDefault || false,
+    imageUrl: option.imageUrl,
+    isOther: option.isOther || false,
   }));
+
+  // 如果需要隨機排序選項
+  if (config.value.randomizeOptions && !props.previewMode) {
+    return [...normalizedOptions].sort(() => Math.random() - 0.5);
+  }
+
+  return normalizedOptions;
 });
 
 // 方法
+function handleOptionChange(event: Event) {
+  const target = event.target as HTMLInputElement;
+  if (target && target.checked) {
+    emit('update', target.value);
+  }
+}
+
+function handleOtherInput(event: Event) {
+  const target = event.target as HTMLInputElement;
+  // 對於其他選項，我們將值設為 "__other__:用戶輸入的內容"
+  emit('update', `__other__:${target.value}`);
+}
+
 function addOption() {
-  const currentOptions = (config.value as any)?.options || [];
-  const newOption = {
+  if (!isChoiceQuestion(props.question)) return;
+
+  const currentOptions = config.value.options || [];
+  const newOption: QuestionOption = {
     id: `option-${Date.now()}`,
-    text: `選項 ${currentOptions.length + 1}`,
+    label: `選項 ${currentOptions.length + 1}`,
+    value: `option-${currentOptions.length + 1}`,
+    isDefault: false,
   };
 
   const updatedOptions = [...currentOptions, newOption];
@@ -100,7 +164,7 @@ function addOption() {
     config: {
       ...config.value,
       options: updatedOptions,
-    } as any,
+    },
   });
 }
 </script>
@@ -108,6 +172,10 @@ function addOption() {
 <style scoped>
 .single-choice-preview {
   @apply space-y-3;
+}
+
+.error-message {
+  @apply text-sm text-red-600 mb-2 px-2 py-1 bg-red-50 border border-red-200 rounded;
 }
 
 .options-list {

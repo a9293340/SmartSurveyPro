@@ -1,5 +1,10 @@
 <template>
   <div class="rating-preview">
+    <!-- 錯誤訊息顯示 -->
+    <div v-if="error" class="error-message">
+      {{ error }}
+    </div>
+
     <!-- 評分類型切換 -->
     <div v-if="!previewMode" class="rating-type-selector">
       <div class="type-options">
@@ -28,9 +33,9 @@
           :class="{
             'star-filled': n <= currentRating,
             'star-hover': n <= hoverRating,
-            'star-disabled': previewMode,
+            'star-disabled': readonly,
           }"
-          :disabled="previewMode"
+          :disabled="readonly"
           @click="selectRating(n)"
           @mouseenter="hoverRating = n"
           @mouseleave="hoverRating = 0"
@@ -56,9 +61,9 @@
           class="number-button"
           :class="{
             'number-selected': n === currentRating,
-            'number-disabled': previewMode,
+            'number-disabled': readonly,
           }"
-          :disabled="previewMode"
+          :disabled="readonly"
           @click="selectRating(n)"
         >
           {{ n }}
@@ -79,7 +84,7 @@
           :min="1"
           :max="(config as any)?.maxRating || 10"
           :value="currentRating"
-          :disabled="previewMode"
+          :disabled="readonly"
           class="scale-slider"
           @input="updateSliderRating"
         />
@@ -166,20 +171,25 @@ import type { Question } from '@smartsurvey/shared';
 // Props
 interface Props {
   question: Question;
+  value?: number;
+  error?: string;
+  readonly?: boolean;
   previewMode?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   previewMode: false,
+  readonly: false,
 });
 
 // Emits
 const emit = defineEmits<{
   updateQuestion: [questionId: string, updates: Partial<Question>];
+  update: [value: number];
 }>();
 
 // 響應式狀態
-const currentRating = ref(0);
+const currentRating = computed(() => props.value || 0);
 const hoverRating = ref(0);
 
 // 評分類型定義
@@ -194,12 +204,13 @@ const config = computed(() => props.question.config || {});
 
 // 方法
 function selectRating(rating: number) {
-  currentRating.value = rating;
+  emit('update', rating);
 }
 
 function updateSliderRating(event: Event) {
   const target = event.target as HTMLInputElement;
-  currentRating.value = parseInt(target.value);
+  const value = parseInt(target.value);
+  emit('update', value);
 }
 
 function updateRatingType(type: string) {
