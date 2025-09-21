@@ -44,23 +44,26 @@
           {{ currentSurvey.description }}
         </p>
 
-        <!-- 進度指示器 -->
-        <div class="progress-indicator mt-6">
-          <div class="flex items-center justify-between text-sm text-gray-600 mb-2">
-            <span>填寫進度</span>
-            <span>{{ progressPercentage }}%</span>
-          </div>
-          <div class="w-full bg-gray-200 rounded-full h-2">
-            <div
-              class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-              :style="{ width: `${progressPercentage}%` }"
-            />
-          </div>
-          <div class="flex justify-between text-xs text-gray-500 mt-1">
-            <span>第 {{ currentQuestionIndex + 1 }} 題</span>
-            <span>共 {{ questions?.length || 0 }} 題</span>
-          </div>
-        </div>
+        <!-- 進度指示器組件 -->
+        <ProgressIndicator
+          :progress-percentage="progressPercentage"
+          :answered-count="answeredCount"
+          :total-count="questions?.length || 0"
+          :required-count="requiredCount"
+          :missing-required-count="missingRequiredCount"
+          :start-time="currentResponse?.startTime"
+          :show-estimated-time="true"
+          class="mt-6"
+        />
+
+        <!-- 題目進度組件 -->
+        <QuestionProgress
+          :questions="questions || []"
+          :answers="answersForProgress"
+          :current-question-id="currentQuestion?.id"
+          class="mt-4"
+          @question-click="handleQuestionClick"
+        />
       </div>
 
       <!-- 題目顯示模式選擇 -->
@@ -196,8 +199,11 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useResponseStore } from '~/stores/response';
 import QuestionRenderer from './QuestionRenderer.vue';
+import ProgressIndicator from './ProgressIndicator.vue';
+import QuestionProgress from './QuestionProgress.vue';
 import type { Question } from '@smartsurvey/shared';
 import { QuestionType, SurveyStatus, SurveyType, SurveyVisibility } from '@smartsurvey/shared';
 
@@ -222,6 +228,7 @@ const displayMode = ref<'single' | 'all'>('single');
 // 計算屬性
 // ============================================================================
 
+// 使用 storeToRefs 正確解構響應式屬性
 const {
   currentSurvey,
   currentResponse,
@@ -232,10 +239,10 @@ const {
   currentQuestion,
   progressPercentage,
   canSubmit,
-} = responseStore;
+} = storeToRefs(responseStore);
 
 const currentQuestionIndex = computed(() => {
-  return currentResponse?.currentQuestionIndex || 0;
+  return currentResponse.value?.currentQuestionIndex || 0;
 });
 
 const displayModes = computed(() => [
@@ -250,11 +257,35 @@ const displayModeClasses = (mode: string) => [
     : 'text-gray-600 hover:text-gray-900',
 ];
 
+// 進度指示器相關計算屬性
+const answeredCount = computed(() => {
+  if (!currentResponse.value || !questions.value) return 0;
+  return questions.value.filter(q => hasAnswer(q.id)).length;
+});
+
+const requiredCount = computed(() => {
+  if (!questions.value) return 0;
+  return questions.value.filter(q => q.required).length;
+});
+
+const missingRequiredCount = computed(() => {
+  return getMissingRequiredQuestions().length;
+});
+
+const answersForProgress = computed(() => {
+  if (!currentResponse.value) return {};
+  const answers: Record<string, any> = {};
+  Object.keys(currentResponse.value.answers).forEach(questionId => {
+    answers[questionId] = currentResponse.value?.answers[questionId]?.value;
+  });
+  return answers;
+});
+
 const questionDotClasses = (index: number) => [
   'w-8 h-8 rounded-full text-xs font-medium flex items-center justify-center transition-colors',
   index === currentQuestionIndex.value
     ? 'bg-blue-600 text-white'
-    : hasAnswer(questions[index]?.id || '')
+    : hasAnswer(questions.value?.[index]?.id || '')
       ? 'bg-green-100 text-green-700 border border-green-300'
       : 'bg-gray-100 text-gray-600 border border-gray-300',
 ];
@@ -275,14 +306,14 @@ function setDisplayMode(mode: 'single' | 'all'): void {
  * 獲取當前答案值
  */
 function getCurrentAnswerValue(questionId: string): any {
-  return currentResponse?.answers[questionId]?.value;
+  return currentResponse.value?.answers[questionId]?.value;
 }
 
 /**
  * 獲取題目錯誤訊息
  */
 function getQuestionError(questionId: string): string | undefined {
-  const answer = currentResponse?.answers[questionId];
+  const answer = currentResponse.value?.answers[questionId];
   return answer?.validationErrors?.[0];
 }
 
@@ -300,7 +331,7 @@ function handleAnswerUpdate(questionId: string, value: any): void {
  * 檢查是否有答案
  */
 function hasAnswer(questionId: string): boolean {
-  const answer = currentResponse?.answers[questionId];
+  const answer = currentResponse.value?.answers[questionId];
   return (
     answer !== null &&
     answer !== undefined &&
@@ -332,15 +363,27 @@ function goToQuestion(index: number): void {
 }
 
 /**
+ * 處理題目進度組件的題目點擊事件
+ */
+function handleQuestionClick(questionId: string, index: number): void {
+  goToQuestion(index);
+
+  // 如果是在單題模式，確保切換到該題目
+  if (displayMode.value === 'single') {
+    displayMode.value = 'single';
+  }
+}
+
+/**
  * 獲取缺少的必填題目
  */
 function getMissingRequiredQuestions(): Question[] {
-  if (!currentResponse) return [];
+  if (!currentResponse.value || !questions.value) return [];
 
-  return questions.filter((question: Question) => {
+  return questions.value.filter((question: Question) => {
     if (!question.required) return false;
 
-    const answer = currentResponse!.answers[question.id];
+    const answer = currentResponse.value!.answers[question.id];
     return !answer || !answer.isValid || answer.value === null || answer.value === undefined;
   });
 }
@@ -349,7 +392,7 @@ function getMissingRequiredQuestions(): Question[] {
  * 獲取題目索引
  */
 function getQuestionIndex(questionId: string): number {
-  return questions.findIndex((q: Question) => q.id === questionId);
+  return questions.value?.findIndex((q: Question) => q.id === questionId) ?? -1;
 }
 
 /**
@@ -380,28 +423,24 @@ async function retry(): Promise<void> {
 }
 
 // ============================================================================
-// 生命週期
+// 生命週期與初始化
 // ============================================================================
+
+// 立即檢查測試模式（在 setup 階段執行）
+if (props.surveyId === 'demo-survey-123') {
+  console.warn('[SurveyRenderer] 檢測到測試模式，準備初始化...');
+}
 
 onMounted(async () => {
   console.warn('[SurveyRenderer] 組件開始載入，surveyId:', props.surveyId);
 
-  try {
-    await responseStore.loadSurvey(props.surveyId);
+  // 🧪 測試模式：直接啟動測試資料，不嘗試 API 調用
+  if (props.surveyId === 'demo-survey-123') {
+    console.warn('[SurveyRenderer] 直接啟動測試模式...');
 
-    // 嘗試載入保存的進度
-    responseStore.loadProgress(props.surveyId);
-    console.warn('[SurveyRenderer] 正常載入完成');
-  } catch (error) {
-    console.error('[SurveyRenderer] 初始化失敗:', error);
-    console.warn('[SurveyRenderer] 檢查是否啟動測試模式，ID:', props.surveyId);
-
-    // 🧪 測試模式：當 API 失敗時自動載入測試資料
-    if (props.surveyId === 'demo-survey-123') {
-      console.warn('[SurveyRenderer] 啟動測試模式...');
-
-      // 注入測試問卷資料
-      responseStore.currentSurvey = {
+    // 注入測試問卷資料
+    responseStore.$patch({
+      currentSurvey: {
         _id: 'demo-survey-123',
         title: '🧪 測試問卷 - 互動驗證',
         description: '測試各種題型的互動功能',
@@ -506,23 +545,28 @@ onMounted(async () => {
             validation: { maxLength: 500, required: false, errorMessage: '請輸入有效的建議' },
           },
         ],
-      };
-
-      // 初始化回應狀態
-      responseStore.currentResponse = {
+      },
+      currentResponse: {
         surveyId: 'demo-survey-123',
         answers: {},
         startTime: new Date(),
         lastModified: new Date(),
         currentQuestionIndex: 0,
         isSubmitted: false,
-      };
+      },
+      errorMessage: null,
+      isLoading: false,
+    });
 
-      // 清除錯誤狀態，顯示測試內容
-      responseStore.errorMessage = null;
-      responseStore.isLoading = false;
-
-      console.warn('[SurveyRenderer] ✅ 測試模式已啟動，可以開始測試互動功能！');
+    console.warn('[SurveyRenderer] ✅ 測試模式已啟動，可以開始測試互動功能！');
+  } else {
+    // 正常模式：載入真實 API 資料
+    try {
+      await responseStore.loadSurvey(props.surveyId);
+      responseStore.loadProgress(props.surveyId);
+      console.warn('[SurveyRenderer] 正常載入完成');
+    } catch (error) {
+      console.error('[SurveyRenderer] 載入失敗:', error);
     }
   }
 });

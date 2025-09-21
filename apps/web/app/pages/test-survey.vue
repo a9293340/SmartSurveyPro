@@ -1,209 +1,74 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-8">
-    <div class="max-w-4xl mx-auto px-4">
+    <div class="max-w-5xl mx-auto px-4">
       <!-- 測試標題 -->
       <div class="text-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900">🧪 Survey Renderer 測試頁面</h1>
-        <p class="text-gray-600 mt-2">直接載入測試問卷，驗證必填欄位功能</p>
+        <h1 class="text-3xl font-bold text-gray-900">🧪 問卷渲染引擎測試頁面</h1>
+        <p class="text-gray-600 mt-2">測試完整的問卷填寫體驗，包含進度顯示功能</p>
+
+        <!-- 測試說明 -->
+        <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-2xl mx-auto">
+          <h3 class="text-lg font-medium text-blue-800 mb-2">✨ 新功能測試</h3>
+          <div class="text-sm text-blue-700 space-y-1">
+            <p>• <strong>進度指示器</strong>：顯示填寫進度百分比和預估剩餘時間</p>
+            <p>• <strong>題目進度概覽</strong>：可折疊的題目完成狀態列表</p>
+            <p>• <strong>快速導航</strong>：一鍵跳轉到未完成或必填題目</p>
+            <p>• <strong>單題/全部模式</strong>：支援兩種不同的填寫體驗</p>
+          </div>
+        </div>
       </div>
 
-      <!-- 測試問卷 -->
-      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div v-if="!survey" class="text-center py-8">
-          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto" />
-          <p class="text-gray-500 mt-2">載入測試問卷...</p>
-        </div>
+      <!-- 使用 SurveyRenderer 組件 -->
+      <SurveyRenderer survey-id="demo-survey-123" />
 
-        <div v-if="survey">
-          <!-- 問卷標題 -->
-          <div class="mb-6 border-b border-gray-200 pb-6">
-            <h2 class="text-2xl font-bold text-gray-900">{{ survey.title }}</h2>
-            <p class="text-gray-600 mt-2">{{ survey.description }}</p>
-          </div>
-
-          <!-- 問題列表 -->
-          <div class="space-y-6">
-            <div
-              v-for="question in survey.questions"
-              :key="question.id"
-              class="border border-gray-200 rounded-lg p-4"
-            >
-              <div class="mb-3">
-                <label class="block text-lg font-medium text-gray-900">
-                  {{ question.title }}
-                  <span v-if="question.required" class="text-red-500">*</span>
-                </label>
-                <p v-if="question.description" class="text-sm text-gray-600 mt-1">
-                  {{ question.description }}
-                </p>
+      <!-- 開發者說明 -->
+      <div class="mt-8 max-w-3xl mx-auto">
+        <details class="bg-white rounded-lg shadow-sm border p-6">
+          <summary class="cursor-pointer font-medium text-gray-700 text-lg">
+            🛠️ 開發者資訊 & 測試指引
+          </summary>
+          <div class="mt-4 space-y-4 text-sm text-gray-600">
+            <div class="grid md:grid-cols-2 gap-6">
+              <div>
+                <h4 class="font-medium text-gray-800 mb-2">🎯 測試重點</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                  <li>填寫一些題目後觀察進度變化</li>
+                  <li>點擊「顯示詳細」查看題目概覽</li>
+                  <li>使用快速導航功能</li>
+                  <li>切換單題/全部顯示模式</li>
+                  <li>觀察預估完成時間的計算</li>
+                </ul>
               </div>
-
-              <!-- 不同題型的輸入組件 -->
-              <component
-                :is="getInputComponent(question.type)"
-                :question="question"
-                :value="answers[question.id]"
-                @update:value="updateAnswer(question.id, $event)"
-              />
+              <div>
+                <h4 class="font-medium text-gray-800 mb-2">🔧 技術特點</h4>
+                <ul class="space-y-1 list-disc list-inside">
+                  <li>完全組件化的進度追蹤系統</li>
+                  <li>即時狀態更新和智能分析</li>
+                  <li>響應式設計適配各種屏幕</li>
+                  <li>漸進式增強的用戶體驗</li>
+                  <li>與 Pinia Store 深度整合</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pt-4 border-t border-gray-200">
+              <p class="text-gray-500">
+                <strong>注意：</strong> 這個測試頁面使用模擬資料，不會真正提交到伺服器。
+                請查看瀏覽器控制台以獲取詳細的運行日誌。
+              </p>
             </div>
           </div>
-
-          <!-- 提交按鈕 -->
-          <div class="mt-8 pt-6 border-t border-gray-200">
-            <button
-              class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              @click="submitSurvey"
-            >
-              提交問卷
-            </button>
-          </div>
-
-          <!-- 調試資訊 -->
-          <div class="mt-8 pt-6 border-t border-gray-200">
-            <details class="bg-gray-50 rounded-lg p-4">
-              <summary class="cursor-pointer font-medium text-gray-700">調試資訊</summary>
-              <pre class="mt-2 text-xs text-gray-600 overflow-auto">{{
-                JSON.stringify({ survey, answers }, null, 2)
-              }}</pre>
-            </details>
-          </div>
-        </div>
+        </details>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, defineAsyncComponent } from 'vue';
-import { QuestionType, SurveyStatus, SurveyType, SurveyVisibility } from '@smartsurvey/shared';
+import SurveyRenderer from '~/components/response/SurveyRenderer.vue';
 
-// 動態導入組件
-const TextShortInput = defineAsyncComponent(
-  () => import('~/components/response/inputs/TextShortInput.vue')
-);
-const SingleChoiceInput = defineAsyncComponent(
-  () => import('~/components/response/inputs/SingleChoiceInput.vue')
-);
-const RatingInput = defineAsyncComponent(
-  () => import('~/components/response/inputs/RatingInput.vue')
-);
-
-// 定義類型
-interface TestSurvey {
-  _id: string;
-  title: string;
-  description: string;
-  status: SurveyStatus;
-  type: SurveyType;
-  questions: any[];
-}
-
-const survey = ref<TestSurvey | null>(null);
-const answers = ref<Record<string, any>>({});
-
-function getInputComponent(questionType: QuestionType) {
-  const componentMap: Partial<Record<QuestionType, any>> = {
-    [QuestionType.TEXT_SHORT]: TextShortInput,
-    [QuestionType.SINGLE_CHOICE]: SingleChoiceInput,
-    [QuestionType.RATING]: RatingInput,
-  };
-  return componentMap[questionType] || TextShortInput;
-}
-
-function updateAnswer(questionId: string, value: any) {
-  answers.value[questionId] = value;
-  console.log(`[Test] 更新答案 ${questionId}:`, value);
-}
-
-function submitSurvey() {
-  // 驗證必填欄位
-  const errors: string[] = [];
-
-  if (survey.value) {
-    survey.value.questions.forEach(question => {
-      if (question.required) {
-        const answer = answers.value[question.id];
-        if (!answer || answer === '' || (Array.isArray(answer) && answer.length === 0)) {
-          errors.push(`「${question.title}」為必填欄位`);
-        }
-      }
-    });
-  }
-
-  if (errors.length > 0) {
-    alert(`❌ 提交失敗：\n\n${errors.join('\n')}`);
-    console.log('[Test] 驗證錯誤:', errors);
-    return;
-  }
-
-  console.log('[Test] 提交問卷:', answers.value);
-  alert('✅ 問卷提交成功！請查看控制台日誌。');
-}
-
-onMounted(() => {
-  console.log('[Test] 測試頁面載入開始...');
-
-  // 模擬載入延遲
-  setTimeout(() => {
-    survey.value = {
-      _id: 'test-survey',
-      title: '🧪 測試問卷 - 基礎功能驗證',
-      description: '這是一個簡化的測試問卷，用來驗證各種輸入組件是否正常工作。',
-      status: SurveyStatus.PUBLISHED,
-      type: SurveyType.STANDARD,
-      questions: [
-        {
-          id: 'q1',
-          type: QuestionType.TEXT_SHORT,
-          title: '您的姓名',
-          description: '請輸入您的姓名',
-          required: true,
-          order: 1,
-          visible: true,
-          config: {
-            placeholder: '請輸入...',
-            maxLength: 50,
-          },
-        },
-        {
-          id: 'q2',
-          type: QuestionType.SINGLE_CHOICE,
-          title: '您的年齡範圍',
-          required: true,
-          order: 2,
-          visible: true,
-          config: {
-            options: [
-              { id: 'age1', label: '18-25歲', value: '18-25' },
-              { id: 'age2', label: '26-35歲', value: '26-35' },
-              { id: 'age3', label: '36歲以上', value: '36+' },
-            ],
-          },
-        },
-        {
-          id: 'q3',
-          type: QuestionType.RATING,
-          title: '滿意度評分',
-          description: '請為我們的服務評分',
-          required: false,
-          order: 3,
-          visible: true,
-          config: {
-            min: 1,
-            max: 5,
-            displayType: 'stars',
-          },
-        },
-      ],
-    };
-
-    console.log('[Test] 測試問卷載入完成:', survey.value);
-  }, 500);
-});
-
-// SEO
+// SEO 設定
 useHead({
-  title: '測試問卷 - SmartSurvey Pro',
+  title: '問卷渲染引擎測試 - SmartSurvey Pro',
   meta: [{ name: 'robots', content: 'noindex, nofollow' }],
 });
 </script>
