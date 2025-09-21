@@ -10,23 +10,24 @@
 
 ### 🏗️ 主要組件
 
-| 檔案名稱                | 功能說明           | 狀態      | 依賴關係         |
-| ----------------------- | ------------------ | --------- | ---------------- |
-| `SurveyRenderer.vue`    | 問卷渲染引擎主組件 | ✅ 已完成 | useResponseStore |
-| `QuestionRenderer.vue`  | 通用題目渲染組件   | ✅ 已完成 | 動態輸入組件     |
-| `ProgressIndicator.vue` | 進度指示器組件     | ✅ 已完成 | useResponseStore |
-| `QuestionProgress.vue`  | 題目進度概覽組件   | ✅ 已完成 | useResponseStore |
+| 檔案名稱                | 功能說明           | 狀態      | 依賴關係          |
+| ----------------------- | ------------------ | --------- | ----------------- |
+| `SurveyRenderer.vue`    | 問卷渲染引擎主組件 | ✅ 已完成 | useResponseStore  |
+| `QuestionRenderer.vue`  | 通用題目渲染組件   | ✅ 已完成 | 動態輸入組件      |
+| `ProgressIndicator.vue` | 進度指示器組件     | ✅ 已完成 | useResponseStore  |
+| `QuestionProgress.vue`  | 題目進度概覽組件   | ✅ 已完成 | useResponseStore  |
+| `ValidationMessage.vue` | 驗證訊息顯示組件   | ✅ 已完成 | useFormValidation |
 
 ### 🎨 輸入組件
 
-| 檔案名稱                         | 功能說明       | 狀態      | 支援功能                 |
-| -------------------------------- | -------------- | --------- | ------------------------ |
-| `inputs/TextShortInput.vue`      | 短文字輸入組件 | ✅ 已完成 | 字數限制、即時驗證       |
-| `inputs/TextLongInput.vue`       | 長文字輸入組件 | ✅ 已完成 | 多行輸入、字數統計       |
-| `inputs/SingleChoiceInput.vue`   | 單選題輸入組件 | ✅ 已完成 | 選項選擇、其他選項支援   |
-| `inputs/MultipleChoiceInput.vue` | 多選題輸入組件 | ✅ 已完成 | 多選邏輯、最大選擇數限制 |
-| `inputs/RatingInput.vue`         | 評分題輸入組件 | ✅ 已完成 | 星級評分、數字評分模式   |
-| `inputs/UnsupportedInput.vue`    | 不支援題型組件 | ✅ 已完成 | 錯誤提示、題目內容顯示   |
+| 檔案名稱                         | 功能說明       | 狀態      | 支援功能                       |
+| -------------------------------- | -------------- | --------- | ------------------------------ |
+| `inputs/TextShortInput.vue`      | 短文字輸入組件 | ✅ 已完成 | 字數限制、即時驗證、email 格式 |
+| `inputs/TextLongInput.vue`       | 長文字輸入組件 | ✅ 已完成 | 多行輸入、字數統計、即時驗證   |
+| `inputs/SingleChoiceInput.vue`   | 單選題輸入組件 | ✅ 已完成 | 選項選擇、必填驗證、圓形 UI    |
+| `inputs/MultipleChoiceInput.vue` | 多選題輸入組件 | ✅ 已完成 | 多選邏輯、數量驗證、即時檢查   |
+| `inputs/RatingInput.vue`         | 評分題輸入組件 | ✅ 已完成 | 星級評分、數字評分模式         |
+| `inputs/UnsupportedInput.vue`    | 不支援題型組件 | ✅ 已完成 | 錯誤提示、題目內容顯示         |
 
 ## 🔧 架構設計說明
 
@@ -87,12 +88,16 @@ SurveyRenderer (主容器)
    - 適合快速瀏覽和填寫
    - 缺失題目自動提醒
 
-### ✅ 即時驗證系統
+### ✅ 全功能驗證系統
 
-- **前端驗證**：即時檢查輸入格式和長度
-- **業務規則驗證**：必填、選擇數量限制等
-- **錯誤提示**：友善的錯誤訊息顯示
-- **視覺回饋**：驗證狀態的顏色指示
+- **規則型驗證引擎**：基於 useFormValidation 的完整驗證框架
+- **多種觸發器**：支援 input、blur、focus、submit 四種驗證時機
+- **內建規則**：必填檢查、文字長度、email 格式、數字範圍、選項驗證
+- **混合式驗證策略**：逐題填寫模式下阻擋必填題目前進
+- **防抖優化**：300ms 防抖處理，避免過度觸發驗證
+- **Vue 3 依賴注入**：provide/inject 模式實現跨組件驗證上下文
+- **錯誤訊息顯示**：ValidationMessage 組件提供多層級訊息展示
+- **視覺回饋**：完整的驗證狀態指示和動畫過渡效果
 
 ### 💾 進度保存機制
 
