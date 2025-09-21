@@ -96,18 +96,21 @@
         </div>
 
         <!-- 導航按鈕 -->
-        <div class="navigation-buttons flex justify-between items-center mt-6">
-          <button
-            v-if="currentQuestionIndex > 0"
-            class="flex items-center px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-            @click="previousQuestion"
-          >
-            <Icon name="heroicons:chevron-left" class="w-4 h-4 mr-1" />
-            上一題
-          </button>
-          <div v-else />
+        <div class="navigation-buttons flex items-center mt-6 gap-3">
+          <!-- 左側按鈕區域 -->
+          <div class="nav-left flex-shrink-0">
+            <button
+              v-if="currentQuestionIndex > 0"
+              class="flex items-center px-4 py-2 text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+              @click="previousQuestion"
+            >
+              <Icon name="heroicons:chevron-left" class="w-4 h-4 mr-1" />
+              <span class="hidden sm:inline">上一題</span>
+            </button>
+          </div>
 
-          <div class="question-dots flex space-x-2">
+          <!-- 中間圓點導航區域 -->
+          <div class="question-dots flex space-x-2 flex-1 justify-center min-w-0">
             <button
               v-for="(question, index) in questions || []"
               :key="question.id"
@@ -119,29 +122,36 @@
             </button>
           </div>
 
-          <button
-            v-if="currentQuestionIndex < (questions?.length || 0) - 1"
-            class="flex items-center px-4 py-2 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
-            @click="nextQuestion"
-          >
-            下一題
-            <Icon name="heroicons:chevron-right" class="w-4 h-4 ml-1" />
-          </button>
-          <button
-            v-else-if="canSubmit"
-            :disabled="isSubmitting"
-            class="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
-            @click="handleSubmit"
-          >
-            <Icon
-              v-if="isSubmitting"
-              name="heroicons:arrow-path"
-              class="w-4 h-4 mr-2 animate-spin"
-            />
-            <Icon v-else name="heroicons:paper-airplane" class="w-4 h-4 mr-2" />
-            {{ isSubmitting ? '提交中...' : '提交問卷' }}
-          </button>
-          <div v-else class="text-sm text-gray-500">請完成所有必填題目後提交</div>
+          <!-- 右側按鈕區域 -->
+          <div class="nav-right flex-shrink-0">
+            <button
+              v-if="currentQuestionIndex < (questions?.length || 0) - 1"
+              class="flex items-center px-4 py-2 text-blue-600 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors"
+              @click="nextQuestion"
+            >
+              <span class="hidden sm:inline">下一題</span>
+              <Icon name="heroicons:chevron-right" class="w-4 h-4 ml-1" />
+            </button>
+            <button
+              v-else-if="canSubmit"
+              :disabled="isSubmitting"
+              class="flex items-center px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 transition-colors"
+              @click="handleSubmit"
+            >
+              <Icon
+                v-if="isSubmitting"
+                name="heroicons:arrow-path"
+                class="w-4 h-4 mr-2 animate-spin"
+              />
+              <Icon v-else name="heroicons:paper-airplane" class="w-4 h-4 mr-2" />
+              <span class="hidden sm:inline">{{ isSubmitting ? '提交中...' : '提交問卷' }}</span>
+              <span class="sm:hidden">{{ isSubmitting ? '提交中' : '提交' }}</span>
+            </button>
+            <div v-else class="text-sm text-gray-500 text-center max-w-32">
+              <span class="hidden sm:inline">請完成所有必填題目後提交</span>
+              <span class="sm:hidden">請完成必填題目</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -573,9 +583,118 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+/* ============================================================================ */
+/* 主容器響應式設計 */
+/* ============================================================================ */
+
 .survey-renderer {
-  @apply max-w-4xl mx-auto p-4;
+  /* 桌面版：最大寬度限制，保持良好的閱讀體驗 */
+  @apply mx-auto;
+
+  /* 響應式 padding：漸進式減少邊距 */
+  @apply px-6 py-8;
+  max-width: 900px; /* 比原本的 max-w-4xl (56rem) 稍小，更適合問卷閱讀 */
 }
+
+/* 平板橫向 (1024px - 1279px) */
+@media (max-width: 1279px) {
+  .survey-renderer {
+    @apply px-5 py-6;
+    max-width: 800px;
+  }
+}
+
+/* 平板直向 (768px - 1023px) */
+@media (max-width: 1023px) {
+  .survey-renderer {
+    @apply px-4 py-5;
+    max-width: 700px;
+  }
+}
+
+/* 手機橫向 (640px - 767px) */
+@media (max-width: 767px) {
+  .survey-renderer {
+    @apply px-3 py-4;
+    max-width: none; /* 手機端使用全寬 */
+  }
+}
+
+/* 手機直向 (< 640px) */
+@media (max-width: 639px) {
+  .survey-renderer {
+    @apply px-2 py-3;
+  }
+}
+
+/* ============================================================================ */
+/* 問卷標題區域響應式優化 */
+/* ============================================================================ */
+
+.survey-header h1 {
+  /* 響應式字體大小 */
+  @apply font-bold text-gray-900 leading-tight;
+  font-size: clamp(1.75rem, 4vw, 3rem); /* 動態字體：最小28px，最大48px */
+}
+
+.survey-header p {
+  /* 描述文字響應式優化 */
+  @apply text-gray-600 leading-relaxed;
+  font-size: clamp(1rem, 2.5vw, 1.125rem); /* 動態字體：最小16px，最大18px */
+}
+
+/* 手機端標題額外優化 */
+@media (max-width: 639px) {
+  .survey-header {
+    @apply mb-6; /* 減少底部間距 */
+  }
+
+  .survey-header h1 {
+    @apply mb-3; /* 減少標題與描述間距 */
+  }
+}
+
+/* ============================================================================ */
+/* 顯示模式切換按鈕優化 */
+/* ============================================================================ */
+
+.display-mode-tabs {
+  /* 確保按鈕容器響應式 */
+  @apply mb-6;
+}
+
+.display-mode-tabs .flex {
+  /* 手機端支援橫向捲動 */
+  @apply overflow-x-auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.display-mode-tabs .flex::-webkit-scrollbar {
+  display: none;
+}
+
+/* 按鈕觸控友善優化 */
+.display-mode-tabs button {
+  /* 最小觸控區域 44px */
+  min-height: 44px;
+  @apply flex-shrink-0; /* 防止按鈕被壓縮 */
+}
+
+/* 手機端按鈕優化 */
+@media (max-width: 639px) {
+  .display-mode-tabs {
+    @apply mb-4;
+  }
+
+  .display-mode-tabs button {
+    @apply text-sm px-4 py-3; /* 增加觸控區域 */
+  }
+}
+
+/* ============================================================================ */
+/* 題目容器響應式優化 */
+/* ============================================================================ */
 
 .question-container {
   @apply transition-all duration-200;
@@ -585,44 +704,186 @@ onMounted(async () => {
   @apply shadow-md;
 }
 
-.navigation-buttons {
-  @apply sticky bottom-4 bg-white rounded-lg shadow-lg border p-4;
+/* 手機端題目容器優化 */
+@media (max-width: 639px) {
+  .question-container {
+    @apply p-4; /* 減少內邊距 */
+    @apply rounded-lg; /* 保持圓角 */
+  }
+
+  /* 全顯示模式間距優化 */
+  .all-questions-mode .question-container + .question-container {
+    @apply mt-4; /* 減少題目間距 */
+  }
 }
+
+/* ============================================================================ */
+/* 導航按鈕區域響應式優化 */
+/* ============================================================================ */
+
+.navigation-buttons {
+  @apply bg-white rounded-lg shadow-lg border;
+
+  /* 桌面版：浮動在底部 */
+  @apply sticky bottom-4 p-4;
+}
+
+/* 平板以下：導航按鈕優化 */
+@media (max-width: 1023px) {
+  .navigation-buttons {
+    @apply bottom-2 mx-2; /* 減少間距，增加側邊距 */
+    @apply p-3; /* 減少內邊距 */
+  }
+}
+
+/* 手機端：導航按鈕全寬黏底 */
+@media (max-width: 639px) {
+  .navigation-buttons {
+    @apply sticky bottom-0 left-0 right-0;
+    @apply rounded-none border-x-0 border-b-0; /* 移除側邊和底部邊框 */
+    @apply mx-0 p-3; /* 全寬顯示 */
+    @apply shadow-2xl; /* 增強陰影效果 */
+  }
+
+  /* 導航按鈕內容優化 */
+  .navigation-buttons button {
+    min-height: 44px; /* 觸控友善 */
+  }
+
+  /* 上一題/下一題按鈕 */
+  .navigation-buttons button:first-child,
+  .navigation-buttons button:last-child {
+    @apply px-4 py-3; /* 增加觸控區域 */
+  }
+}
+
+/* ============================================================================ */
+/* 題目圓點導航優化 */
+/* ============================================================================ */
 
 .question-dots {
   @apply overflow-x-auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+
+  /* 允許彈性壓縮但保持最小可用空間 */
+  min-width: 0;
+  flex: 1 1 0%;
 }
 
 .question-dots::-webkit-scrollbar {
   display: none;
 }
 
-/* 響應式設計 */
-@media (max-width: 768px) {
-  .survey-renderer {
-    @apply p-2;
-  }
+/* 圓點按鈕觸控優化 */
+.question-dots button {
+  /* 確保觸控友善 */
+  min-width: 32px;
+  min-height: 32px;
+  @apply flex-shrink-0; /* 防止被壓縮 */
+}
 
-  .survey-header h1 {
-    @apply text-2xl;
-  }
+/* 導航區域佈局優化 */
+.nav-left,
+.nav-right {
+  /* 固定寬度區域，不允許壓縮 */
+  flex: 0 0 auto;
+  min-width: fit-content;
+}
 
-  .display-mode-tabs {
-    @apply overflow-x-auto;
-  }
-
+/* 手機端導航優化 */
+@media (max-width: 639px) {
   .navigation-buttons {
-    @apply sticky bottom-0 rounded-none border-x-0 border-b-0;
+    /* 手機端間距調整 */
+    gap: 0.5rem;
   }
 
-  .question-dots {
-    @apply max-w-xs;
+  .question-dots button {
+    /* 手機端圓點稍微縮小 */
+    min-width: 28px;
+    min-height: 28px;
+    @apply text-xs; /* 縮小字體 */
+  }
+
+  .nav-left button,
+  .nav-right button {
+    /* 手機端按鈕最小寬度 */
+    min-width: 44px;
+    padding: 0.5rem 0.75rem;
+  }
+
+  /* 超小螢幕進一步優化 */
+  @media (max-width: 359px) {
+    .question-dots button {
+      min-width: 24px;
+      min-height: 24px;
+      font-size: 0.6rem;
+    }
+
+    .nav-left button,
+    .nav-right button {
+      min-width: 40px;
+      padding: 0.5rem;
+    }
   }
 }
 
-/* 載入動畫 */
+/* ============================================================================ */
+/* 提交區域響應式優化 */
+/* ============================================================================ */
+
+.submit-section {
+  /* 提交按鈕觸控優化 */
+}
+
+.submit-section button {
+  min-height: 48px; /* 主要操作按鈕更大的觸控區域 */
+}
+
+/* 手機端提交區域優化 */
+@media (max-width: 639px) {
+  .submit-section {
+    @apply p-4; /* 減少內邊距 */
+  }
+
+  .submit-section button {
+    @apply w-full; /* 全寬按鈕 */
+    min-height: 52px; /* 更大的觸控區域 */
+    @apply text-base; /* 適當的字體大小 */
+  }
+}
+
+/* ============================================================================ */
+/* 載入和錯誤狀態響應式優化 */
+/* ============================================================================ */
+
+/* 手機端狀態顯示優化 */
+@media (max-width: 639px) {
+  .loading-state,
+  .error-state,
+  .submitted-state {
+    @apply px-4 py-6; /* 減少內邊距 */
+  }
+
+  .error-state h3,
+  .submitted-state h2 {
+    @apply text-xl; /* 縮小標題字體 */
+  }
+
+  .error-state .w-12,
+  .submitted-state .w-16 {
+    @apply w-10 h-10; /* 縮小圖示 */
+  }
+
+  .submitted-state .w-16 {
+    @apply w-12 h-12;
+  }
+}
+
+/* ============================================================================ */
+/* 載入動畫保持 */
+/* ============================================================================ */
+
 @keyframes pulse {
   0%,
   100% {
@@ -635,5 +896,21 @@ onMounted(async () => {
 
 .loading-state {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* ============================================================================ */
+/* 滾動行為優化 */
+/* ============================================================================ */
+
+/* 平滑滾動 */
+.survey-renderer {
+  scroll-behavior: smooth;
+}
+
+/* 確保內容不會被固定導航遮擋 */
+@media (max-width: 639px) {
+  .survey-content {
+    padding-bottom: 80px; /* 為底部導航留出空間 */
+  }
 }
 </style>

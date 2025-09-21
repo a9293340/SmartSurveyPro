@@ -52,10 +52,12 @@ const localValue = ref<string>(props.value || '');
 
 /** 輸入框樣式類別 */
 const inputClasses = computed(() => [
-  'w-full px-3 py-2 border rounded-lg transition-colors duration-200',
-  'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent',
+  'w-full px-4 py-3 border-2 rounded-lg transition-all duration-200',
+  'min-h-[48px] text-base', // 觸控友善高度和字體大小
+  'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
+  'placeholder:text-gray-400 placeholder:opacity-100',
   props.error
-    ? 'border-red-300 bg-red-50'
+    ? 'border-red-300 bg-red-50 focus:border-red-500 focus:ring-red-500'
     : 'border-gray-300 hover:border-gray-400 focus:border-blue-500',
 ]);
 
@@ -133,10 +135,67 @@ defineExpose({
   @apply w-full;
 }
 
-/* 手機端優化 */
-@media (max-width: 768px) {
+/* 手機端觸控優化 */
+@media (max-width: 639px) {
   .text-short-input input {
-    @apply text-base; /* 防止 iOS Safari 縮放 */
+    /* 確保觸控友善 */
+    min-height: 52px;
+    padding: 0.875rem 1rem;
+    font-size: 1rem; /* 防止 iOS Safari 縮放 */
+    line-height: 1.5;
+  }
+
+  .char-count {
+    /* 手機端字數統計 */
+    font-size: 0.75rem;
+    margin-top: 0.375rem;
+  }
+}
+
+/* 超小螢幕優化 */
+@media (max-width: 359px) {
+  .text-short-input input {
+    min-height: 48px;
+    padding: 0.75rem;
+  }
+}
+
+/* 焦點增強 */
+.text-short-input input:focus {
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.text-short-input input[data-error='true']:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* 觸控設備優化 */
+@media (hover: none) and (pointer: coarse) {
+  .text-short-input input {
+    /* 觸控設備不需要hover效果 */
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+}
+
+/* 無障礙設計 */
+@media (prefers-contrast: high) {
+  .text-short-input input {
+    border-width: 2px;
+    border-color: #374151;
+  }
+
+  .text-short-input input:focus {
+    border-color: #1d4ed8;
+    box-shadow: 0 0 0 2px #1d4ed8;
+  }
+}
+
+/* 減少動畫偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .text-short-input input {
+    transition: none;
   }
 }
 </style>

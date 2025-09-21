@@ -302,19 +302,61 @@ const getQuestionStatusColor = (question: Question) => {
 </script>
 
 <style scoped>
+/* ============================================================================ */
+/* 題目進度組件樣式 */
+/* ============================================================================ */
+
 .question-progress {
   /* 題目進度組件的陰影效果 */
   box-shadow:
     0 1px 3px 0 rgba(0, 0, 0, 0.1),
     0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+  /* 確保組件響應式 */
+  transition: box-shadow 0.2s ease;
 }
+
+.question-progress:hover {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* ============================================================================ */
+/* 題目列表樣式 */
+/* ============================================================================ */
 
 .question-list {
-  max-height: 24rem; /* 限制列表高度，約6個項目 */
+  /* 桌面端：較大的高度 */
+  max-height: 24rem; /* 約6個項目 */
   overflow-y: auto;
+  scroll-behavior: smooth;
 }
 
+/* 題目項目基礎樣式 */
+.question-item {
+  /* 確保觸控友善 */
+  min-height: 56px;
+  cursor: pointer;
+
+  /* 過渡動畫 */
+  transition: all 0.2s ease;
+}
+
+.question-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.question-item:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ============================================================================ */
 /* 自定義滾動條 */
+/* ============================================================================ */
+
 .question-list::-webkit-scrollbar {
   width: 6px;
 }
@@ -322,25 +364,298 @@ const getQuestionStatusColor = (question: Question) => {
 .question-list::-webkit-scrollbar-track {
   background: #f1f5f9;
   border-radius: 3px;
+  margin: 4px 0;
 }
 
 .question-list::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 3px;
+  transition: background 0.2s ease;
 }
 
 .question-list::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
+/* Firefox 滾動條 */
+.question-list {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* ============================================================================ */
+/* 快速導航按鈕 */
+/* ============================================================================ */
+
+.quick-nav button {
+  /* 確保按鈕觸控友善 */
+  min-height: 44px;
+  transition: all 0.2s ease;
+}
+
+.quick-nav button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.quick-nav button:active {
+  transform: translateY(0);
+}
+
+/* ============================================================================ */
 /* 響應式設計 */
-@media (max-width: 640px) {
+/* ============================================================================ */
+
+/* 手機端優化 */
+@media (max-width: 639px) {
+  .question-progress {
+    /* 手機端邊距調整 */
+    margin-bottom: 1rem;
+  }
+
+  /* 進度摘要：手機端改為2列佈局 */
   .progress-summary {
     grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 0 0.5rem;
+  }
+
+  .progress-summary > div {
+    /* 手機端統計項目 */
+    padding: 0.75rem 0.5rem;
+    min-height: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .progress-summary .text-2xl {
+    /* 手機端數字稍小 */
+    font-size: 1.5rem;
+  }
+
+  .progress-summary .text-sm {
+    /* 手機端標籤更小 */
+    font-size: 0.75rem;
+  }
+
+  /* 題目列表 */
+  .question-list {
+    /* 手機端列表高度減小 */
+    max-height: 16rem; /* 約4個項目 */
   }
 
   .question-item {
+    /* 手機端項目樣式 */
     padding: 0.75rem;
+    min-height: 52px;
+  }
+
+  .question-item .w-8.h-8 {
+    /* 手機端序號圓圈稍小 */
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.75rem;
+  }
+
+  .question-item .text-sm {
+    /* 手機端文字稍小 */
+    font-size: 0.8rem;
+  }
+
+  .question-item .text-xs {
+    /* 手機端小文字更小 */
+    font-size: 0.7rem;
+  }
+
+  /* 快速導航 */
+  .quick-nav {
+    /* 手機端導航調整 */
+    padding: 0.75rem 0;
+  }
+
+  .quick-nav .flex.space-x-2 {
+    /* 手機端按鈕間距 */
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .quick-nav button {
+    /* 手機端導航按鈕 */
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    min-height: 40px;
+  }
+}
+
+/* 超小螢幕優化 */
+@media (max-width: 359px) {
+  .progress-summary {
+    /* 超小螢幕改為單列 */
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .progress-summary > div {
+    /* 超小螢幕統計項目 */
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 40px;
+    padding: 0.5rem;
+  }
+
+  .question-list {
+    /* 超小螢幕列表高度進一步減小 */
+    max-height: 12rem;
+  }
+
+  .question-item {
+    /* 超小螢幕項目間距 */
+    padding: 0.5rem;
+    min-height: 48px;
+  }
+
+  .question-item .space-x-3 {
+    /* 超小螢幕間距調整 */
+    gap: 0.5rem;
+  }
+
+  .quick-nav button {
+    /* 超小螢幕按鈕 */
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+}
+
+/* 平板橫向優化 */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .progress-summary {
+    /* 平板保持4列 */
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .question-list {
+    /* 平板列表高度適中 */
+    max-height: 20rem;
+  }
+}
+
+/* 大螢幕優化 */
+@media (min-width: 1024px) {
+  .question-list {
+    /* 大螢幕可以顯示更多項目 */
+    max-height: 28rem;
+  }
+
+  .question-item {
+    /* 大螢幕項目有更多內邊距 */
+    padding: 1rem;
+  }
+
+  .quick-nav button {
+    /* 大螢幕按鈕更大 */
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* ============================================================================ */
+/* 狀態指示特殊樣式 */
+/* ============================================================================ */
+
+/* 已完成狀態的特殊效果 */
+.question-item.bg-green-50 {
+  border-left: 4px solid #10b981;
+}
+
+/* 進行中狀態的特殊效果 */
+.question-item.bg-blue-50 {
+  border-left: 4px solid #3b82f6;
+}
+
+/* 必填未完成的特殊效果 */
+.question-item.bg-red-50 {
+  border-left: 4px solid #ef4444;
+  animation: gentleRedPulse 3s ease-in-out infinite;
+}
+
+@keyframes gentleRedPulse {
+  0%,
+  100% {
+    border-left-color: #ef4444;
+  }
+  50% {
+    border-left-color: #f87171;
+  }
+}
+
+/* ============================================================================ */
+/* 無障礙設計 */
+/* ============================================================================ */
+
+/* 高對比模式 */
+@media (prefers-contrast: high) {
+  .question-item {
+    border: 2px solid #333;
+  }
+
+  .question-item.bg-green-50 {
+    background-color: #d1fae5 !important;
+    border-color: #059669 !important;
+  }
+
+  .question-item.bg-blue-50 {
+    background-color: #dbeafe !important;
+    border-color: #2563eb !important;
+  }
+
+  .question-item.bg-red-50 {
+    background-color: #fee2e2 !important;
+    border-color: #dc2626 !important;
+  }
+}
+
+/* 減少動畫偏好 */
+@media (prefers-reduced-motion: reduce) {
+  .question-item,
+  .quick-nav button {
+    transition: none;
+  }
+
+  .question-item:hover,
+  .quick-nav button:hover {
+    transform: none;
+  }
+
+  .question-item.bg-red-50 {
+    animation: none;
+  }
+}
+
+/* 焦點管理 */
+.question-item:focus,
+.quick-nav button:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* 觸控設備優化 */
+@media (hover: none) and (pointer: coarse) {
+  .question-item:hover,
+  .quick-nav button:hover {
+    /* 觸控設備不需要hover效果 */
+    transform: none;
+    box-shadow: inherit;
+  }
+
+  .question-item:active,
+  .quick-nav button:active {
+    /* 觸控設備的按下效果 */
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
   }
 }
 </style>
