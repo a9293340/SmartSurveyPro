@@ -1,5 +1,8 @@
 # 📋 配置管理指南
 
+> **🔄 重要更新 (2025-09-21)**: **已移除 tsup 相關配置**
+> 此文件已更新以反映最新的建構策略。所有套件現在使用純 TypeScript 編譯器 (tsc) 進行建構。
+
 SmartSurvey Pro 使用統一的配置管理架構，確保全專案的配置標準化和易維護性。
 
 ## 🎯 核心原則
@@ -18,8 +21,6 @@ SmartSurvey Pro 使用統一的配置管理架構，確保全專案的配置標�
 | `tsconfig/base.json`    | 基礎 TS 配置 | 所有專案     |
 | `tsconfig/package.json` | 套件 TS 配置 | `packages/*` |
 | `tsconfig/web.json`     | Web TS 配置  | `apps/web`   |
-| `tsup/base.ts`          | 基礎建構配置 | 所有套件     |
-| `tsup/package.ts`       | 套件建構配置 | `packages/*` |
 
 ## 📝 使用範例
 
@@ -53,28 +54,24 @@ SmartSurvey Pro 使用統一的配置管理架構，確保全專案的配置標�
 }
 ```
 
-### 建構配置
+### 套件建構方式
 
-#### 標準套件
+#### 使用純 tsc 建構
 
-```ts
-// tsup.config.ts
-import { packageConfig } from '../config/tsup/package.js';
+```bash
+# 套件建構命令 (現在只使用 tsc)
+cd packages/shared
+pnpm build  # 執行 tsc 編譯
 
-export default packageConfig;
+# 開發模式 (監控檔案變更)
+pnpm dev    # 執行 tsc --watch
 ```
 
-#### 自訂需求
+#### 建構特點
 
-```ts
-import { createBaseConfig } from '../config/tsup/base.js';
-
-export default createBaseConfig({
-  entry: ['src/index.ts', 'src/cli.ts'],
-  dts: true,
-  external: ['react', 'react-dom'],
-});
-```
+- **保留模組結構**: tsc 保持完整的目錄結構
+- **類型定義生成**: 自動生成 `.d.ts` 檔案
+- **ES 模組支援**: 完全符合現代 ES 模組標準
 
 ## 🚀 快速開始
 
@@ -84,22 +81,21 @@ export default createBaseConfig({
 2. **複製配置**:
 
    ```bash
-   # tsconfig.json
+   # 僅需複製 TypeScript 配置
    cp packages/shared/tsconfig.json packages/your-package/
-
-   # tsup.config.ts
-   cp packages/shared/tsup.config.ts packages/your-package/
+   cp packages/shared/package.json packages/your-package/  # 作為模板
    ```
 
-3. **調整路徑**: 確認相對路徑正確
-4. **測試建構**: `pnpm turbo build --filter=your-package`
+3. **調整路徑**: 確認 tsconfig.json 中相對路徑正確
+4. **更新 package.json**: 設定正確的 scripts (build: "tsc", dev: "tsc --watch")
+5. **測試建構**: `pnpm --filter=your-package build`
 
 ### 建立新應用
 
 1. **建立目錄**: `apps/your-app/`
 2. **使用 web 配置**: `extends: "../../packages/config/tsconfig/web.json"`
 3. **設定路徑別名**: 在 compilerOptions.paths 中定義
-4. **配置建構**: 根據需求選擇合適的 tsup 配置
+4. **配置建構**: 使用 Nuxt/Vite 內建的建構系統
 
 ## 🔧 維護指南
 

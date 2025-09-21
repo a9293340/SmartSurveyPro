@@ -961,7 +961,6 @@ server / api / survey - response.post.ts;
 #### `/packages/config` - 配置管理 🆕
 
 - **tsconfig/**: TypeScript 配置模板
-- **tsup/**: 建構配置模板
 - **eslint/**: ESLint 配置模板（未來）
 
 ---
@@ -1000,19 +999,12 @@ server / api / survey - response.post.ts;
 }
 ```
 
-### 建構配置使用
+### 套件建構方式
 
-```ts
-// 套件建構 (packages/*)
-import { packageConfig } from '../config/tsup/package.js';
-export default packageConfig;
-
-// 自訂建構
-import { createBaseConfig } from '../config/tsup/base.js';
-export default createBaseConfig({
-  entry: ['src/index.ts', 'src/cli.ts'],
-  dts: true,
-});
+```bash
+# 套件建構現在使用純 tsc（已移除 tsup）
+cd packages/shared
+pnpm build  # 執行 tsc 編譯
 ```
 
 ### 新增共享配置

@@ -5,19 +5,14 @@
   "type": "module",
   "files": [
     "tsconfig/*.json",
-    "tsup/*.ts",
     "eslint/*.js"
   ],
   "exports": {
     "./tsconfig/base": "./tsconfig/base.json",
     "./tsconfig/package": "./tsconfig/package.json",
-    "./tsconfig/web": "./tsconfig/web.json",
-    "./tsup/base": "./tsup/base.ts",
-    "./tsup/package": "./tsup/package.ts",
-    "./tsup/web": "./tsup/web.ts"
+    "./tsconfig/web": "./tsconfig/web.json"
   },
   "devDependencies": {
-    "tsup": "^8.0.0",
     "typescript": "^5.3.0"
   }
 }

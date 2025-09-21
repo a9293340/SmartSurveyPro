@@ -118,7 +118,7 @@ pnpm init
 **完成內容**:
 
 - 建立 `@smartsurvey/config` 套件
-- 統一管理 TypeScript、tsup 配置
+- 統一管理 TypeScript 配置
 - 實作配置繼承和覆蓋機制
 - 建立配置使用規範
 
