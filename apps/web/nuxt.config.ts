@@ -6,6 +6,19 @@ export default defineNuxtConfig({
   // 模組配置
   modules: ['@nuxtjs/tailwindcss', '@pinia/nuxt', '@nuxt/icon'],
 
+  // Nuxt Icon 配置
+  icon: {
+    serverBundle: {
+      collections: ['heroicons'], // 明確指定使用的圖示集合
+      remote: false, // 禁用遠程圖示獲取，只使用本地預載的圖示
+    },
+    // 增加客戶端配置
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 256,
+    },
+  },
+
   // TypeScript 配置
   typescript: {
     strict: true,

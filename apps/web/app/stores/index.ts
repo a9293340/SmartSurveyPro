@@ -1,5 +1,5 @@
 /**
- * 問卷建構器 Stores 統一匯出
+ * SmartSurvey Pro Stores 統一匯出
  * 提供統一的入口點匯出所有狀態管理模組
  */
 
@@ -7,6 +7,7 @@
 export { useBuilderStore } from './builder';
 export { useQuestionsStore } from './questions';
 export { useDragDropStore } from './drag-drop';
+export { useResponseStore } from './response';
 
 // Enum 值導出
 export { DragItemType, DropZoneType } from './drag-drop';
@@ -20,11 +21,17 @@ export type {
   DragDropResult,
 } from './drag-drop';
 
+export type { QuestionAnswer, SurveyResponse, ValidationResult } from './response';
+
 // 工具類型
 export interface SurveyBuilderStores {
   builder: ReturnType<typeof useBuilderStore>;
   questions: ReturnType<typeof useQuestionsStore>;
   dragDrop: ReturnType<typeof useDragDropStore>;
+}
+
+export interface SurveyResponseStores {
+  response: ReturnType<typeof useResponseStore>;
 }
 
 /**

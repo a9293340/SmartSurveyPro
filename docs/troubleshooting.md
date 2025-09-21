@@ -187,6 +187,124 @@ export type * from './types/common';
 - **Commit ddd830b**: `fix: 新增 Nuxt TypeScript 模組解析配置`
 - **Commit d440ac5**: `refactor: 遷移至 Nuxt 4 標準目錄結構`
 
+### 2. Nuxt Icon 401 遠程API錯誤問題 (2025-09-21)
+
+#### 問題描述
+
+**症狀**：
+
+- 瀏覽器控制台出現 401 錯誤：`GET /api/_nuxt_icon/heroicons.json?icons=star 401 (Unauthorized)`
+- Icon 組件可能無法正常顯示，特別是 `heroicons:star` 等圖示
+- 錯誤通常出現在使用評分組件等包含星星圖示的功能中
+
+**典型錯誤訊息**：
+
+```
+GET http://localhost:3000/api/_nuxt_icon/heroicons.json?icons=star 401 (Unauthorized)
+```
+
+**環境信息**：
+
+- Nuxt 4.1.2
+- @nuxt/icon 2.0.0
+- 開發環境 (localhost:3000)
+
+#### 根源分析
+
+**核心問題**：@nuxt/icon
+2.x 默認啟用遠程圖示獲取機制，嘗試從 API 端點動態載入圖示
+
+1. **遠程獲取機制**：
+   - Nuxt Icon 會嘗試從 `/api/_nuxt_icon/` 端點動態獲取圖示
+   - 開發環境中這個端點可能沒有正確的認證配置
+   - 導致 401 Unauthorized 錯誤
+
+2. **配置不完整**：
+   - 只設定 `serverBundle.collections` 不足以完全本地化圖示處理
+   - 缺少 `remote: false` 配置禁用遠程獲取
+   - 客戶端 bundle 配置缺失
+
+#### 解決方案
+
+**步驟一：完善 Nuxt Icon 配置**
+
+_檔案_：`apps/web/nuxt.config.ts`
+
+```typescript
+export default defineNuxtConfig({
+  // ... 其他配置
+
+  // Nuxt Icon 配置
+  icon: {
+    serverBundle: {
+      collections: ['heroicons'], // 明確指定使用的圖示集合
+      remote: false, // 🔑 關鍵：禁用遠程圖示獲取，只使用本地預載的圖示
+    },
+    // 增加客戶端配置
+    clientBundle: {
+      scan: true,
+      sizeLimitKb: 256,
+    },
+  },
+
+  // ... 其他配置
+});
+```
+
+**步驟二：重建 shared 套件 (如果有依賴)**
+
+```bash
+pnpm --filter @smartsurvey/shared build
+```
+
+**步驟三：重新啟動開發伺服器**
+
+```bash
+# 清理快取並重啟
+rm -rf apps/web/.nuxt
+pnpm --filter @smartsurvey/web dev
+```
+
+#### 驗證步驟
+
+1. **確認圖示 bundle 載入**：開發伺服器啟動時應看到：
+
+   ```
+   ℹ Nuxt Icon client bundle consist of 45 icons with 17.01KB(uncompressed) in size
+   ```
+
+2. **測試圖示顯示**：
+   - 訪問包含圖示的頁面 (如 `/test-survey`)
+   - 確認星星評分組件正常顯示
+   - 瀏覽器控制台不應有 401 錯誤
+
+3. **HTTP 狀態檢查**：
+   ```bash
+   curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/test-survey
+   # 應返回 200
+   ```
+
+#### 關鍵洞察
+
+`★ Insight ─────────────────────────────────────`
+
+- **本地優先策略**：現代 Icon 系統應優先使用本地 bundle 而非遠程 API，既提升性能又避免認證問題
+- **配置完整性**：`remote: false`
+  是關鍵配置，單純設定 collections 並不會禁用遠程獲取
+- **客戶端 bundle**：適當配置客戶端 bundle 能確保圖示正確預載和渲染
+  `─────────────────────────────────────────────────`
+
+#### 預防措施
+
+1. **優先本地配置**：新專案一開始就配置 `remote: false`
+2. **監控 bundle 大小**：定期檢查圖示 bundle 大小，避免過度膨脹
+3. **測試覆蓋**：包含圖示的組件都應有基本的渲染測試
+
+#### 相關提交記錄
+
+- **Commit [Hash]**:
+  `fix: 修復 Nuxt Icon 401 錯誤 - 禁用遠程獲取並配置本地 bundle`
+
 ---
 
 ## 📋 問題分類索引
@@ -203,6 +321,13 @@ export type * from './types/common';
 ### Nuxt/框架相關
 
 - [Nuxt 4 模組路徑映射問題](#1-typescript-模組解析不一致問題-2025-01-20)
+  (已解決)
+- [Nuxt Icon 401 遠程API錯誤問題](#2-nuxt-icon-401-遠程api錯誤問題-2025-09-21)
+  (已解決)
+
+### 前端組件相關
+
+- [Nuxt Icon 401 遠程API錯誤問題](#2-nuxt-icon-401-遠程api錯誤問題-2025-09-21)
   (已解決)
 
 ---
