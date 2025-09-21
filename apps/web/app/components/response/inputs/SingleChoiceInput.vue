@@ -95,17 +95,17 @@ const otherOptionId = computed(() => '__other__');
 
 /** 選項樣式類別 */
 const optionClasses = (optionId: string) => [
-  'relative flex cursor-pointer rounded-lg p-3 transition-colors duration-200',
+  'option-container relative flex cursor-pointer p-3 transition-colors duration-200',
   'hover:bg-gray-50 focus:outline-none',
   localValue.value === optionId
-    ? 'bg-blue-50 border-2 border-blue-200'
+    ? 'selected-option bg-blue-50 border-2 border-blue-200'
     : 'border-2 border-transparent',
   props.error ? 'hover:bg-red-50' : '',
 ];
 
 /** 單選按鈕樣式類別 */
 const radioClasses = (optionId: string) => [
-  'flex items-center justify-center w-5 h-5 rounded-full border-2 transition-colors duration-200',
+  'radio-button flex items-center justify-center rounded-full border-2 transition-colors duration-200',
   localValue.value === optionId
     ? 'border-blue-600 bg-blue-600'
     : 'border-gray-300 bg-white hover:border-gray-400',
@@ -190,7 +190,7 @@ function handleOtherInput(): void {
 /* 選項標籤觸控優化 */
 /* ============================================================================ */
 
-.single-choice-input label {
+.option-container {
   /* 確保觸控友善的最小區域 */
   min-height: 56px;
   display: flex;
@@ -199,7 +199,7 @@ function handleOtherInput(): void {
   /* 觸控體驗優化 */
   cursor: pointer;
   padding: 0.75rem;
-  border-radius: 0.75rem;
+  border-radius: 12px; /* 調整為更圓潤但不會過度橢圓的邊角 */
   transition: all 0.2s ease;
 
   /* 避免文字選取 */
@@ -212,39 +212,54 @@ function handleOtherInput(): void {
   -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
 }
 
-.single-choice-input label:hover {
+/* 選中狀態的特殊處理 */
+.selected-option {
+  /* 選中時使用稍大的圓角以保持視覺美觀 */
+  border-radius: 16px !important;
+  background-color: #eff6ff !important;
+  border-color: #3b82f6 !important;
+  box-shadow:
+    0 0 0 1px #3b82f6,
+    0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.option-container:hover {
   background-color: #f8fafc;
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-.single-choice-input label:active {
+.option-container:active {
   transform: translateY(0);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
-/* 已選中狀態的特殊樣式 */
-.single-choice-input label.bg-blue-50 {
-  background-color: #eff6ff !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 1px #3b82f6;
-}
-
-.single-choice-input label.bg-blue-50:hover {
+/* 選中狀態的 hover 效果 */
+.selected-option:hover {
   background-color: #dbeafe !important;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+  box-shadow:
+    0 0 0 1px #3b82f6,
+    0 4px 12px rgba(59, 130, 246, 0.2);
 }
 
 /* ============================================================================ */
 /* 單選按鈕樣式優化 */
 /* ============================================================================ */
 
-.single-choice-input .flex.items-center > div:first-child {
-  /* 單選按鈕容器 - 增大觸控區域 */
-  width: 1.5rem;
-  height: 1.5rem;
+.radio-button {
+  /* 確保完美圓形 - 使用固定尺寸避免 flexbox 拉伸 */
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
   flex-shrink: 0;
+
+  /* 確保圓形保持 */
+  aspect-ratio: 1 / 1;
+  border-radius: 50% !important;
 
   /* 視覺優化 */
   transition: all 0.2s ease;
@@ -252,8 +267,18 @@ function handleOtherInput(): void {
 }
 
 .radio-dot {
-  @apply w-2.5 h-2.5 bg-white rounded-full;
-  /* 增大選中指示點，更容易看清 */
+  /* 確保選中點完美圓形並居中 */
+  width: 8px !important;
+  height: 8px !important;
+  min-width: 8px;
+  min-height: 8px;
+  max-width: 8px;
+  max-height: 8px;
+  background-color: white;
+  border-radius: 50% !important;
+  aspect-ratio: 1 / 1;
+
+  /* 視覺優化 */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -309,7 +334,7 @@ function handleOtherInput(): void {
 
 /* 手機端優化 */
 @media (max-width: 639px) {
-  .single-choice-input label {
+  .option-container {
     /* 手機端加大觸控區域 */
     min-height: 60px;
     padding: 1rem 0.75rem;
@@ -343,7 +368,7 @@ function handleOtherInput(): void {
 
 /* 超小螢幕優化 */
 @media (max-width: 359px) {
-  .single-choice-input label {
+  .option-container {
     /* 超小螢幕進一步優化 */
     min-height: 56px;
     padding: 0.875rem 0.5rem;
@@ -367,7 +392,7 @@ function handleOtherInput(): void {
 
 /* 平板端優化 */
 @media (min-width: 640px) and (max-width: 1023px) {
-  .single-choice-input label {
+  .option-container {
     /* 平板端適中的觸控區域 */
     min-height: 58px;
     padding: 0.875rem;
@@ -394,16 +419,16 @@ function handleOtherInput(): void {
 
 /* 高對比模式 */
 @media (prefers-contrast: high) {
-  .single-choice-input label {
+  .option-container {
     border: 2px solid #374151;
   }
 
-  .single-choice-input label.bg-blue-50 {
+  .selected-option {
     border-color: #1d4ed8 !important;
     background-color: #dbeafe !important;
   }
 
-  .single-choice-input .flex.items-center > div:first-child {
+  .radio-button {
     border-width: 2px;
     border-color: #374151;
   }
@@ -415,25 +440,26 @@ function handleOtherInput(): void {
 
 /* 減少動畫偏好 */
 @media (prefers-reduced-motion: reduce) {
-  .single-choice-input label,
-  .single-choice-input .flex.items-center > div:first-child,
+  .option-container,
+  .radio-button,
   .single-choice-input input[type='text'] {
     transition: none;
   }
 
-  .single-choice-input label:hover,
-  .single-choice-input label:active {
+  .option-container:hover,
+  .option-container:active {
     transform: none;
   }
 }
 
 /* 焦點管理 */
-.single-choice-input label:focus-within {
+.option-container:focus-within {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
+  border-radius: 16px; /* 確保 focus 狀態的 outline 也是圓角 */
 }
 
-.single-choice-input input[type='radio']:focus + .flex {
+.single-choice-input input[type='radio']:focus + .flex .radio-button {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
   border-radius: 50%;
@@ -441,20 +467,20 @@ function handleOtherInput(): void {
 
 /* 觸控設備專用優化 */
 @media (hover: none) and (pointer: coarse) {
-  .single-choice-input label:hover {
+  .option-container:hover {
     /* 觸控設備不需要hover效果 */
     transform: none;
     box-shadow: inherit;
     background-color: inherit;
   }
 
-  .single-choice-input label:active {
+  .option-container:active {
     /* 觸控設備的按下效果 */
     transform: scale(0.98);
     transition: transform 0.1s ease;
   }
 
-  .single-choice-input label.bg-blue-50:hover {
+  .selected-option:hover {
     background-color: #eff6ff !important;
   }
 }
@@ -474,7 +500,7 @@ function handleOtherInput(): void {
 /* 載入和過渡狀態 */
 /* ============================================================================ */
 
-.single-choice-input label {
+.option-container {
   /* 選項出現動畫 */
   animation: fadeInUp 0.3s ease-out;
 }
@@ -492,7 +518,7 @@ function handleOtherInput(): void {
 
 /* 減少動畫時禁用 */
 @media (prefers-reduced-motion: reduce) {
-  .single-choice-input label {
+  .option-container {
     animation: none;
   }
 }

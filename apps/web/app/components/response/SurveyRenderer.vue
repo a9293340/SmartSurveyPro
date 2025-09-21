@@ -92,8 +92,42 @@
             :value="getCurrentAnswerValue(currentQuestion.id)"
             :error="getQuestionError(currentQuestion.id)"
             @update:value="handleAnswerUpdate(currentQuestion.id, $event)"
+            @validate="handleValidation"
+            @touch="handleTouch"
           />
         </div>
+
+        <!-- 混合式驗證錯誤提示區域 -->
+        <Transition
+          name="validation-error"
+          enter-active-class="transition ease-out duration-200"
+          enter-from-class="opacity-0 translate-y-[-10px] scale-95"
+          enter-to-class="opacity-100 translate-y-0 scale-100"
+          leave-active-class="transition ease-in duration-150"
+          leave-from-class="opacity-100 translate-y-0 scale-100"
+          leave-to-class="opacity-0 translate-y-[-10px] scale-95"
+        >
+          <div
+            v-if="navigationValidationError"
+            class="validation-error-banner bg-red-50 border border-red-200 rounded-lg p-4 mb-4"
+            role="alert"
+            aria-live="assertive"
+          >
+            <div class="flex items-start space-x-3">
+              <Icon
+                name="heroicons:exclamation-triangle"
+                class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0"
+                aria-hidden="true"
+              />
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-red-800">
+                  {{ navigationValidationError.message }}
+                </p>
+                <p class="text-xs text-red-600 mt-1">完成該題目後即可繼續填寫問卷</p>
+              </div>
+            </div>
+          </div>
+        </Transition>
 
         <!-- 導航按鈕 -->
         <div class="navigation-buttons flex items-center mt-6 gap-3">
@@ -208,9 +242,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, provide } from 'vue';
 import { storeToRefs } from 'pinia';
 import { useResponseStore } from '~/stores/response';
+import { useFormValidation } from '~/composables/useFormValidation';
 import QuestionRenderer from './QuestionRenderer.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
 import QuestionProgress from './QuestionProgress.vue';
@@ -234,22 +269,51 @@ const props = defineProps<Props>();
 const responseStore = useResponseStore();
 const displayMode = ref<'single' | 'all'>('single');
 
-// ============================================================================
-// 計算屬性
-// ============================================================================
-
-// 使用 storeToRefs 正確解構響應式屬性
+// 初始化驗證系統
 const {
   currentSurvey,
   currentResponse,
-  isLoading,
-  isSubmitting,
-  errorMessage,
   questions,
   currentQuestion,
   progressPercentage,
   canSubmit,
+  isLoading,
+  isSubmitting,
+  errorMessage,
 } = storeToRefs(responseStore);
+
+// 初始化表單驗證
+const {
+  validationState,
+  getFieldValidation,
+  getFieldErrors,
+  getFieldWarnings,
+  isFieldValid,
+  hasFieldError,
+  errorFields,
+  validateField,
+  validateAll,
+  touchField,
+} = useFormValidation(questions);
+
+// ============================================================================
+// 提供驗證上下文給子組件
+// ============================================================================
+
+// 創建驗證上下文對象，確保函數能正確綁定
+const validationContext = {
+  getFieldValidation: (questionId: string) => getFieldValidation.value(questionId),
+  getFieldErrors: (questionId: string) => getFieldErrors.value(questionId),
+  getFieldWarnings: (questionId: string) => getFieldWarnings.value(questionId),
+  isFieldValid: (questionId: string) => isFieldValid.value(questionId),
+  hasFieldError: (questionId: string) => hasFieldError.value(questionId),
+};
+
+provide('validationContext', validationContext);
+
+// ============================================================================
+// 計算屬性
+// ============================================================================
 
 const currentQuestionIndex = computed(() => {
   return currentResponse.value?.currentQuestionIndex || 0;
@@ -299,6 +363,31 @@ const questionDotClasses = (index: number) => [
       ? 'bg-green-100 text-green-700 border border-green-300'
       : 'bg-gray-100 text-gray-600 border border-gray-300',
 ];
+
+/** 混合式驗證相關計算屬性 */
+// 檢查當前題目是否為必填且未完成
+const isCurrentQuestionRequiredAndIncomplete = computed(() => {
+  const currentQ = currentQuestion.value;
+  if (!currentQ) return false;
+
+  // 檢查是否為必填題
+  if (!currentQ.required) return false;
+
+  // 檢查是否未完成
+  return !hasAnswer(currentQ.id);
+});
+
+// 導航驗證錯誤訊息
+const navigationValidationError = computed(() => {
+  if (isCurrentQuestionRequiredAndIncomplete.value) {
+    const currentQ = currentQuestion.value;
+    return {
+      message: `請先完成第 ${currentQuestionIndex.value + 1} 題 (${currentQ?.title || '必填題目'}) 後再繼續`,
+      type: 'required' as const,
+    };
+  }
+  return null;
+});
 
 // ============================================================================
 // 方法
@@ -352,9 +441,26 @@ function hasAnswer(questionId: string): boolean {
 }
 
 /**
- * 移動到下一題
+ * 移動到下一題 - 實作混合式驗證模式
  */
 function nextQuestion(): void {
+  const currentQ = currentQuestion.value;
+  if (!currentQ) return;
+
+  // 觸發當前題目的失焦驗證
+  const currentAnswer = getCurrentAnswerValue(currentQ.id);
+  validateField(currentQ.id, currentAnswer, 'blur');
+
+  // 檢查當前題目是否為必填且未完成
+  if (isCurrentQuestionRequiredAndIncomplete.value) {
+    // 標記該題為已觸碰，確保顯示驗證錯誤
+    touchField(currentQ.id);
+
+    // 不允許移動，用戶會看到驗證錯誤訊息
+    return;
+  }
+
+  // 允許移動到下一題
   responseStore.nextQuestion();
 }
 
@@ -366,9 +472,42 @@ function previousQuestion(): void {
 }
 
 /**
- * 跳轉到指定題目
+ * 跳轉到指定題目 - 支援混合式驗證
  */
 function goToQuestion(index: number): void {
+  const currentIndex = currentQuestionIndex.value;
+  const currentQ = currentQuestion.value;
+
+  // 觸發當前題目的驗證
+  if (currentQ) {
+    const currentAnswer = getCurrentAnswerValue(currentQ.id);
+    validateField(currentQ.id, currentAnswer, 'blur');
+  }
+
+  // 如果是向後跳轉或跳轉到相同位置，允許自由移動
+  if (index <= currentIndex) {
+    responseStore.goToQuestion(index);
+    return;
+  }
+
+  // 向前跳轉：檢查中間是否有未完成的必填題
+  if (!questions.value) return;
+
+  for (let i = currentIndex; i < index; i++) {
+    const question = questions.value[i];
+    if (question?.required && !hasAnswer(question.id)) {
+      // 發現未完成的必填題，標記為已觸碰並阻止跳轉
+      touchField(question.id);
+
+      // 跳轉到第一個未完成的必填題
+      if (i !== currentIndex) {
+        responseStore.goToQuestion(i);
+      }
+      return;
+    }
+  }
+
+  // 所有中間的必填題都已完成，允許跳轉
   responseStore.goToQuestion(index);
 }
 
@@ -406,10 +545,48 @@ function getQuestionIndex(questionId: string): number {
 }
 
 /**
+ * 處理驗證事件
+ */
+function handleValidation(
+  questionId: string,
+  value: any,
+  trigger: 'input' | 'blur' | 'focus'
+): void {
+  // 使用新的驗證系統驗證單一題目
+  validateField(questionId, value, trigger);
+}
+
+/**
+ * 處理觸摸事件
+ */
+function handleTouch(questionId: string): void {
+  // 標記題目為已觸摸
+  touchField(questionId);
+}
+
+/**
  * 提交問卷
  */
 async function handleSubmit(): Promise<void> {
   try {
+    // 先進行完整驗證
+    const validationResult = validateAll('submit');
+
+    if (!validationResult.isValid) {
+      console.warn('[SurveyRenderer] 問卷驗證失敗:', validationResult.errors);
+
+      // 顯示第一個錯誤題目
+      const firstErrorField = errorFields.value[0];
+      if (firstErrorField) {
+        const questionIndex = getQuestionIndex(firstErrorField.questionId);
+        if (questionIndex >= 0) {
+          responseStore.goToQuestion(questionIndex);
+        }
+      }
+
+      return;
+    }
+
     const submissionId = await responseStore.submitResponse();
     console.warn('[SurveyRenderer] 問卷提交成功:', submissionId);
 
