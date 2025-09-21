@@ -60,6 +60,57 @@
 // ✅ 正確：建立 /server/utils/client-ip.ts 共用模組
 ```
 
+#### 1.3 完整進度同步（Complete Progress Synchronization）
+
+**原則**：每次任務完成必須同步更新所有相關文檔，確保進度一致性
+
+**🔴 強制要求**：
+
+1. **Roadmap + Tasks 雙重更新**：
+
+   ```bash
+   # ❌ 錯誤：只更新 Roadmap，忽略 Tasks 文檔
+   # ✅ 正確：同時更新兩個文檔
+
+   完成任務 → 更新 /smartsurvey-roadmap.md
+            ↓
+           更新 /docs/tasks/phase1/X-task-name.md
+   ```
+
+2. **版控前 README 檢查**：
+
+   ```bash
+   # 🔍 提交前必檢項目：
+   - [ ] 新增/修改的重要資料夾是否有 README？
+   - [ ] 現有 README 是否反映檔案異動？
+   - [ ] 功能狀態是否正確標記？
+
+   # 📋 重要資料夾定義：
+   - pages/, components/, server/, stores/, utils/
+   - 任何包含 3+ 檔案的功能目錄
+   ```
+
+**執行時機**：
+
+- ✅ **功能開發完成時**：先測試 → 後更新文檔
+- ✅ **提交到版控前**：確認 README 同步性
+- ✅ **檔案異動時**：立即評估是否影響 README
+
+**實際案例**：
+
+```typescript
+// ✅ 正確流程範例：
+// 1. 完成 Task 3.4 預覽功能
+// 2. 測試確認功能正常
+// 3. 更新 /docs/tasks/phase1/3-survey-builder.md (Task 詳細狀態)
+// 4. 更新 /smartsurvey-roadmap.md (總體進度)
+// 5. 檢查並更新 /apps/web/app/components/README.md (新增組件)
+// 6. 提交到版控
+
+// ❌ 錯誤示範：
+// 完成功能 → 直接提交 → 忘記更新文檔 → 進度不一致
+```
+
 ### 2. 協作模式：教學導向開發（Learning-Driven Development）
 
 **核心原則**：這是一個教學專案，透過實作學習，而非直接完成。
@@ -1059,6 +1110,8 @@ docs: 新增開發工作流程指引
 - 2025-09-20：新增強制類型檢查準則，禁止使用 any 規避問題
 - 2025-09-20：建立強制 README 文檔管理規範，實現 Documentation as Code
 - 2025-01-20：建立擴充點檢查流程準則，確保功能完成後進行未來擴充需求分析
+- 2025-01-21：新增完整進度同步準則，強化 Roadmap +
+  Tasks 雙重更新與 README 同步機制
 
 ---
 

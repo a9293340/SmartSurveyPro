@@ -56,6 +56,7 @@
 | **共享套件**   | `/packages/README.md`        | 套件開發和管理       | ✅ 最新  |
 | **共享基礎包** | `/packages/shared/README.md` | 類型、工具、常數說明 | ✅ 最新  |
 | **自動化腳本** | `/scripts/README.md`         | 腳本使用和開發指南   | ✅ 最新  |
+| **教學中心**   | `/docs/tutorials/README.md`  | 深度技術教學與學習   | 🆕 新增  |
 
 ---
 
@@ -109,6 +110,12 @@
 
 ```
 👀 查看：/docs/tasks/README.md + /smartsurvey-roadmap.md
+```
+
+#### 🎓 學習與教學
+
+```
+👀 查看：/docs/tutorials/README.md + /docs/tutorials/state-management-guide.md
 ```
 
 ---
