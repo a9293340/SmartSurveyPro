@@ -19,8 +19,13 @@ class DatabaseConnection {
     };
   }
 
-  // TODO(human): 實作連接邏輯的核心部分
-  async connect(uri?: string): Promise<Db> {
+  /**
+   * 連接到 MongoDB 資料庫
+   * @param uri - MongoDB 連接字串（必要參數，由外部提供）
+   * @param dbName - 資料庫名稱（必要參數，由外部提供）
+   * @returns Promise<Db> - MongoDB 資料庫實例
+   */
+  async connect(uri?: string, dbName?: string): Promise<Db> {
     // 如果已經連接，直接返回
     if (this.db && this.client) {
       return this.db;
@@ -38,14 +43,16 @@ class DatabaseConnection {
     this.isConnecting = true;
 
     try {
-      const connectionUri = uri || process.env.MONGODB_URI;
-      const dbName = process.env.MONGODB_DB_NAME || 'smartsurvey_dev';
-
-      if (!connectionUri) {
-        throw new Error('MongoDB URI 未設定');
+      // 驗證必要參數
+      if (!uri) {
+        throw new Error('MongoDB URI 參數為必要，請提供有效的連接字串');
       }
 
-      this.client = new MongoClient(connectionUri, this.getConnectionOptions());
+      if (!dbName) {
+        throw new Error('資料庫名稱參數為必要，請提供有效的資料庫名稱');
+      }
+
+      this.client = new MongoClient(uri, this.getConnectionOptions());
       await this.client.connect();
       this.db = this.client.db(dbName);
 
@@ -104,8 +111,8 @@ class DatabaseConnection {
 export const dbConnection = new DatabaseConnection();
 
 // 便捷函數
-export async function connectToDatabase(uri?: string): Promise<Db> {
-  return dbConnection.connect(uri);
+export async function connectToDatabase(uri?: string, dbName?: string): Promise<Db> {
+  return dbConnection.connect(uri, dbName);
 }
 
 // 取得客戶端連接（用於交易等）

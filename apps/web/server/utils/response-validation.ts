@@ -13,7 +13,7 @@ import {
   SubmitResponseRequestSchema,
   validateAnswerByQuestionType,
 } from '@smartsurvey/shared';
-import { connectToDatabase } from '@smartsurvey/shared';
+import { dbConnection } from '@smartsurvey/shared';
 import { ObjectId } from 'mongodb';
 import { getClientIP } from './client-ip';
 
@@ -52,7 +52,7 @@ export async function validateSurveyAvailable(surveyId: string): Promise<{
   error?: string;
 }> {
   try {
-    const db = await connectToDatabase();
+    const db = dbConnection.getDatabase();
 
     const survey = await db.collection('surveys').findOne({
       _id: new ObjectId(surveyId),
@@ -270,7 +270,7 @@ export async function checkDuplicateSubmission(
   answers: Record<string, any>
 ): Promise<DuplicateCheckResult> {
   try {
-    const db = await connectToDatabase();
+    const db = dbConnection.getDatabase();
     const clientIP = getClientIP(event);
     const userAgent = getHeader(event, 'user-agent') || '';
 

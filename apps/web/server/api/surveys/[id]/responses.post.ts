@@ -15,8 +15,7 @@ import {
   type SubmitResponseRequest,
   type SubmitResponseResponse,
   type QuestionAnswerData,
-  connectToDatabase,
-  getClient,
+  dbConnection,
 } from '@smartsurvey/shared';
 import { ObjectId } from 'mongodb';
 import { getClientIP } from '../../../utils/client-ip';
@@ -200,8 +199,8 @@ export default defineEventHandler(async (event): Promise<SubmitResponseResponse>
     // 7. 儲存到資料庫
     // ========================================================================
 
-    const db = await connectToDatabase();
-    const client = getClient();
+    const db = dbConnection.getDatabase();
+    const client = dbConnection.getClient();
 
     // 開始交易
     const session = client.startSession();

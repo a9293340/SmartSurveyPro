@@ -10,13 +10,15 @@
 
 ### 🏗️ 主要組件
 
-| 檔案名稱                | 功能說明           | 狀態      | 依賴關係          |
-| ----------------------- | ------------------ | --------- | ----------------- |
-| `SurveyRenderer.vue`    | 問卷渲染引擎主組件 | ✅ 已完成 | useResponseStore  |
-| `QuestionRenderer.vue`  | 通用題目渲染組件   | ✅ 已完成 | 動態輸入組件      |
-| `ProgressIndicator.vue` | 進度指示器組件     | ✅ 已完成 | useResponseStore  |
-| `QuestionProgress.vue`  | 題目進度概覽組件   | ✅ 已完成 | useResponseStore  |
-| `ValidationMessage.vue` | 驗證訊息顯示組件   | ✅ 已完成 | useFormValidation |
+| 檔案名稱                      | 功能說明           | 狀態      | 依賴關係          |
+| ----------------------------- | ------------------ | --------- | ----------------- |
+| `SurveyRenderer.vue`          | 問卷渲染引擎主組件 | ✅ 已完成 | useResponseStore  |
+| `QuestionRenderer.vue`        | 通用題目渲染組件   | ✅ 已完成 | 動態輸入組件      |
+| `ProgressIndicator.vue`       | 進度指示器組件     | ✅ 已完成 | useResponseStore  |
+| `QuestionProgress.vue`        | 題目進度概覽組件   | ✅ 已完成 | useResponseStore  |
+| `ValidationMessage.vue`       | 驗證訊息顯示組件   | ✅ 已完成 | useFormValidation |
+| `SubmissionSuccess.vue`       | 提交成功頁面組件   | ✅ 已完成 | useSubmission     |
+| `SubmissionSuccessSimple.vue` | 簡化提交成功組件   | ✅ 已完成 | 獨立使用          |
 
 ### 🎨 輸入組件
 

@@ -781,20 +781,46 @@ survey-builder/
 
 ### 環境變數使用規範 🔑
 
-**必讀文件**：[環境變數管理系統設計](/docs/design/environment-variables-management.md)
+**🚨 重要提醒：所有環境變數相關開發都必須先執行以下檢查**
 
-**快速判斷規則**：
+#### 開發前強制檢查流程
+
+1. **📋 必讀設計文件**：
+   - **強制閱讀**：`/docs/design/environment-variables-management.md`
+   - 理解機敏資料 vs 配置資料的分類原則
+   - 了解 EnvManager 的使用方法
+
+2. **🔍 檢查現有環境檔案**：
+
+   ```bash
+   # 🔴 開發任何 server/client 功能前，必須先檢查
+   ls -la .env.local     # 確認檔案是否存在
+   cat .env.local        # 檢查現有環境變數
+   ```
+
+3. **⚡ 使用現有 EnvManager**：
+   - 檢查 `/apps/web/server/utils/env-manager.ts`
+   - 優先使用現有的 `env.getSecret()` 和 `env.getDatabaseConfig()`
+   - **禁止直接使用 `process.env.VARIABLE_NAME`**
+
+#### 快速判斷規則
 
 ```typescript
-// 🔴 機敏資料 → 使用 process.env 或 env.getSecret()
-(-JWT_SECRET,
-  API_KEYS,
-  DATABASE_PASSWORD -
-    // 🟡 配置資料 → 使用 useRuntimeConfig()
-    API_BASE,
-  APP_NAME,
-  FEATURE_FLAGS);
+// 🔴 機敏資料 → 使用 env.getSecret() 或 env.getSecretSafe()
+// JWT_SECRET, API_KEYS, DATABASE_PASSWORD, MONGODB_URI
+
+// 🟡 配置資料 → 使用 useRuntimeConfig()
+// API_BASE, APP_NAME, FEATURE_FLAGS
 ```
+
+#### 違規檢查清單
+
+**❌ 絕對禁止的行為：**
+
+- 未讀設計文件就開始開發環境變數相關功能
+- 未檢查 `.env.local` 就要求新增環境變數
+- 繞過 EnvManager 直接使用 `process.env`
+- 重複實作已存在的環境變數管理邏輯
 
 ### TODO 管理規範 📋
 

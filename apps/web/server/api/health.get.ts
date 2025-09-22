@@ -1,44 +1,39 @@
-import { connectToDatabase, connectToRedis } from '@smartsurvey/shared/server';
-import type { Db } from 'mongodb';
+import { dbConnection, connectToRedis } from '@smartsurvey/shared/server';
 import type { RedisClientType } from 'redis';
 import { env } from '../utils/env-manager';
 
 /**
  * 健康檢查 API
  * GET /api/health
+ * 使用統一的環境變數管理和預先建立的資料庫連接
  */
 export default defineEventHandler(async event => {
   // 檢查 MongoDB 連線狀態
   let databaseStatus = 'unhealthy';
-  let databaseError = null;
+  let databaseError: string | null = null;
 
-  // 使用 env-manager 檢查環境變數（機敏資料）
-  let mongoUri: string | undefined;
   try {
-    mongoUri = env.getSecretSafe('MONGODB_URI');
-    console.log('mongoUri', mongoUri);
-  } catch (error) {
-    console.error('無法讀取 MONGODB_URI:', error);
-  }
+    // 使用統一的環境變數管理取得資料庫配置
+    const dbConfig = env.getDatabaseConfig();
 
-  if (!mongoUri) {
-    databaseStatus = 'error';
-    databaseError = 'MONGODB_URI 環境變數未設定';
-  } else {
-    try {
-      const db = (await connectToDatabase()) as unknown as Db;
-      if (db) {
-        // 執行 ping 測試
-        await db.admin().ping();
-        databaseStatus = 'operational';
-      } else {
-        throw new Error('資料庫連線返回 null');
-      }
-    } catch (error) {
-      databaseStatus = 'error';
-      databaseError = error instanceof Error ? error.message : 'Unknown error';
-      console.error('MongoDB health check failed:', error);
+    // 檢查環境變數是否正確載入
+    if (!dbConfig.mongoUri || !dbConfig.dbName) {
+      throw new Error('資料庫配置不完整');
     }
+
+    // 檢查預先建立的資料庫連接狀態
+    if (dbConnection.isConnected()) {
+      // 使用已建立的連接進行 ping 測試
+      const db = dbConnection.getDatabase();
+      await db.admin().ping();
+      databaseStatus = 'operational';
+    } else {
+      throw new Error('資料庫連接未建立');
+    }
+  } catch (error) {
+    databaseStatus = 'error';
+    databaseError = error instanceof Error ? error.message : 'Unknown error';
+    console.error('MongoDB health check failed:', error);
   }
 
   // 檢查 Redis 連線狀態（如果啟用）

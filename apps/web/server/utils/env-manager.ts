@@ -96,12 +96,12 @@ export class EnvManager {
 
     if (missingVars.length > 0) {
       throw new Error(
-        `缺少必要的環境變數:\n${missingVars.join('\n')}\n` + `請檢查 .env.local 檔案或環境設定`
+        `缺少必要的環境變數:\n${missingVars.join('\n')}\n請檢查 .env.local 檔案或環境設定`
       );
     }
 
     this.validated = true;
-    console.log('✅ 環境變數驗證完成');
+    console.info('✅ 環境變數驗證完成');
   }
 
   /**
@@ -123,6 +123,7 @@ export class EnvManager {
   getDatabaseConfig() {
     return {
       mongoUri: this.getSecret('MONGODB_URI'),
+      dbName: this.getSecretSafe('MONGODB_DB_NAME', 'smartsurvey-dev'),
       redisUrl: this.getSecretSafe('REDIS_URL'),
     };
   }

@@ -28,7 +28,6 @@ const PUBLIC_PATHS = [
   '/api/auth/forgot-password',
   '/api/health',
   '/api/version',
-  '/api/surveys', // 暫時開放問卷相關路徑用於測試
 ];
 
 /**
@@ -46,6 +45,13 @@ function isProtectedPath(path: string): boolean {
 
   // 檢查是否匹配帶有子路徑的公開路徑
   if (PUBLIC_PATHS.some(path => pathname.startsWith(`${path}/`))) {
+    return false;
+  }
+
+  // 特定的匿名訪問路徑（問卷相關）
+  // 問卷回應提交：POST /api/surveys/[id]/responses
+  // 允許匿名用戶填寫已發布的問卷，但其他 surveys API 仍需認證
+  if (pathname.match(/^\/api\/surveys\/[^/]+\/responses$/)) {
     return false;
   }
 
