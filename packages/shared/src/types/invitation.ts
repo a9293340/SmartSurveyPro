@@ -3,7 +3,7 @@
  * 包含邀請實體、邀請流程、邀請狀態等相關介面
  */
 
-import { BaseEntity, EntityId } from './common';
+import { BaseEntity, EntityId } from './common.js';
 
 // === 邀請狀態 ===
 export enum InvitationStatus {

@@ -9,7 +9,7 @@ import {
   type NotificationPreferences,
   type ContactInfo,
   type Settings,
-} from './common';
+} from './common.js';
 
 // === 用戶狀態 ===
 export enum UserStatus {

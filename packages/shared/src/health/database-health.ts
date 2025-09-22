@@ -1,5 +1,5 @@
-import { connectToDatabase, dbConnection } from '../db/connection';
-import { redisConnection } from '../db/redis';
+import { connectToDatabase, dbConnection } from '../db/connection.js';
+import { redisConnection } from '../db/redis.js';
 
 // 健康檢查結果介面
 export interface ServiceHealth {

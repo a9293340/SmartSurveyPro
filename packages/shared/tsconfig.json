@@ -6,8 +6,10 @@
     "declaration": true,
     "declarationMap": true,
     "emitDeclarationOnly": false,
-    "moduleResolution": "node",
-    "module": "ESNext"
+    "moduleResolution": "bundler",
+    "module": "ESNext",
+    "allowImportingTsExtensions": false,
+    "noEmit": false
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.spec.*"]

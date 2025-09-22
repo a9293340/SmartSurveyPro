@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema, EntityIdSchema, ColorCodeSchema } from './common';
+import { BaseEntitySchema, EntityIdSchema, ColorCodeSchema } from './common.js';
 
 // === 權限相關 schemas ===
 export const PermissionResourceSchema = z.enum(['survey', 'analytics', 'team', 'role', 'group'], {

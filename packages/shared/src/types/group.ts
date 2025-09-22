@@ -3,7 +3,7 @@
  * 包含群組實體、訂閱方案、使用限制等相關介面
  */
 
-import { BaseEntity, EntityId, Settings } from './common';
+import { BaseEntity, EntityId, Settings } from './common.js';
 
 // === 訂閱方案層級 ===
 export enum SubscriptionTier {

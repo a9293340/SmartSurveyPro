@@ -15,7 +15,7 @@ import {
   SettingsSchema,
   NotificationPreferencesSchema,
   UrlSchema,
-} from './common';
+} from './common.js';
 
 // === 用戶狀態 schema ===
 export const UserStatusSchema = z.enum(['active', 'unverified', 'suspended', 'deleted'], {

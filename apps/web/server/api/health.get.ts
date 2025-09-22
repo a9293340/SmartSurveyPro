@@ -1,20 +1,25 @@
 import { connectToDatabase, connectToRedis } from '@smartsurvey/shared/server';
 import type { Db } from 'mongodb';
 import type { RedisClientType } from 'redis';
+import { env } from '../utils/env-manager';
 
 /**
  * 健康檢查 API
  * GET /api/health
  */
 export default defineEventHandler(async event => {
-  const config = useRuntimeConfig();
-
   // 檢查 MongoDB 連線狀態
   let databaseStatus = 'unhealthy';
   let databaseError = null;
 
-  // 檢查環境變數
-  const mongoUri = config.mongodbUri;
+  // 使用 env-manager 檢查環境變數（機敏資料）
+  let mongoUri: string | undefined;
+  try {
+    mongoUri = env.getSecretSafe('MONGODB_URI');
+    console.log('mongoUri', mongoUri);
+  } catch (error) {
+    console.error('無法讀取 MONGODB_URI:', error);
+  }
 
   if (!mongoUri) {
     databaseStatus = 'error';
@@ -38,7 +43,10 @@ export default defineEventHandler(async event => {
 
   // 檢查 Redis 連線狀態（如果啟用）
   let redisStatus = 'not_configured';
-  if (process.env.ENABLE_REDIS_CACHE === 'true' && process.env.REDIS_URL) {
+  const redisUrl = env.getSecretSafe('REDIS_URL');
+  const enableRedis = env.getSecretSafe('ENABLE_REDIS_CACHE', 'false');
+
+  if (enableRedis === 'true' && redisUrl) {
     try {
       const client = (await connectToRedis()) as unknown as RedisClientType;
       if (client) {

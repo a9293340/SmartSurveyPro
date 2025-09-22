@@ -11,7 +11,7 @@ import {
   type QuestionBuilder,
   type ChoiceValidationRule,
   type TextValidationRule,
-} from '../types/question';
+} from '../types/question.js';
 
 // ============================================================================
 // Phase 1 支援的題型定義

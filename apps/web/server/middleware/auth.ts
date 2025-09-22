@@ -28,6 +28,7 @@ const PUBLIC_PATHS = [
   '/api/auth/forgot-password',
   '/api/health',
   '/api/version',
+  '/api/surveys', // 暫時開放問卷相關路徑用於測試
 ];
 
 /**

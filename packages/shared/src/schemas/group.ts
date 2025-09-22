@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema, EntityIdSchema, SettingsSchema, UrlSchema } from './common';
+import { BaseEntitySchema, EntityIdSchema, SettingsSchema, UrlSchema } from './common.js';
 
 // === 訂閱方案層級 schema ===
 export const SubscriptionTierSchema = z.enum(['free', 'pro', 'team', 'enterprise'], {

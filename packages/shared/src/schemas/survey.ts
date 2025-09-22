@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod';
-import { SurveyStatus, SurveyType, SurveyVisibility } from '../types/survey';
-import { EntityIdSchema } from './common';
+import { SurveyStatus, SurveyType, SurveyVisibility } from '../types/survey.js';
+import { EntityIdSchema } from './common.js';
 
 // ============================================================================
 // 基礎驗證 Schema

@@ -4,8 +4,8 @@
  */
 
 // 從相關型別檔案匯入必要的型別
-import type { EntityId } from './common';
-import type { Question } from './question';
+import type { EntityId } from './common.js';
+import type { Question } from './question.js';
 
 // ============================================================================
 // 基礎列舉類型

@@ -334,17 +334,20 @@ export const useResponseStore = defineStore('response', () => {
       };
 
       // 提交到 API
-      const result = await $fetch<{ submissionId: string }>('/api/responses', {
-        method: 'POST',
-        body: submissionData,
-      });
+      const result = await $fetch<{ responseId: string }>(
+        `/api/surveys/${currentResponse.value.surveyId}/responses`,
+        {
+          method: 'POST',
+          body: submissionData,
+        }
+      );
 
       // 更新提交狀態
       currentResponse.value.isSubmitted = true;
-      currentResponse.value.submissionId = result.submissionId;
+      currentResponse.value.submissionId = result.responseId;
 
-      console.warn('[Response] 問卷提交成功:', result.submissionId);
-      return result.submissionId;
+      console.warn('[Response] 問卷提交成功:', result.responseId);
+      return result.responseId;
     } catch (error) {
       console.error('[Response] 提交問卷失敗:', error);
       errorMessage.value = '提交失敗，請稍後再試';

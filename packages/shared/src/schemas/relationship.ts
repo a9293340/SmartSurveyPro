@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema, EntityIdSchema, EmailSchema, UrlSchema } from './common';
+import { BaseEntitySchema, EntityIdSchema, EmailSchema, UrlSchema } from './common.js';
 
 // === 用戶群組狀態 schema ===
 export const UserGroupStatusSchema = z.enum(['active', 'pending', 'blocked', 'removed'], {

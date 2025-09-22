@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod';
-import { BaseEntitySchema, EntityIdSchema, EmailSchema, UrlSchema } from './common';
+import { BaseEntitySchema, EntityIdSchema, EmailSchema, UrlSchema } from './common.js';
 
 // === 邀請狀態 schema ===
 export const InvitationStatusSchema = z.enum(

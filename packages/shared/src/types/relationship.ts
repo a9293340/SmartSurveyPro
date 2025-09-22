@@ -3,7 +3,7 @@
  * 包含用戶-群組-角色關聯、成員管理等相關介面
  */
 
-import { BaseEntity, EntityId } from './common';
+import { BaseEntity, EntityId } from './common.js';
 
 // === 用戶群組狀態 ===
 export enum UserGroupStatus {

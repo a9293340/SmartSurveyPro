@@ -3,7 +3,7 @@
  * 包含權限、角色、ABAC 模型等相關介面
  */
 
-import { BaseEntity, EntityId } from './common';
+import { BaseEntity, EntityId } from './common.js';
 
 // === 權限資源類型 ===
 export type PermissionResource = 'survey' | 'analytics' | 'team' | 'role' | 'group';

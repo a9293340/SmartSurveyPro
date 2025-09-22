@@ -90,6 +90,14 @@ class DatabaseConnection {
     }
     return this.db;
   }
+
+  // 取得客戶端實例
+  getClient(): MongoClient {
+    if (!this.client) {
+      throw new Error('客戶端未連接，請先呼叫 connect()');
+    }
+    return this.client;
+  }
 }
 
 // 單例模式：全專案共用一個連接實例
@@ -98,6 +106,11 @@ export const dbConnection = new DatabaseConnection();
 // 便捷函數
 export async function connectToDatabase(uri?: string): Promise<Db> {
   return dbConnection.connect(uri);
+}
+
+// 取得客戶端連接（用於交易等）
+export function getClient(): MongoClient {
+  return dbConnection.getClient();
 }
 
 export function getDatabase(): Db {
