@@ -15,8 +15,8 @@ import {
   type SubmitResponseRequest,
   type SubmitResponseResponse,
   type QuestionAnswerData,
-  dbConnection,
 } from '@smartsurvey/shared';
+import { dbConnection } from '@smartsurvey/shared/server';
 import { ObjectId } from 'mongodb';
 import { getClientIP } from '../../../utils/client-ip';
 import {
@@ -57,6 +57,14 @@ export default defineEventHandler(async (event): Promise<SubmitResponseResponse>
 
     const requestBody = await readBody(event);
 
+    console.warn('[Response API] 📥 收到原始請求資料:', {
+      surveyId,
+      clientIP: getClientIP(event),
+      bodyType: typeof requestBody,
+      bodyKeys: requestBody ? Object.keys(requestBody) : 'null',
+      requestBody,
+    });
+
     // ========================================================================
     // 2. 驗證請求資料格式
     // ========================================================================
@@ -64,6 +72,13 @@ export default defineEventHandler(async (event): Promise<SubmitResponseResponse>
     const validationResult = await validateSubmissionRequest(requestBody);
 
     if (!validationResult.isValid || !validationResult.data) {
+      console.error('[Response API] ❌ 請求資料驗證失敗:', {
+        isValid: validationResult.isValid,
+        errors: validationResult.errors,
+        hasData: !!validationResult.data,
+        originalBody: requestBody,
+      });
+
       throw createError({
         statusCode: 400,
         statusMessage: `請求資料格式錯誤: ${validationResult.errors.join(', ')}`,
@@ -114,6 +129,15 @@ export default defineEventHandler(async (event): Promise<SubmitResponseResponse>
           .filter(result => !result.isValid)
           .flatMap(result => result.errors),
       ];
+
+      console.error('[Response API] ❌ 回應驗證失敗 (422):', {
+        surveyId,
+        globalErrors: responseValidation.globalErrors,
+        questionResults: responseValidation.questionResults,
+        allErrors,
+        answersReceived: Object.keys(requestData.answers),
+        surveyQuestions: survey.questions?.map(q => ({ id: q.id, required: q.required })),
+      });
 
       throw createError({
         statusCode: 422,

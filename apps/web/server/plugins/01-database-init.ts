@@ -5,7 +5,7 @@
  */
 
 import { env } from '../utils/env-manager';
-import { dbConnection } from '@smartsurvey/shared';
+import { dbConnection } from '@smartsurvey/shared/server';
 
 export default defineNitroPlugin(async () => {
   console.info('🗄️ 開始資料庫連接初始化...');

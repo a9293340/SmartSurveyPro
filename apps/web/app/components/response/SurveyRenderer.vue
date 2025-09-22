@@ -249,7 +249,7 @@ import { useFormValidation } from '~/composables/useFormValidation';
 import QuestionRenderer from './QuestionRenderer.vue';
 import ProgressIndicator from './ProgressIndicator.vue';
 import QuestionProgress from './QuestionProgress.vue';
-import type { Question } from '@smartsurvey/shared';
+import type { Question, Survey } from '@smartsurvey/shared';
 import { QuestionType, SurveyStatus, SurveyType, SurveyVisibility } from '@smartsurvey/shared';
 
 // ============================================================================

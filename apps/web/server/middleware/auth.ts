@@ -50,8 +50,14 @@ function isProtectedPath(path: string): boolean {
 
   // 特定的匿名訪問路徑（問卷相關）
   // 問卷回應提交：POST /api/surveys/[id]/responses
+  // 問卷資料讀取：GET /api/surveys/[id] (僅限已發布的問卷)
   // 允許匿名用戶填寫已發布的問卷，但其他 surveys API 仍需認證
   if (pathname.match(/^\/api\/surveys\/[^/]+\/responses$/)) {
+    return false;
+  }
+
+  // 允許匿名用戶查看單一問卷資料（用於填寫頁面）
+  if (pathname.match(/^\/api\/surveys\/[^/]+$/) && !pathname.includes('/edit')) {
     return false;
   }
 

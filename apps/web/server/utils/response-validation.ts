@@ -13,7 +13,7 @@ import {
   SubmitResponseRequestSchema,
   validateAnswerByQuestionType,
 } from '@smartsurvey/shared';
-import { dbConnection } from '@smartsurvey/shared';
+import { dbConnection } from '@smartsurvey/shared/server';
 import { ObjectId } from 'mongodb';
 import { getClientIP } from './client-ip';
 

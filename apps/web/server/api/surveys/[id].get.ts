@@ -10,8 +10,9 @@
  */
 
 import { z } from 'zod';
+import { ObjectId } from 'mongodb';
 import type { Survey } from '@smartsurvey/shared';
-import { requireAuth } from '../../middleware/auth';
+import { requireAuth, getUser } from '../../middleware/auth';
 import { connectToDatabase } from '@smartsurvey/shared/server';
 
 // 路徑參數驗證 Schema
@@ -21,8 +22,8 @@ const paramsSchema = z.object({
 
 export default defineEventHandler(async event => {
   try {
-    // 1. 驗證用戶身份
-    const user = requireAuth(event);
+    // 1. 獲取用戶身份（可選，用於判斷權限模式）
+    const user = getUser(event);
 
     // 2. 驗證路徑參數
     const surveyId = getRouterParam(event, 'id');
@@ -36,16 +37,30 @@ export default defineEventHandler(async event => {
     const db = await connectToDatabase();
     const surveysCollection = db.collection<Survey>('surveys');
 
-    const survey = await surveysCollection.findOne({
-      _id: validatedParams.id,
-      ownerId: user.userId, // 確保用戶只能查詢自己的問卷
-    });
+    let survey: Survey | null;
+
+    // 將字串 ID 轉換為 ObjectId
+    const objectId = new ObjectId(validatedParams.id);
+
+    if (user) {
+      // 已認證用戶：可以查詢自己的所有問卷（包含草稿）
+      survey = await surveysCollection.findOne({
+        _id: objectId,
+        ownerId: new ObjectId(user.userId), // 確保用戶只能查詢自己的問卷
+      } as any);
+    } else {
+      // 匿名用戶：只能查詢已發布的公開問卷
+      survey = await surveysCollection.findOne({
+        _id: objectId,
+        status: 'published', // 只允許查詢已發布的問卷
+      } as any);
+    }
 
     // 4. 檢查問卷是否存在
     if (!survey) {
       throw createError({
         statusCode: 404,
-        statusMessage: '問卷不存在或無權限查詢',
+        statusMessage: user ? '問卷不存在或無權限查詢' : '問卷不存在或尚未發布',
       });
     }
 

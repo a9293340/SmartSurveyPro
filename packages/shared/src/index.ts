@@ -53,8 +53,8 @@ export * from './schemas/relationship.js';
 export * from './constants/index.js';
 
 // === 伺服器端工具 ===
-export * from './server.js';
-export { getClient } from './db/connection.js';
+// 注意：伺服器端工具現在通過 '@smartsurvey/shared/server' 匯出
+// 避免在客戶端意外引入 MongoDB 依賴
 
 // 套件準備狀態
 export const SHARED_READY = true;

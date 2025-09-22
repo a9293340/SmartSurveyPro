@@ -160,6 +160,71 @@
 - **🚫 禁用 any 規避**：絕不使用 `any` 類型來規避問題，必須正確解決類型錯誤
 - **⚡ 主動類型驗證**：修改完成後立即測試，確保 TypeScript 編譯無錯誤
 - **📋 強制 README 文檔**：新增重要資料夾必須創建 README，修改任何檔案必須同步更新對應 README
+- **🔴 統一路徑引用規範**：避免路徑混亂導致的 TypeScript 錯誤，必須嚴格遵循以下規則：
+
+#### 路徑引用規範 🛣️
+
+**🔴 強制規則：絕對禁止混合使用不同路徑風格**
+
+1. **Shared 套件引用**：
+
+   ```typescript
+   // ✅ 正確：統一從主入口點引用
+   import type {
+     SaveProgressRequest,
+     SaveProgressResponse,
+   } from '@smartsurvey/shared';
+
+   // ❌ 錯誤：不要使用子路徑引用
+   import type { SaveProgressRequest } from '@smartsurvey/shared/types/progress';
+   ```
+
+2. **環境變數和配置**：
+
+   ```typescript
+   // ✅ 正確：使用 Nuxt 的 useRuntimeConfig
+   const config = useRuntimeConfig();
+   const uri = config.mongodbUri;
+
+   // ❌ 錯誤：不要自定義環境變數管理器
+   import { env } from '~/server/utils/env-manager';
+   ```
+
+3. **相對路徑 vs 別名路徑**：
+
+   ```typescript
+   // ✅ 正確：優先使用相對路徑（短距離）
+   import { helper } from '../utils/helper';
+   import { Component } from './Component.vue';
+
+   // ✅ 正確：長距離或跨模組使用別名
+   import { useStore } from '~/stores/response';
+
+   // ❌ 錯誤：不必要的別名使用
+   import { helper } from '~/components/utils/helper'; // 同級目錄應用相對路徑
+   ```
+
+4. **錯誤處理類型**：
+
+   ```typescript
+   // ✅ 正確：明確的錯誤類型處理
+   } catch (error: unknown) {
+     if (error && typeof error === 'object' && 'statusCode' in error) {
+       throw error;
+     }
+   }
+
+   // ❌ 錯誤：使用 any 逃避類型檢查
+   } catch (error: any) {
+     if (error.statusCode) {
+   ```
+
+**⚡ 檢查清單**：
+
+- [ ] 所有 `@smartsurvey/shared` 引用都從主入口點引用
+- [ ] 沒有自定義的環境變數管理器引用
+- [ ] 相對路徑和別名路徑使用適當
+- [ ] 錯誤處理使用正確的類型標註
 
 ### 5. 代碼品質驗證 🔴 **必須遵守**
 
@@ -448,6 +513,193 @@ console.error('[Store] 資料更新失敗');
 1. Phase 1：使用 console.warn/error（當前）
 2. Phase 2：引入日誌系統，統一日誌介面
 3. Phase 3：整合監控平台，建立告警機制
+
+---
+
+## 🗄️ MongoDB 資料庫操作規範 🔴 **必須遵守**
+
+### 核心原則：直接資料庫操作優先
+
+**🎯 目標**：提供高效、安全的資料庫操作方式，避免複雜的 API 路徑，直接使用 mongosh 進行資料查詢和操作
+
+### 🔴 強制操作規範
+
+#### 1. 環境變數自動載入
+
+**✅ 正確方式：從 .env.local 讀取連線資訊**
+
+```bash
+# 🔧 自動從 .env.local 載入 MongoDB 連線
+source apps/web/.env.local && mongosh "$MONGODB_URI" --quiet
+
+# 🔧 一行命令進入指定資料庫
+source apps/web/.env.local && mongosh "$MONGODB_URI/$MONGODB_DATABASE" --quiet
+```
+
+#### 2. 常用資料庫操作模式
+
+**查詢資料**：
+
+```javascript
+// 查詢所有問卷
+db.surveys.find().limit(5);
+
+// 查詢特定問卷
+db.surveys.findOne({ _id: ObjectId('507f1f77bcf86cd799439011') });
+
+// 查詢已發布問卷
+db.surveys.find({ status: 'published' });
+
+// 查看問卷回應
+db.responses.find({ surveyId: ObjectId('507f1f77bcf86cd799439011') }).limit(3);
+```
+
+**新增測試資料**：
+
+```javascript
+// 新增測試問卷
+db.surveys.insertOne({
+  title: '測試問卷',
+  status: 'published',
+  questions: [
+    { id: 'q1', type: 'text_short', title: '您的姓名', required: true },
+    { id: 'q2', type: 'text_long', title: '意見回饋', required: false },
+  ],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+});
+```
+
+**更新資料**：
+
+```javascript
+// 更新問卷狀態
+db.surveys.updateOne(
+  { _id: ObjectId('507f1f77bcf86cd799439011') },
+  { $set: { status: 'published', updatedAt: new Date() } }
+);
+```
+
+#### 3. 快速檢查指令集
+
+**🔍 資料庫狀態檢查**：
+
+```bash
+# 檢查資料庫連線和集合
+source apps/web/.env.local && mongosh "$MONGODB_URI/$MONGODB_DATABASE" --quiet --eval "
+show collections;
+print('=== 問卷數量 ===');
+db.surveys.countDocuments();
+print('=== 回應數量 ===');
+db.responses.countDocuments();
+"
+```
+
+**📊 快速資料概覽**：
+
+```bash
+# 查看最新 3 筆問卷和回應
+source apps/web/.env.local && mongosh "$MONGODB_URI/$MONGODB_DATABASE" --quiet --eval "
+print('=== 最新問卷 ===');
+db.surveys.find().sort({createdAt: -1}).limit(3).forEach(s => print(s._id + ' | ' + s.title + ' | ' + s.status));
+print('=== 最新回應 ===');
+db.responses.find().sort({submittedAt: -1}).limit(3).forEach(r => print(r._id + ' | ' + r.surveyId));
+"
+```
+
+#### 4. 安全注意事項
+
+**🔐 資料保護**：
+
+- ✅ 只在開發環境使用直接資料庫操作
+- ✅ 正式環境必須透過 API 進行資料操作
+- ✅ 敏感操作前先備份資料
+- ❌ 絕不在生產環境執行 `drop` 或 `deleteMany` 操作
+
+**📝 操作記錄**：
+
+- 重要資料修改必須記錄在 commit message 中
+- 大量資料操作前先在測試環境驗證
+- 使用 `--dry-run` 模式預覽變更（如果支援）
+
+#### 5. 常見操作範例
+
+**🔧 開發測試場景**：
+
+```javascript
+// 建立完整測試問卷
+var testSurvey = {
+  title: '完整功能測試問卷',
+  description: '用於測試所有問卷功能的測試資料',
+  status: 'published',
+  type: 'standard',
+  questions: [
+    {
+      id: 'q1',
+      type: 'text_short',
+      title: '您的姓名',
+      description: '請輸入您的真實姓名',
+      required: true,
+      validation: { minLength: 2, maxLength: 50 },
+    },
+    {
+      id: 'q2',
+      type: 'single_choice',
+      title: '您的年齡層',
+      required: true,
+      options: [
+        { id: 'opt1', text: '18-25歲' },
+        { id: 'opt2', text: '26-35歲' },
+        { id: 'opt3', text: '36-45歲' },
+        { id: 'opt4', text: '46歲以上' },
+      ],
+    },
+  ],
+  settings: {
+    allowAnonymous: true,
+    oneResponsePerUser: false,
+  },
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+// 插入並取得 ID
+var result = db.surveys.insertOne(testSurvey);
+print('測試問卷已建立，ID: ' + result.insertedId);
+```
+
+#### 6. 除錯和診斷
+
+**🐛 常見問題診斷**：
+
+```bash
+# 檢查資料完整性
+source apps/web/.env.local && mongosh "$MONGODB_URI/$MONGODB_DATABASE" --quiet --eval "
+// 檢查無效問卷
+db.surveys.find({questions: {$exists: false}}).count();
+// 檢查孤立回應
+db.responses.find({surveyId: {$exists: false}}).count();
+"
+```
+
+**⚡ 效能檢查**：
+
+```bash
+# 檢查索引使用情況
+source apps/web/.env.local && mongosh "$MONGODB_URI/$MONGODB_DATABASE" --quiet --eval "
+db.surveys.getIndexes();
+db.responses.getIndexes();
+"
+```
+
+### 📚 學習重點
+
+使用 MongoDB 直接操作能讓你：
+
+- 🎯 快速驗證資料結構和內容
+- 🔍 高效除錯資料相關問題
+- 📊 即時查看應用程式狀態
+- 🛠️ 直接建立測試資料，無需 API
 
 ---
 

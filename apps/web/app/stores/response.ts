@@ -114,8 +114,8 @@ export const useResponseStore = defineStore('response', () => {
 
     try {
       // 從 API 載入問卷資料
-      const response = await $fetch<Survey>(`/api/surveys/${surveyId}`);
-      currentSurvey.value = response;
+      const response = await $fetch<{ success: boolean; data: Survey }>(`/api/surveys/${surveyId}`);
+      currentSurvey.value = response.data;
 
       // 初始化填寫回應
       initializeResponse(surveyId);
@@ -321,10 +321,15 @@ export const useResponseStore = defineStore('response', () => {
     errorMessage.value = null;
 
     try {
-      // 準備提交資料
+      // 準備提交資料 - 轉換答案格式
+      const answers: Record<string, any> = {};
+      Object.entries(currentResponse.value.answers).forEach(([questionId, answerData]) => {
+        answers[questionId] = answerData.value;
+      });
+
       const submissionData = {
         surveyId: currentResponse.value.surveyId,
-        answers: currentResponse.value.answers,
+        answers,
         startTime: currentResponse.value.startTime,
         endTime: new Date(),
         metadata: {
@@ -332,6 +337,15 @@ export const useResponseStore = defineStore('response', () => {
           timestamp: new Date().toISOString(),
         },
       };
+
+      console.warn('[Response] 🚀 準備提交問卷:', {
+        surveyId: submissionData.surveyId,
+        answersCount: Object.keys(submissionData.answers).length,
+        answers: submissionData.answers,
+        startTime: submissionData.startTime,
+        endTime: submissionData.endTime,
+        metadata: submissionData.metadata,
+      });
 
       // 提交到 API
       const result = await $fetch<{ responseId: string }>(
@@ -348,8 +362,14 @@ export const useResponseStore = defineStore('response', () => {
 
       console.warn('[Response] 問卷提交成功:', result.responseId);
       return result.responseId;
-    } catch (error) {
+    } catch (error: any) {
       console.error('[Response] 提交問卷失敗:', error);
+      console.error('[Response] 錯誤詳情:', {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?._data,
+        stack: error.stack,
+      });
       errorMessage.value = '提交失敗，請稍後再試';
       throw error;
     } finally {
