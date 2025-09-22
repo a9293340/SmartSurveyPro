@@ -479,8 +479,8 @@ interface ValidationResult {
 
 ## 📋 待辦事項
 
-- [x] 完成 drag-drop.ts 的 TODO(human) 實作
-- [x] 完成 questions.ts 的 TODO(human) 實作
+- [x] 完成 drag-drop.ts 的拖拽邏輯實作
+- [x] 完成 questions.ts 的題型管理實作
 - [x] 完成 response.ts 的問卷填寫狀態管理（Task 4.1.1）
 - [ ] 實作與後端 API 的連接
 - [ ] 新增單元測試

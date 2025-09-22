@@ -327,11 +327,7 @@ function onDrop(event: DragEvent) {
   const draggedItem = dragDropStore.draggedItem;
   if (!draggedItem) return;
 
-  // TODO(human): 實作不同類型的放置邏輯
-  // 根據 draggedItem.type 決定如何處理：
-  // 1. DragItemType.QUESTION_TYPE - 建立新題目
-  // 2. DragItemType.EXISTING_QUESTION - 重新排序題目
-
+  // 根據拖拽項目類型處理不同的放置邏輯
   try {
     if (draggedItem.type === DragItemType.QUESTION_TYPE) {
       handleQuestionTypeDropped(draggedItem.data as QuestionTypeDragData, event);

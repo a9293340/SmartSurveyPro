@@ -102,20 +102,13 @@ async function checkRedisHealth(config: HealthCheckConfig): Promise<ServiceHealt
   }
 }
 
-// TODO(human): 實作整合健康檢查邏輯
+// 整合健康檢查邏輯
 export async function performHealthCheck(
   config: HealthCheckConfig = DEFAULT_CONFIG
 ): Promise<HealthCheckResult> {
   const overallStart = Date.now();
 
-  // 你的實作：
-  // 1. 平行執行 MongoDB 和 Redis 健康檢查
-  // 2. 根據個別服務狀態決定整體狀態
-  // 3. 計算整體響應時間
-  // 4. 回傳完整的健康檢查結果
-
-  // 提示：使用 Promise.allSettled() 來平行執行檢查
-  // 狀態邏輯：all healthy -> healthy, any unhealthy -> degraded, all unhealthy -> unhealthy
+  // 平行執行 MongoDB 和 Redis 健康檢查
   const [mongodbResult, redisResult] = await Promise.allSettled([
     checkMongoDBHealth(config),
     checkRedisHealth(config),

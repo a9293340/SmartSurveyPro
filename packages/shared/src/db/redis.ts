@@ -32,7 +32,7 @@ class RedisConnection {
     };
   }
 
-  // TODO(human): 實作 Redis 連接邏輯的核心部分
+  // Redis 連接管理
   async connect(): Promise<RedisClientType> {
     // 如果已經連接，直接返回
     if (this.client && this.client.isOpen) {

@@ -121,9 +121,6 @@ export interface Survey {
   /** 問卷描述 */
   description?: string;
 
-  // TODO(human): 實作以下核心欄位
-  // 學習重點：思考問卷的生命週期和狀態管理
-
   /** 問卷狀態 */
   status: SurveyStatus;
 

@@ -198,9 +198,6 @@ export interface BaseQuestion {
   /** 題目在問卷中的順序 */
   order: number;
 
-  // TODO(human): 思考以下欄位的設計
-  // 學習重點：如何設計可擴展的題目系統？
-
   /** 是否必填 */
   required: boolean;
 
