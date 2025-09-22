@@ -1,20 +1,19 @@
 # 環境變數管理系統 - 設計文件
 
-> 📅 文件版本：v1.0 📝 最後更新：2025-01-17 👥 設計團隊：Claude + Human
-> 🎯 狀態：設計階段
+> 📅 文件版本：v2.0 📝 最後更新：2025-09-22 👥 設計團隊：Claude + Human
+> 🎯 狀態：已實作
 
 ## 概述
 
 本文件定義 SmartSurvey Pro 專案的環境變數管理策略，解決 Nuxt3 + Cloud Run + GCP
 Secret Manager 整合的關鍵問題，確保機敏資料安全性與配置管理的一致性。
 
-## 核心問題
+## 核心問題 ✅ 已解決
 
-1. **Runtime vs Build-time**：Nuxt runtimeConfig 在 build 時固定，但 Cloud
-   Run 的 secrets 在 runtime 注入
-2. **機敏資料管理**：需要區分機敏資料（secrets）與一般配置（configs）
-3. **開發與生產環境**：本地開發使用 `.env`，生產環境使用 Secret Manager
-4. **類型安全**：確保 TypeScript 類型定義與實際環境變數一致
+1. **Runtime vs Build-time**：✅ 使用 runtimeConfig + dotenv-cli 解決
+2. **機敏資料管理**：✅ 透過 runtimeConfig 映射實現安全管理
+3. **開發與生產環境**：✅ 本地 .env.local + 生產 Cloud Run 環境變數
+4. **類型安全**：✅ EnvManager 提供完整 TypeScript 支援
 
 ## 系統架構
 
@@ -31,53 +30,55 @@ Secret Manager 整合的關鍵問題，確保機敏資料安全性與配置管�
 └─────────┴───────────────┴───────────────┘
 ```
 
-### 資料流向
+### 最新資料流向 🆕
 
 ```mermaid
 graph TD
-    A[GCP Secret Manager] -->|Production| B[Cloud Run Env]
-    C[.env.local] -->|Development| D[Process.env]
-    B --> D
-    D --> E[EnvManager]
-    F[nuxt.config.ts] --> G[useRuntimeConfig]
-    G --> E
-    E --> H[Application Code]
+    A[.env.local] -->|dotenv-cli| B[Process.env]
+    C[GCP Secret Manager] -->|Cloud Run| B
+    B --> D[nuxt.config.ts runtimeConfig]
+    D --> E[useRuntimeConfig]
+    E --> F[EnvManager.getSecret]
+    F --> G[Application Code]
+
+    H[開發環境] --> I[dotenv -e .env.local -- nuxt dev]
+    J[生產環境] --> K[Cloud Run 直接注入環境變數]
 ```
 
 ## 環境變數分類規則
 
-### 🔴 機敏資料 (Secrets) - 使用 `process.env`
+### 🔴 機敏資料 (Secrets) - 使用 `runtimeConfig` 映射 🆕
 
 **定義**：任何洩漏會造成安全風險的資料
 
+**⚠️ 重要變更**：不再直接使用 `process.env`，改用 `runtimeConfig` 映射
+
 **管理方式**：
 
-- 開發環境：`.env.local`（不進版控）
-- 生產環境：GCP Secret Manager
-- 存取方式：`process.env.XXX` 或 `EnvManager`
+- 開發環境：`.env.local` → `dotenv-cli` → `process.env` → `runtimeConfig`
+- 生產環境：Cloud Run 環境變數 → `process.env` → `runtimeConfig`
+- 存取方式：`EnvManager.getSecret()` → `useRuntimeConfig()`
 
-**清單**：
+**已實作清單**：
 
 ```typescript
-// 認證相關
+// 認證相關 ✅ 已實作
 JWT_SECRET; // JWT 簽名密鑰
 JWT_REFRESH_SECRET; // Refresh Token 密鑰
-SESSION_SECRET; // Session 加密密鑰
 
-// 資料庫
+// 資料庫 ✅ 已實作
 MONGODB_URI; // MongoDB 連接字串
-MONGODB_PASSWORD; // MongoDB 密碼
-REDIS_PASSWORD; // Redis 密碼
+MONGODB_DB_NAME; // MongoDB 資料庫名稱
 
-// 第三方服務
+// Redis (可選) ✅ 已實作
+REDIS_URL; // Redis 連接字串
+ENABLE_REDIS_CACHE; // 是否啟用 Redis
+
+// 待擴充 (Phase 2+)
+SESSION_SECRET; // Session 加密密鑰
 STRIPE_SECRET_KEY; // Stripe 私鑰
 SENDGRID_API_KEY; // SendGrid API 密鑰
 OPENAI_API_KEY; // OpenAI API 密鑰
-GOOGLE_CLIENT_SECRET; // Google OAuth 密鑰
-
-// 加密相關
-ENCRYPTION_KEY; // 資料加密密鑰
-SIGNING_KEY; // 簽名密鑰
 ```
 
 ### 🟡 配置資料 (Configs) - 使用 `useRuntimeConfig`
@@ -108,15 +109,14 @@ NUXT_PUBLIC_GA_ID; // Google Analytics ID
 NUXT_PUBLIC_SENTRY_DSN; // Sentry DSN（公開部分）
 ```
 
-## 實作策略
+## 實作策略 ✅ 已完成
 
-### 1. 環境變數管理器 (EnvManager)
+### 1. 環境變數管理器 (EnvManager) - 最新實作
 
 ```typescript
-// server/utils/env-manager.ts
+// server/utils/env-manager.ts ✅ 已實作
 export class EnvManager {
   private static instance: EnvManager;
-  private secrets: Map<string, string> = new Map();
   private validated = false;
 
   static getInstance(): EnvManager {
@@ -126,30 +126,76 @@ export class EnvManager {
     return this.instance;
   }
 
-  // 取得機敏資料
+  // 🆕 新實作：通過 runtimeConfig 映射取得機敏資料
   getSecret(key: string): string {
-    const value = process.env[key];
-    if (!value) {
-      throw new Error(`Missing required secret: ${key}`);
+    try {
+      const config = useRuntimeConfig();
+      const secretMap: Record<string, string> = {
+        JWT_SECRET: config.jwtSecret,
+        JWT_REFRESH_SECRET: config.jwtRefreshSecret,
+        MONGODB_URI: config.mongodbUri,
+        MONGODB_DB_NAME: config.mongodbDbName,
+        REDIS_URL: config.redisUrl,
+        ENABLE_REDIS_CACHE: config.enableRedisCache,
+        APP_NAME: config.appName,
+        NODE_ENV: config.nodeEnv,
+      };
+
+      const value = secretMap[key];
+      if (!value) {
+        throw new Error(`缺少必要的環境變數: ${key}`);
+      }
+      return value;
+    } catch (error) {
+      throw new Error(
+        `無法存取環境變數 ${key}：請確保在 Nuxt server context 中使用`
+      );
     }
-    return value;
   }
 
-  // 取得配置資料
-  getConfig(key: string): string {
-    const config = useRuntimeConfig();
-    return config[key] || config.public[key] || '';
+  // 🆕 安全的環境變數取得（允許預設值）
+  getSecretSafe(key: string, defaultValue = ''): string {
+    try {
+      return this.getSecret(key);
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  // 🆕 取得資料庫配置
+  getDatabaseConfig() {
+    return {
+      mongoUri: this.getSecret('MONGODB_URI'),
+      dbName: this.getSecret('MONGODB_DB_NAME'),
+    };
+  }
+
+  // 🆕 取得 JWT 配置
+  getJwtConfig() {
+    return {
+      accessTokenSecret: this.getSecret('JWT_SECRET'),
+      refreshTokenSecret: this.getSecret('JWT_REFRESH_SECRET'),
+      accessTokenExpiry: '15m',
+      refreshTokenExpiry: '7d',
+    };
   }
 
   // 啟動時驗證
   validateRequired(): void {
     if (this.validated) return;
 
-    const requiredSecrets = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'MONGODB_URI'];
+    const requiredSecrets = [
+      'JWT_SECRET',
+      'JWT_REFRESH_SECRET',
+      'MONGODB_URI',
+      'MONGODB_DB_NAME',
+    ];
 
     for (const key of requiredSecrets) {
-      if (!process.env[key]) {
-        throw new Error(`Missing required environment variable: ${key}`);
+      try {
+        this.getSecret(key);
+      } catch (error) {
+        throw new Error(`環境變數驗證失敗: ${key}`);
       }
     }
 
@@ -160,25 +206,46 @@ export class EnvManager {
 export const env = EnvManager.getInstance();
 ```
 
-### 2. Nuxt 配置
+### 2. Nuxt 配置 - 最新實作 ✅
 
 ```typescript
-// nuxt.config.ts
+// nuxt.config.ts ✅ 已實作
 export default defineNuxtConfig({
   runtimeConfig: {
-    // 私有配置 - 僅伺服器端，支援 runtime 覆蓋
-    appEnv: process.env.APP_ENV || 'development',
-    logLevel: process.env.LOG_LEVEL || 'info',
-    rateLimitMax: parseInt(process.env.RATE_LIMIT_MAX || '100'),
+    // 🔴 機敏資料 - 透過 runtimeConfig 映射
+    jwtSecret: process.env.JWT_SECRET || '',
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '',
+    mongodbUri: process.env.MONGODB_URI || '',
+    mongodbDbName: process.env.MONGODB_DB_NAME || 'smartsurvey-dev',
+    redisUrl: process.env.REDIS_URL || '',
+    enableRedisCache: process.env.ENABLE_REDIS_CACHE || 'false',
 
-    // 公開配置 - 客戶端可存取
+    // 🟡 一般配置
+    appName: process.env.APP_NAME || 'SmartSurvey Pro',
+    nodeEnv: process.env.NODE_ENV || 'development',
+
+    // 🟢 公開配置 - 客戶端可存取
     public: {
-      apiBase: process.env.NUXT_PUBLIC_API_BASE || '/api',
-      appName: process.env.NUXT_PUBLIC_APP_NAME || 'SmartSurvey Pro',
-      version: process.env.NUXT_PUBLIC_VERSION || '1.0.0',
+      apiBase: '/api',
+      appName: 'SmartSurvey Pro',
+      version: '0.0.1',
     },
   },
 });
+```
+
+### 3. 開發環境配置 - dotenv-cli 整合 ✅
+
+```json
+// package.json ✅ 已實作
+{
+  "scripts": {
+    "dev": "dotenv -e .env.local -- nuxt dev"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^10.0.0"
+  }
+}
 ```
 
 ### 3. 環境檔案結構
@@ -268,20 +335,32 @@ graph TD
     G --> H
 ```
 
-#### 2. 實際使用範例
+#### 2. 實際使用範例 🆕
 
 ```typescript
-// ❌ 錯誤：機敏資料使用 runtimeConfig
-const config = useRuntimeConfig();
-const jwtSecret = config.jwtSecret; // 錯誤！
-
-// ✅ 正確：機敏資料使用 process.env
+// ✅ 新正確方式：透過 EnvManager 統一管理
 import { env } from '~/server/utils/env-manager';
-const jwtSecret = env.getSecret('JWT_SECRET');
 
-// ✅ 正確：配置資料使用 runtimeConfig
+// 機敏資料 - 統一透過 env.getSecret()
+const jwtSecret = env.getSecret('JWT_SECRET');
+const mongoUri = env.getSecret('MONGODB_URI');
+
+// 安全取得（允許預設值）
+const redisUrl = env.getSecretSafe('REDIS_URL', '');
+
+// 整組配置取得
+const dbConfig = env.getDatabaseConfig();
+const jwtConfig = env.getJwtConfig();
+
+// 公開配置 - 直接使用 useRuntimeConfig
 const config = useRuntimeConfig();
 const apiBase = config.public.apiBase;
+
+// ❌ 不再建議：直接使用 process.env（會有 context 問題）
+// const jwtSecret = process.env.JWT_SECRET; // 可能在某些 context 下無法取得
+
+// ❌ 不再建議：直接使用 config.jwtSecret（繞過 EnvManager 驗證）
+// const jwtSecret = config.jwtSecret;
 ```
 
 ### 新增環境變數 SOP
@@ -385,21 +464,25 @@ describe('Authentication with env vars', () => {
 - 更新 `env.d.ts` 類型定義
 - 使用 `env.getSecret()` 確保類型安全
 
-## 遷移計劃
+## 遷移計劃 ✅ 大部分已完成
 
-### Phase 1（當前）
+### Phase 1（已完成 ✅）
 
 - [x] 建立環境變數分類
 - [x] 實作 EnvManager
-- [ ] 遷移現有環境變數
+- [x] 遷移現有環境變數到 runtimeConfig
+- [x] 整合 dotenv-cli 支援開發環境
+- [x] 實作統一的環境變數驗證機制
+- [x] 建立完整的使用指南和 SOP
 
-### Phase 2（第2月）
+### Phase 2（第2月） 🔄
 
-- [ ] 整合 Secret Manager
+- [x] 驗證 Cloud Run 部署架構（設計階段完成）
+- [ ] 整合 Secret Manager（生產部署時實作）
 - [ ] 建立 CI/CD 管線
 - [ ] 實作 secret 輪替
 
-### Phase 3（第3月）
+### Phase 3（第3月） 📅
 
 - [ ] 監控與告警
 - [ ] 自動化 secret 管理
