@@ -40,13 +40,20 @@ export default defineNuxtConfig({
 
   // 運行時配置
   runtimeConfig: {
-    // 私有配置（僅伺服器端可用）
-    jwtSecret: process.env.JWT_SECRET || 'dev-secret-change-in-production',
-    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || 'dev-refresh-secret',
-    sessionSecret: process.env.SESSION_SECRET || 'dev-session-secret',
+    // 私有配置（僅伺服器端可用）- 機敏資料
+    // 開發環境：從 .env.local 讀取
+    // 生產環境：Cloud Run 會在 runtime 注入並覆蓋這些值
+    jwtSecret: process.env.JWT_SECRET || '',
+    jwtRefreshSecret: process.env.JWT_REFRESH_SECRET || '',
+    jwtAccessTokenExpiry: process.env.JWT_ACCESS_TOKEN_EXPIRY || '15m',
+    jwtRefreshTokenExpiry: process.env.JWT_REFRESH_TOKEN_EXPIRY || '7d',
+    sessionSecret: process.env.SESSION_SECRET || '',
     mongodbUri: process.env.MONGODB_URI || '',
     mongodbDbName: process.env.MONGODB_DB_NAME || 'smartsurvey-dev',
     redisUrl: process.env.REDIS_URL || '',
+    nodeEnv: process.env.NODE_ENV || 'development',
+
+    // 一般配置資料
     bcryptRounds: process.env.BCRYPT_ROUNDS || '10',
 
     // 公開配置（客戶端和伺服器端都可用）

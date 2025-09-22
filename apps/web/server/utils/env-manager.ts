@@ -2,6 +2,11 @@
  * 環境變數管理器
  * 根據 /docs/design/environment-variables-management.md 實作
  * 統一管理機敏資料與配置資料的存取
+ *
+ * 重要：改用 runtimeConfig 來存取機敏資料，確保：
+ * 1. 開發環境可以正確讀取 .env.local
+ * 2. 生產環境支援 Cloud Run + Secret Manager
+ * 3. 機敏資料不會在 build time 固定
  */
 
 /**
@@ -25,16 +30,38 @@ export class EnvManager {
   /**
    * 取得機敏資料（Secrets）
    * 用於 JWT_SECRET、API_KEYS、DATABASE_PASSWORD 等
+   *
+   * 使用 useRuntimeConfig() 確保：
+   * - 開發環境：從 .env.local 讀取
+   * - 生產環境：從 Cloud Run 環境變數讀取
+   *
    * @param key - 環境變數名稱
    * @returns 環境變數值
    * @throws 當環境變數不存在時拋出錯誤
    */
   getSecret(key: string): string {
-    const value = process.env[key];
-    if (!value) {
-      throw new Error(`缺少必要的環境變數: ${key}`);
+    try {
+      const config = useRuntimeConfig();
+
+      // 根據 key 映射到對應的 runtimeConfig 屬性
+      const secretMap: Record<string, string> = {
+        JWT_SECRET: config.jwtSecret,
+        JWT_REFRESH_SECRET: config.jwtRefreshSecret,
+        MONGODB_URI: config.mongodbUri,
+        MONGODB_DB_NAME: config.mongodbDbName,
+        REDIS_URL: config.redisUrl || '',
+        SESSION_SECRET: config.sessionSecret,
+      };
+
+      const value = secretMap[key];
+      if (!value) {
+        throw new Error(`缺少必要的環境變數: ${key}`);
+      }
+      return value;
+    } catch (error) {
+      // 如果 useRuntimeConfig 失敗，說明不在 Nuxt context 中
+      throw new Error(`無法存取環境變數 ${key}：請確保在 Nuxt server context 中使用`);
     }
-    return value;
   }
 
   /**
@@ -68,64 +95,83 @@ export class EnvManager {
   /**
    * 啟動時驗證必要環境變數
    * 應在應用程式啟動時呼叫一次
+   * 現在改用 runtimeConfig 來驗證
    */
   validateRequired(): void {
     if (this.validated) return;
 
-    // 根據環境決定必要的環境變數
-    const isDevelopment = process.env.NODE_ENV === 'development';
+    try {
+      const config = useRuntimeConfig();
 
-    // 必要的機敏資料
-    const requiredSecrets = ['JWT_SECRET', 'JWT_REFRESH_SECRET', 'MONGODB_URI'];
+      // 必要的機敏資料
+      const requiredSecrets = [
+        { key: 'JWT_SECRET', value: config.jwtSecret },
+        { key: 'JWT_REFRESH_SECRET', value: config.jwtRefreshSecret },
+        { key: 'MONGODB_URI', value: config.mongodbUri },
+        { key: 'MONGODB_DB_NAME', value: config.mongodbDbName },
+      ];
 
-    // 生產環境額外需要的
-    if (!isDevelopment) {
-      requiredSecrets.push(
-        'SESSION_SECRET'
-        // 其他生產環境必要的 secrets
-      );
-    }
-
-    // 驗證所有必要環境變數
-    const missingVars: string[] = [];
-    for (const key of requiredSecrets) {
-      if (!process.env[key]) {
-        missingVars.push(key);
+      // 生產環境額外需要的
+      const isDevelopment = config.nodeEnv === 'development';
+      if (!isDevelopment) {
+        requiredSecrets.push({ key: 'SESSION_SECRET', value: config.sessionSecret });
       }
-    }
 
-    if (missingVars.length > 0) {
-      throw new Error(
-        `缺少必要的環境變數:\n${missingVars.join('\n')}\n請檢查 .env.local 檔案或環境設定`
-      );
-    }
+      // 驗證所有必要環境變數
+      const missingVars: string[] = [];
+      for (const secret of requiredSecrets) {
+        if (!secret.value) {
+          missingVars.push(secret.key);
+        }
+      }
 
-    this.validated = true;
-    console.info('✅ 環境變數驗證完成');
+      if (missingVars.length > 0) {
+        throw new Error(
+          `缺少必要的環境變數:\n${missingVars.join('\n')}\n請檢查 .env.local 檔案或環境設定`
+        );
+      }
+
+      this.validated = true;
+      console.warn('✅ 環境變數驗證完成');
+    } catch (error) {
+      throw new Error(`環境變數驗證失敗：${error instanceof Error ? error.message : error}`);
+    }
   }
 
   /**
    * 取得 JWT 相關設定
    * 集中管理所有 JWT 相關的環境變數
+   * 現在改用 runtimeConfig 來讀取
    */
   getJwtConfig() {
-    return {
-      accessTokenSecret: this.getSecret('JWT_SECRET'),
-      refreshTokenSecret: this.getSecret('JWT_REFRESH_SECRET'),
-      accessTokenExpiry: this.getSecretSafe('JWT_ACCESS_TOKEN_EXPIRY', '15m'),
-      refreshTokenExpiry: this.getSecretSafe('JWT_REFRESH_TOKEN_EXPIRY', '7d'),
-    };
+    try {
+      const config = useRuntimeConfig();
+      return {
+        accessTokenSecret: config.jwtSecret,
+        refreshTokenSecret: config.jwtRefreshSecret,
+        accessTokenExpiry: config.jwtAccessTokenExpiry || '15m',
+        refreshTokenExpiry: config.jwtRefreshTokenExpiry || '7d',
+      };
+    } catch (error) {
+      throw new Error(`無法取得 JWT 配置：請確保在 Nuxt server context 中使用`);
+    }
   }
 
   /**
    * 取得資料庫連接設定
+   * 現在改用 runtimeConfig 來讀取
    */
   getDatabaseConfig() {
-    return {
-      mongoUri: this.getSecret('MONGODB_URI'),
-      dbName: this.getSecretSafe('MONGODB_DB_NAME', 'smartsurvey-dev'),
-      redisUrl: this.getSecretSafe('REDIS_URL'),
-    };
+    try {
+      const config = useRuntimeConfig();
+      return {
+        mongoUri: config.mongodbUri,
+        dbName: config.mongodbDbName || 'smartsurvey-dev',
+        redisUrl: config.redisUrl || '',
+      };
+    } catch (error) {
+      throw new Error(`無法取得資料庫配置：請確保在 Nuxt server context 中使用`);
+    }
   }
 
   /**

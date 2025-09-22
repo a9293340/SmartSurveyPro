@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "dotenv -e .env.local -- nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
@@ -33,6 +33,7 @@
     "@types/mongodb": "^4.0.7",
     "@types/redis": "^4.0.11",
     "bcryptjs": "^2.4.3",
+    "dotenv-cli": "^10.0.0",
     "jsonwebtoken": "^9.0.2",
     "pinia": "^3.0.3",
     "vue-tsc": "^3.0.7",
